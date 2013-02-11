@@ -97,6 +97,24 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         }
     }
 
+    /**
+     * Return array of objects if there are any, false otherwise
+     * @todo FILTER Functionality Use filter to limit forms in selection
+     * @param type $filter
+     */
+    public function getAllForms($filter = null){
+        $formArray = $this->_objectDBMapper->dbLink->fetchAll('SELECT * FROM forms WHERE 1=1 ');
+        if (!empty($formArray) && is_array($formArray)) {
+            foreach ($formArray as $form) {
+                $form['items'] = $this->_objectDBMapper->getAllObjects('Application_Model_Item', array('formId'=>$form['formId']));
+                $forms[] = new Application_Model_Form($form);
+            }
+            return $forms;
+        } else {
+            throw new Exception('No forms returned');
+        }
+    }
+    
     public function ChangeUserPassword($user) {
         
     }
