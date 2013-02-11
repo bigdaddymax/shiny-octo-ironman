@@ -67,6 +67,8 @@ class Application_Model_Form {
                 if ($item instanceof Application_Model_Item) {
                     if ($item->isValid()) {
                         $checkedItems[] = $item;
+                    } else {
+                        throw new InvalidArgumentException('Cannot create item from array within Form. Item is now valid');
                     }
                 }
                 // Item is array, try to create valid Item from this array
