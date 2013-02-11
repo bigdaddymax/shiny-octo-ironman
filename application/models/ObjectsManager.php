@@ -7,6 +7,7 @@
  * 
  * 
  */
+require_once APPLICATION_PATH . '/models/BaseDBAbstract.php';
 class Application_Model_ObjectsManager extends BaseDBAbstract {
 
     private $_objectDBMapper;
@@ -111,7 +112,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             }
             return $forms;
         } else {
-            throw new Exception('No forms returned');
+            return false;
         }
     }
     
