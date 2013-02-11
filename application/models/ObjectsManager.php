@@ -39,6 +39,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         if ($form->isValid()) {
             // We have to handle Items saving separatly
             $items = $form->items;
+ 
             // Remove items data from Form array for storing in DB
             unset($formData['items']);
             // Type casting before storing data to DB
