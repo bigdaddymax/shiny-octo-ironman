@@ -48,6 +48,25 @@ class Application_Model_Form {
         } else {
             $this->_date = date('Y-m-d H:i:s');
         }
+
+        if (!isset($this->items) && is_array($formArray)) {
+            $keys = array_keys($formArray);
+            foreach ($keys as $key) {
+                if (strpos($key, '_')) {
+                    if ('itemName' == substr($key, 0, strpos($key, '_'))) {
+                        $items[substr($key, strpos($key, '_') + 1)]['itemName'] = $formArray[$key];
+                        $items[substr($key, strpos($key, '_') + 1)]['domainId'] = $this->_domainId;
+                    } elseif ('value' == substr($key, 0, strpos($key, '_'))) {
+                        $items[substr($key, strpos($key, '_') + 1)]['value'] = (float) $formArray[$key];
+                    } elseif ('elementId' == substr($key, 0, strpos($key, '_'))) {
+                        $items[substr($key, strpos($key, '_') + 1)]['elementId'] = (int) $formArray[$key];
+                    }
+                }
+            }
+            if (isset($items)) {
+                $this->setItems($items);
+            }
+        }
     }
 
     /**
