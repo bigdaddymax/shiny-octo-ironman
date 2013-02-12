@@ -11,7 +11,7 @@ class FormController extends Zend_Controller_Action {
     public function indexAction() {
         $objectsManager = new Application_Model_ObjectsManager();
         $forms = $objectsManager->getAllForms();
-        ($forms === false)?$this->view->forms = 'No forms':$this->view->forms = forms;
+        ($forms === false)?$this->view->forms = 'No forms':$this->view->forms = $forms;
         $dataMapper = new Application_Model_DataMapper();
         $this->view->elements = $dataMapper->getAllObjects('Application_Model_Element');
         $this->view->orgobjects = $dataMapper->getAllObjects('Application_Model_Orgobject');
@@ -19,6 +19,7 @@ class FormController extends Zend_Controller_Action {
     
     public function addFormAction(){
         $params = $this->getRequest()->getPost();
+        $params['userId'] = 1;
         $form = new Application_Model_Form($params);
         if ($form->isValid()){
             $objectsManager = new Application_Model_ObjectsManager();
