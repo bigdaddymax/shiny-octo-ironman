@@ -12,7 +12,6 @@ class Application_Model_Item {
     private $_valid = true;
     private $_itemName;
     private $_itemId;
-    private $_userId;
     private $_value;
     private $_elementId;
     private $_formId;
@@ -37,9 +36,6 @@ class Application_Model_Item {
         }
         if (isset($itemArray['elementId'])) {
             $this->_elementId = (int) $itemArray['elementId'];
-        }
-        if (isset($itemArray['userId'])) {
-            $this->_userId = (int) $itemArray['userId'];
         }
         if (isset($itemArray['itemId'])) {
             $this->_itemId = (int) $itemArray['itemId'];
@@ -72,7 +68,7 @@ class Application_Model_Item {
      * @return type
      */
     public function isValid() {
-        if (isset($this->_userId) && isset($this->_itemName) &&
+        if (isset($this->_itemName) &&
                 isset($this->_domainId) && isset($this->_elementId) &&
                 isset($this->_value)) {
             $this->_valid = true;
