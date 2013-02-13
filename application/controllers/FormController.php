@@ -28,7 +28,6 @@ class FormController extends Zend_Controller_Action {
             $this->view->error = 'Cannot create form';
             $this->view->form = $form;
         }
-        
     }
     
     public function openFormAction(){
