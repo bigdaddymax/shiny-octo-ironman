@@ -26,7 +26,7 @@ class ObjectsController extends Zend_Controller_Action {
                 $this->subobjects = array('orgobjects' => $this->dataMapper->getAllObjects('Application_Model_Orgobject'));
                 break;
             case 'user': $this->className = 'Application_Model_User';
-                $this->subobjects = array('levels' => $this->dataMapper->getAllObjects('Application_Model_Level'));
+                $this->subobjects = array('positions' => $this->dataMapper->getAllObjects('Application_Model_Position'));
                 break;
             case 'orgobject': $this->className = 'Application_Model_Orgobject';
                 $this->subobjects = array('levels' => $this->dataMapper->getAllObjects('Application_Model_Level'));
