@@ -69,7 +69,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 // Cleaning columns before updating database
                 unset($objectArray[$this->objectIdName]);
                 $objectArray['active'] = (int) $objectArray['active'];
-                if (isset($objectArray['password'])){
+                if (isset($objectArray['password'])) {
                     $auth = new Application_Model_Auth();
                     $objectArray['password'] = $auth->hashPassword($objectArray['password']);
                 }
@@ -80,7 +80,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 // Cleaning columns before inserting data in database
                 unset($objectArray[$this->objectIdName]);
                 $objectArray['active'] = (int) $objectArray['active'];
-                if (isset($objectArray['password'])){
+                if (isset($objectArray['password'])) {
                     $auth = new Application_Model_Auth();
                     $objectArray['password'] = $auth->hashPassword($objectArray['password']);
                 }
@@ -167,7 +167,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         foreach ($objectsArray as $object) {
             $output[] = new $this->className($object);
         }
-        return ((empty($output))? false:$output);
+        return ((empty($output)) ? false : $output);
     }
 
     /**
@@ -198,18 +198,18 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         // levelId == parentLevelId
         // First check if parentObjectId exists
         $object = $this->getObject($id, $this->className);
-        $objectArray = $object->toArray();
-        if ($object->isValid()) {
-            if (isset($objectArray[$this->objectParentIdName])) {
-                // Parent Id exists
-                $topId = $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName .
-                                ' WHERE ' . $this->objectParentIdName . ' = ?', $id));
-                if (!empty($topId)) {
-                    return array('ID' => $topId);
+        if (false !== $object) {
+            $objectArray = $object->toArray();
+            if ($object->isValid()) {
+                if (isset($objectArray[$this->objectParentIdName])) {
+                    // Parent Id exists
+                    $topId = $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName .
+                                    ' WHERE ' . $this->objectParentIdName . ' = ?', $id));
+                    if (!empty($topId)) {
+                        return array('ID' => $topId);
+                    }
                 }
             }
-        } else {
-            throw new InvalidArgumentException('Couldnt retrieve valid object from ID provided');
         }
         return false;
     }
