@@ -242,6 +242,18 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         }
     }
 
+/**
+ * getObjectsCount - returns number of entries in specific table after applying optional filter
+ * @param type $class
+ * @param type $filter
+ * @return type
+ */    
+    
+    public function getObjectsCount($class, $filter = null) {
+        $this->setClassAndTableName($class);
+        return $this->dbLink->fetchOne("SELECT count($this->objectIdName) FROM $this->tableName");
+    }
+
 }
 
 ?>
