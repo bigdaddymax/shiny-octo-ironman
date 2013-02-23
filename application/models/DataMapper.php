@@ -253,7 +253,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         $this->setClassAndTableName($class);
         return $this->dbLink->fetchOne("SELECT count($this->objectIdName) FROM $this->tableName");
     }
-
+    
 }
 
 ?>
