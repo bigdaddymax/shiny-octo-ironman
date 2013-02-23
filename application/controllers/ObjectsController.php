@@ -73,7 +73,15 @@ class ObjectsController extends Zend_Controller_Action {
             $this->view->exceptionMessage = 'Got exception while trying to delete ' . $this->objectName . ': ' . $e->getMessage();
         }
     }
-
+    
+    public function editPrivilegesAction(){
+        $userId = (int) $this->_request->getParam('userId');
+        if ($userId && $this->_request->isPost){
+            $this->view->privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege');
+            $this->view->user = $this->dataMapper->getObject($userId, 'Application_Model_User');
+        }
+    }
+    
 }
 
 ?>
