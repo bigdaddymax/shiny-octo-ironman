@@ -122,13 +122,15 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
     }
 
     public function getUserPrivileges($userId) {
-        $privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId'=>$userId));
-        foreach($privileges as $privilege){
-            $object = $this->dataMapper->getObject($privilege->objectId, 'Application_Model_' . $privilege->objectType);
-            $result[] = array('objectType'=>$privilege->objectType,
-                              'objectId'=>$object->{$privilege->objectType . 'Id'},
-                              'objectName'=>$object->{$privilege->objectType . 'Name'}, 
-                              'privilege'=>$privilege->privilege);
+        $privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId));
+        if ($privileges) {
+            foreach ($privileges as $privilege) {
+                $object = $this->dataMapper->getObject($privilege->objectId, 'Application_Model_' . $privilege->objectType);
+                $result[] = array('objectType' => $privilege->objectType,
+                    'objectId' => $object->{$privilege->objectType . 'Id'},
+                    'objectName' => $object->{$privilege->objectType . 'Name'},
+                    'privilege' => $privilege->privilege);
+            }
         }
         return $result;
     }
