@@ -123,6 +123,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
 
     public function getUserPrivileges($userId) {
         $privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId));
+        $result = array();
         if ($privileges) {
             foreach ($privileges as $privilege) {
                 $object = $this->dataMapper->getObject($privilege->objectId, 'Application_Model_' . $privilege->objectType);
@@ -132,7 +133,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
                     'privilege' => $privilege->privilege);
             }
         }
-        return $result;
+        return ((empty($result)) ? false : $result);
     }
 
 }
