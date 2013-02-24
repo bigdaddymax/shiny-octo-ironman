@@ -8,13 +8,14 @@
  * 
  */
 require_once APPLICATION_PATH . '/models/BaseDBAbstract.php';
+
 class Application_Model_ObjectsManager extends BaseDBAbstract {
 
-    private $_objectDBMapper;
+    private $dataMapper;
 
     public function __construct() {
         parent::__construct();
-        $this->_objectDBMapper = new Application_Model_DataMapper();
+        $this->dataMapper = new Application_Model_DataMapper();
     }
 
     /**
@@ -40,14 +41,14 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         if ($form->isValid()) {
             // We have to handle Items saving separatly
             $items = $form->items;
- 
+
             // Remove items data from Form array for storing in DB
             unset($formData['items']);
             // Type casting before storing data to DB
             if (isset($formData['active'])) {
                 $formData['active'] = (int) $formData['active'];
             }
-            if ($this->_objectDBMapper->checkObjectExistance($form)) {
+            if ($this->dataMapper->checkObjectExistance($form)) {
                 // We will update form data. Dont forget, that we have to update (or add new) items as well.
                 unset($formData['formId']);
                 $formId = (int) $form->formId;
@@ -55,15 +56,15 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
                 $this->dbLink->delete('items', array('formId' => $formId));
             } else {
                 // Creating new form
-                if (!isset ($formData['date'])) {
+                if (!isset($formData['date'])) {
                     $formData['date'] = date('Y-m-d H:i:s');
                 }
                 $this->dbLink->insert('forms', $formData);
                 $formId = (int) $this->dbLink->lastInsertId();
             }
             foreach ($items as $item) {
-                    $item->formId = $formId;
-                    $this->_objectDBMapper->saveObject($item);
+                $item->formId = $formId;
+                $this->dataMapper->saveObject($item);
             }
         } else {
             throw new InvalidArgumentException('Form data are not valid.');
@@ -103,11 +104,11 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
      * @todo FILTER Functionality Use filter to limit forms in selection
      * @param type $filter
      */
-    public function getAllForms($filter = null){
-        $formArray = $this->_objectDBMapper->dbLink->fetchAll('SELECT * FROM forms WHERE 1=1 ');
+    public function getAllForms($filter = null) {
+        $formArray = $this->dataMapper->dbLink->fetchAll('SELECT * FROM forms WHERE 1=1 ');
         if (!empty($formArray) && is_array($formArray)) {
             foreach ($formArray as $form) {
-                $form['items'] = $this->_objectDBMapper->getAllObjects('Application_Model_Item', array('formId'=>$form['formId']));
+                $form['items'] = $this->dataMapper->getAllObjects('Application_Model_Item', array('formId' => $form['formId']));
                 $forms[] = new Application_Model_Form($form);
             }
             return $forms;
@@ -115,9 +116,21 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             return false;
         }
     }
-    
+
     public function ChangeUserPassword($user) {
         
+    }
+
+    public function getUserPrivileges($userId) {
+        $privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId'=>$userId));
+        foreach($privileges as $privilege){
+            $object = $this->dataMapper->getObject($privilege->objectId, 'Application_Model_' . $privilege->objectType);
+            $result[] = array('objectType'=>$privilege->objectType,
+                              'objectId'=>$object->{$privilege->objectType . 'Id'},
+                              'objectName'=>$object->{$privilege->objectType . 'Name'}, 
+                              'privilege'=>$privilege->privilege);
+        }
+        return $result;
     }
 
 }
