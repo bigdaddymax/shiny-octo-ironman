@@ -121,19 +121,95 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         
     }
 
-    public function getUserPrivileges($userId) {
-        $privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId));
+    private function getLevelPrivileges($data, $levelId) {
+        $level = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevel' => -1));
+    }
+
+    public function formPrivilegesTable($userId) {
+        $parentLevels = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => -1));
         $result = array();
-        if ($privileges) {
-            foreach ($privileges as $privilege) {
-                $object = $this->dataMapper->getObject($privilege->objectId, 'Application_Model_' . $privilege->objectType);
-                $result[] = array('objectType' => $privilege->objectType,
-                    'objectId' => $object->{$privilege->objectType . 'Id'},
-                    'objectName' => $object->{$privilege->objectType . 'Name'},
-                    'privilege' => $privilege->privilege);
+        $counter = 0;
+        foreach ($parentLevels as $parentLevel) {
+            $descendLevels = true;
+            $parentLevelId = $parentLevel->levelId;
+            $result[$counter]['objectType'] = 'level';
+            $result[$counter]['objectId'] = $parentLevelId;
+            $result[$counter]['objectName'] = $parentLevel->levelName;
+            $privilege = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
+                'objectType' => 'level',
+                'objectId' => $parentLevelId));
+            if ($privilege) {
+                $result[$counter]['privilege'] = $privilege[0]->privilege;
             }
+            $innerCounter = 0;
+            while ($descendLevels = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => $parentLevelId))) {
+                foreach ($descendLevels as $descendLevel) {
+                    $innerresult[$innerCounter]['objectType'] = 'level';
+                    $innerresult[$innerCounter]['objectId'] = $descendLevel->levelId;
+                    $innerresult[$innerCounter]['objectName'] = $descendLevel->levelName;
+                    $innerprivilege = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
+                        'objectType' => 'level',
+                        'objectId' => $descendLevel->levelId)
+                    );
+                    if ($innerprivilege) {
+                        $innerresult[$innerCounter]['privilege'] = $innerprivilege->privilege;
+                    }
+                    $innerCounter++;
+                }
+                $result[$counter]['objects'] = $innerresult;
+                $parentLevelId = $descendLevel->levelId;
+            }
+            $counter++;
         }
         return ((empty($result)) ? false : $result);
+    }
+
+    public function getPrivilegesTable($userId) {
+        $levels = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => -1));
+        $count = 0;
+        foreach ($levels as $level) {
+//            $output[$count]['level'] = $level; 
+            $output[] = $this->recursiveLevelGetter($level, $userId);
+            $count++;
+        }
+        return $output;
+    }
+
+    private function recursiveLevelGetter($level, $userId) {
+
+        $descs = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => $level->levelId));
+        $privilege = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
+            'objectType' => 'level',
+            'objectId' => $level->levelId));
+        $orgobjects = $this->dataMapper->getAllObjects('Application_Model_Orgobject', array('levelId' => $level->levelId));
+        if ($descs) {
+            foreach ($descs as $desc) {
+                $result['levels'] = $this->recursiveLevelGetter($desc, $userId);
+            }
+        } else {
+            
+        }
+        $result['objectName'] = $level->levelName;
+        $result['objectType'] = 'level';
+        $result['objectId'] = $level->levelId;
+        if ($orgobjects) {
+            $count = 0;
+            foreach ($orgobjects as $orgobject) {
+                $result['orgobjects'][$count]['objectName'] = $orgobject->orgobjectName;
+                $result['orgobjects'][$count]['objectType'] = 'orgobject';
+                $result['orgobjects'][$count]['objectId'] = $orgobject->orgobjectId;
+                $objectPriv = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
+                    'objectType' => 'orgobject',
+                    'objectId' => $orgobject->orgobjectId));
+                if ($objectPriv){
+                    $result['orgobjects'][$count]['privilege'] = $objectPriv[0]->privilege;
+                }
+            }
+        }
+        if ($privilege) {
+            $result['privilege'] = $privilege[0]->privilege;
+        }
+        return $result;
     }
 
 }
