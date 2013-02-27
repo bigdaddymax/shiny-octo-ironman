@@ -164,31 +164,47 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         return ((empty($result)) ? false : $result);
     }
 
+/**
+ * getPrivilegesTable() - function works with recursive iterator recursiveLevelGetter() to form
+ * multilevel array of levels and orgobjects for HTML output.
+ * @param type $userId
+ * @return type
+ * 
+ */    
     public function getPrivilegesTable($userId) {
+        // Start with selecting topmost levels (that are not dependent)
         $levels = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => -1));
         $count = 0;
         foreach ($levels as $level) {
-//            $output[$count]['level'] = $level; 
             $output[] = $this->recursiveLevelGetter($level, $userId);
             $count++;
         }
         return $output;
     }
 
+/**
+ * recursiveLevelGetter() - our recursive iterator.
+ * @param type $level
+ * @param type $userId
+ * @return type
+ * 
+ */    
     private function recursiveLevelGetter($level, $userId) {
-
+        // Trying to get levels that are dependent on $level
         $descs = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => $level->levelId));
+        // Trying to get user's privileges for this $level
         $privilege = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
             'objectType' => 'level',
             'objectId' => $level->levelId));
+        // Trying to get orgobjects that belong to this $level
         $orgobjects = $this->dataMapper->getAllObjects('Application_Model_Orgobject', array('levelId' => $level->levelId));
+        // If we have dependent levels do recursion
         if ($descs) {
             foreach ($descs as $desc) {
                 $result['levels'] = $this->recursiveLevelGetter($desc, $userId);
             }
-        } else {
-            
         }
+        // Fill in output array
         $result['objectName'] = $level->levelName;
         $result['objectType'] = 'level';
         $result['objectId'] = $level->levelId;
@@ -210,6 +226,16 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             $result['privilege'] = $privilege[0]->privilege;
         }
         return $result;
+    }
+    
+/**
+ * privilegesTable2HTML() - forms HTNL code for further output.
+ * 
+ * @param type $privilegesTable
+ */    
+    
+    public function privilegesTable2HTML($privilegesTable){
+        
     }
 
 }
