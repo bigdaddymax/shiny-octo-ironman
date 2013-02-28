@@ -164,78 +164,97 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         return ((empty($result)) ? false : $result);
     }
 
-/**
- * getPrivilegesTable() - function works with recursive iterator recursiveLevelGetter() to form
- * multilevel array of levels and orgobjects for HTML output.
- * @param type $userId
- * @return type
- * 
- */    
+    /**
+     * getPrivilegesTable() - function works with recursive iterator recursiveHTMLFormer() to form
+     * multilevel HTML list of levels and orgobjects for output.
+     * @param type $userId
+     * @return type
+     * 
+     */
     public function getPrivilegesTable($userId) {
         // Start with selecting topmost levels (that are not dependent)
         $levels = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => -1));
-        $count = 0;
+        $output = '';
         foreach ($levels as $level) {
-            $output[] = $this->recursiveLevelGetter($level, $userId);
-            $count++;
+            $output .= '<ul id="expList">' . $this->recursiveHTMLFormer($level, $userId) . '</ul>' . PHP_EOL;
         }
         return $output;
     }
 
-/**
- * recursiveLevelGetter() - our recursive iterator.
- * @param type $level
- * @param type $userId
- * @return type
- * 
- */    
-    private function recursiveLevelGetter($level, $userId) {
+
+    /**
+     * privilegesTable2HTML() - forms HTNL code for further output.
+     * 
+     * @param type $privilegesTable
+     */
+    public function recursiveHTMLFormer($level, $userId) {
+        $result = '';
         // Trying to get levels that are dependent on $level
         $descs = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => $level->levelId));
         // Trying to get user's privileges for this $level
         $privilege = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
             'objectType' => 'level',
             'objectId' => $level->levelId));
+        if ($privilege) {
+            switch ($privilege[0]->privilege) {
+                case 'read': $privType = 'read';
+                    break;
+                case 'write': $privType = 'write';
+                    break;
+                case 'approve': $privType = 'approve';
+            }
+        } else {
+            $privType = '';
+        }
         // Trying to get orgobjects that belong to this $level
         $orgobjects = $this->dataMapper->getAllObjects('Application_Model_Orgobject', array('levelId' => $level->levelId));
-        // If we have dependent levels do recursion
-        if ($descs) {
-            foreach ($descs as $desc) {
-                $result['levels'] = $this->recursiveLevelGetter($desc, $userId);
-            }
+        // Form HTML output for level
+        $result.= '<li>' . $level->levelName .
+                "<input type='checkbox' id = 'read_level_$level->levelId' name = 'read_orgobject_$level->levelId' " .
+                (($privType == 'read') ? 'checked' : '') . ">" .
+                "<input type='checkbox' id = 'write_level_$level->levelId' name = 'read_orgobject_$level->levelId' " .
+                (($privType == 'write') ? 'checked' : '') . ">" .
+                "<input type='checkbox' id = 'approve_level_$level->levelId' name = 'read_orgobject_$level->levelId' " .
+                (($privType == 'approve') ? 'checked' : '') . ">";
+        // If level contains orgobjects or other levels start new included list
+        if ($orgobjects || $descs) {
+            $result .= '<ul>' . PHP_EOL;
         }
-        // Fill in output array
-        $result['objectName'] = $level->levelName;
-        $result['objectType'] = 'level';
-        $result['objectId'] = $level->levelId;
+        
+        // Form HTML for orgobjects
         if ($orgobjects) {
-            $count = 0;
             foreach ($orgobjects as $orgobject) {
-                $result['orgobjects'][$count]['objectName'] = $orgobject->orgobjectName;
-                $result['orgobjects'][$count]['objectType'] = 'orgobject';
-                $result['orgobjects'][$count]['objectId'] = $orgobject->orgobjectId;
                 $objectPriv = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
                     'objectType' => 'orgobject',
                     'objectId' => $orgobject->orgobjectId));
-                if ($objectPriv){
-                    $result['orgobjects'][$count]['privilege'] = $objectPriv[0]->privilege;
+                if ($objectPriv) {
+                    switch ($objectPriv[0]->privilege) {
+                        case 'read': $privType = 'read';
+                            break;
+                        case 'write': $privType = 'write';
+                            break;
+                        case 'approve': $privType = 'approve';
+                    }
+                } else {
+                    $privType = '';
                 }
+                $result .= '<li>' . $orgobject->orgobjectName .
+                        "<input type='checkbox' id = 'read_orgobject_$orgobject->orgobjectId' name = 'read_orgobject_$orgobject->orgobjectId' " .
+                        (($privType == 'read') ? 'checked' : '') . ">" .
+                        "<input type='checkbox' id = 'write_orgobject_$orgobject->orgobjectId' name = 'read_orgobject_$orgobject->orgobjectId' " .
+                        (($privType == 'write') ? 'checked' : '') . ">" .
+                        "<input type='checkbox' id = 'approve_orgobject_$orgobject->orgobjectId' name = 'read_orgobject_$orgobject->orgobjectId' " .
+                        (($privType == 'approve') ? 'checked' : '') . ">";
+                '</li>' . PHP_EOL;
             }
         }
-        if ($privilege) {
-            $result['privilege'] = $privilege[0]->privilege;
+        // If we have dependent (included) levels do recursion
+        if ($descs) {
+            foreach ($descs as $desc) {
+                $result.= $this->recursiveHTMLFormer($desc, $userId);
+            }
         }
-        return $result;
-    }
-    
-/**
- * privilegesTable2HTML() - forms HTNL code for further output.
- * 
- * @param type $privilegesTable
- */    
-    
-    public function privilegesTable2HTML($privilegesTable){
-        
+        return $result . '</li></ul>';
     }
 
 }
