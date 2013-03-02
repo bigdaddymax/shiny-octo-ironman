@@ -119,18 +119,29 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param type $object
      * @return true if record exists, false otherwise
      */
-    public function checkObjectExistance($object) {
+    public function checkObjectExistance($object, $checkSimilar = false) {
 
         if (is_object($object)) {
+            // We have object supplied
             $this->setClassAndTableName($object);
             $id = $object->{$this->objectIdName};
             if (!empty($id)) {
-                $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT COUNT(' . $this->objectIdName . ') FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $object->{$this->objectIdName}));
+                // We have object with ID, JUST CHECK THIS id IN DATABASE
+                $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $object->{$this->objectIdName}));
             } else {
-                return false;
+                // We have object whithout ID, lets have a look if database contains data for similar object
+                $filter = ' WHERE 1=1 ';
+                $parameters = $object->toArray();
+                foreach ($parameters as $key => $parameter) {
+                    $filter.=$this->dbLink->quoteinto(" AND $key = ? ", $parameter);
+                }
+                $stmt = $this->dbLink->query("SELECT $this->objectIdName FROM $this->tableName " . $filter);
+                $id = $stmt->fetchColumn();
+                return (($id != 0) ? $id : false);
             }
         } elseif (is_int($object) && !empty($object)) {
-            $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT COUNT(' . $this->objectIdName . ') FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $object));
+            // We have object ID set up so we just check this ID in database
+            $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $object));
         }
         $row = $stmt->fetchColumn();
         return (($row != 0) ? true : false);
@@ -242,18 +253,17 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         }
     }
 
-/**
- * getObjectsCount - returns number of entries in specific table after applying optional filter
- * @param type $class
- * @param type $filter
- * @return type
- */    
-    
+    /**
+     * getObjectsCount - returns number of entries in specific table after applying optional filter
+     * @param type $class
+     * @param type $filter
+     * @return type
+     */
     public function getObjectsCount($class, $filter = null) {
         $this->setClassAndTableName($class);
         return $this->dbLink->fetchOne("SELECT count($this->objectIdName) FROM $this->tableName");
     }
-    
+
 }
 
 ?>
