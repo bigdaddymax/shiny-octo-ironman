@@ -119,7 +119,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param type $object
      * @return true if record exists, false otherwise
      */
-    public function checkObjectExistance($object, $checkSimilar = false) {
+    public function checkObjectExistance($object) {
 
         if (is_object($object)) {
             // We have object supplied
