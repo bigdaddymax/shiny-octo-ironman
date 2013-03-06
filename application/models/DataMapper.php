@@ -133,8 +133,12 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 $filter = ' WHERE 1=1 ';
                 $parameters = $object->toArray();
                 foreach ($parameters as $key => $parameter) {
+                    if ($parameter === null) {
+                        continue;
+                    }
                     $filter.=$this->dbLink->quoteinto(" AND $key = ? ", $parameter);
                 }
+//                Zend_Debug::dump($filter);
                 $stmt = $this->dbLink->query("SELECT $this->objectIdName FROM $this->tableName " . $filter);
                 $id = $stmt->fetchColumn();
                 return (($id != 0) ? $id : false);
