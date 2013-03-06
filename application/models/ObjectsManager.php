@@ -39,11 +39,14 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             throw new InvalidArgumentException('Argument should be array() or instance of Application_Model_Form');
         }
         if ($form->isValid()) {
-            // We have to handle Items saving separatly
-            $items = $form->items;
-
+        // We have to handle Items saving separatly
+            if (!empty($formData['items'])) {
             // Remove items data from Form array for storing in DB
-            unset($formData['items']);
+            // We process Items and Form separatelly 
+                $items = $formData['items'];
+                unset($formData['items']);
+                $form->items = NULL;
+            }
             // Type casting before storing data to DB
             if (isset($formData['active'])) {
                 $formData['active'] = (int) $formData['active'];
@@ -121,8 +124,27 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         
     }
 
-    private function getLevelPrivileges($data, $levelId) {
-        $level = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevel' => -1));
+    public function grantPrivilege($privilege) {
+        $id = $this->dataMapper->checkObjectExistance($privilege);
+        if ($id) {
+            // This privilege is already granted
+            return;
+        } else {
+            // Save new privilege
+            $this->dataMapper->saveObject($privilege);
+        }
+    }
+
+    public function revokePrivilege($privilege) {
+        $id = $this->dataMapper->checkObjectExistance($privilege);
+        if ($id) {
+            // This privilege is already granted
+            $this->dataMapper->deleteObject($id, 'Application_Model_Privilege');
+            return;
+        } else {
+            // This privilege doesnt exist already
+            return;
+        }
     }
 
     public function formPrivilegesTable($userId) {
@@ -176,11 +198,10 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         $levels = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => -1));
         $output = '';
         foreach ($levels as $level) {
-            $output .= '<ul id="expList">' . $this->recursiveHTMLFormer($level, $userId) . '</ul>' . PHP_EOL;
+            $output .= '<ul id="expList_' . $level->levelId . '">' . $this->recursiveHTMLFormer($level, $userId) . '</ul>' . PHP_EOL;
         }
         return $output;
     }
-
 
     /**
      * privilegesTable2HTML() - forms HTNL code for further output.
@@ -210,17 +231,17 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         $orgobjects = $this->dataMapper->getAllObjects('Application_Model_Orgobject', array('levelId' => $level->levelId));
         // Form HTML output for level
         $result.= '<li>' . $level->levelName .
-                "<input type='checkbox' id = 'read_level_$level->levelId' name = 'read_orgobject_$level->levelId' " .
+                "<input type='checkbox' id = 'read_level_$level->levelId' name = 'read_level_$level->levelId' " .
                 (($privType == 'read') ? 'checked' : '') . ">" .
-                "<input type='checkbox' id = 'write_level_$level->levelId' name = 'read_orgobject_$level->levelId' " .
+                "<input type='checkbox' id = 'write_level_$level->levelId' name = 'write_level_$level->levelId' " .
                 (($privType == 'write') ? 'checked' : '') . ">" .
-                "<input type='checkbox' id = 'approve_level_$level->levelId' name = 'read_orgobject_$level->levelId' " .
+                "<input type='checkbox' id = 'approve_level_$level->levelId' name 'approve_level_$level->levelId' " .
                 (($privType == 'approve') ? 'checked' : '') . ">";
         // If level contains orgobjects or other levels start new included list
         if ($orgobjects || $descs) {
             $result .= '<ul>' . PHP_EOL;
         }
-        
+
         // Form HTML for orgobjects
         if ($orgobjects) {
             foreach ($orgobjects as $orgobject) {
@@ -241,9 +262,9 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
                 $result .= '<li>' . $orgobject->orgobjectName .
                         "<input type='checkbox' id = 'read_orgobject_$orgobject->orgobjectId' name = 'read_orgobject_$orgobject->orgobjectId' " .
                         (($privType == 'read') ? 'checked' : '') . ">" .
-                        "<input type='checkbox' id = 'write_orgobject_$orgobject->orgobjectId' name = 'read_orgobject_$orgobject->orgobjectId' " .
+                        "<input type='checkbox' id = 'write_orgobject_$orgobject->orgobjectId' name = 'write_orgobject_$orgobject->orgobjectId' " .
                         (($privType == 'write') ? 'checked' : '') . ">" .
-                        "<input type='checkbox' id = 'approve_orgobject_$orgobject->orgobjectId' name = 'read_orgobject_$orgobject->orgobjectId' " .
+                        "<input type='checkbox' id = 'approve_orgobject_$orgobject->orgobjectId' name = 'approve_orgobject_$orgobject->orgobjectId' " .
                         (($privType == 'approve') ? 'checked' : '') . ">";
                 '</li>' . PHP_EOL;
             }
