@@ -39,10 +39,10 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             throw new InvalidArgumentException('Argument should be array() or instance of Application_Model_Form');
         }
         if ($form->isValid()) {
-        // We have to handle Items saving separatly
+            // We have to handle Items saving separatly
             if (!empty($formData['items'])) {
-            // Remove items data from Form array for storing in DB
-            // We process Items and Form separatelly 
+                // Remove items data from Form array for storing in DB
+                // We process Items and Form separatelly 
                 $items = $formData['items'];
                 unset($formData['items']);
                 $form->items = NULL;
@@ -213,30 +213,25 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         // Trying to get levels that are dependent on $level
         $descs = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => $level->levelId));
         // Trying to get user's privileges for this $level
-        $privilege = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
+        $privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
             'objectType' => 'level',
             'objectId' => $level->levelId));
-        if ($privilege) {
-            switch ($privilege[0]->privilege) {
-                case 'read': $privType = 'read';
-                    break;
-                case 'write': $privType = 'write';
-                    break;
-                case 'approve': $privType = 'approve';
+        $check = array('read' => null, 'write' => null, 'approve' => null);
+        if ($privileges) {
+            foreach ($privileges as $privilege) {
+                $check[$privilege->privilege] = 'checked';
             }
-        } else {
-            $privType = '';
         }
         // Trying to get orgobjects that belong to this $level
         $orgobjects = $this->dataMapper->getAllObjects('Application_Model_Orgobject', array('levelId' => $level->levelId));
         // Form HTML output for level
         $result.= '<li>' . $level->levelName .
                 "<input type='checkbox' id = 'read_level_$level->levelId' name = 'read_level_$level->levelId' " .
-                (($privType == 'read') ? 'checked' : '') . ">" .
+                $check['read'] . ">" .
                 "<input type='checkbox' id = 'write_level_$level->levelId' name = 'write_level_$level->levelId' " .
-                (($privType == 'write') ? 'checked' : '') . ">" .
+                $check['write'] . ">" .
                 "<input type='checkbox' id = 'approve_level_$level->levelId' name 'approve_level_$level->levelId' " .
-                (($privType == 'approve') ? 'checked' : '') . ">";
+                $check['approve'] . ">";
         // If level contains orgobjects or other levels start new included list
         if ($orgobjects || $descs) {
             $result .= '<ul>' . PHP_EOL;
@@ -245,27 +240,22 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         // Form HTML for orgobjects
         if ($orgobjects) {
             foreach ($orgobjects as $orgobject) {
-                $objectPriv = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
+                $objectPrivs = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
                     'objectType' => 'orgobject',
                     'objectId' => $orgobject->orgobjectId));
-                if ($objectPriv) {
-                    switch ($objectPriv[0]->privilege) {
-                        case 'read': $privType = 'read';
-                            break;
-                        case 'write': $privType = 'write';
-                            break;
-                        case 'approve': $privType = 'approve';
+                $check = array('read' => null, 'write' => null, 'approve' => null);
+                if ($objectPrivs) {
+                    foreach ($objectPrivs as $objectPriv) {
+                        $check[$objectPriv->privilege] = 'checked';
                     }
-                } else {
-                    $privType = '';
                 }
                 $result .= '<li>' . $orgobject->orgobjectName .
                         "<input type='checkbox' id = 'read_orgobject_$orgobject->orgobjectId' name = 'read_orgobject_$orgobject->orgobjectId' " .
-                        (($privType == 'read') ? 'checked' : '') . ">" .
+                        $check['read'] . ">" .
                         "<input type='checkbox' id = 'write_orgobject_$orgobject->orgobjectId' name = 'write_orgobject_$orgobject->orgobjectId' " .
-                        (($privType == 'write') ? 'checked' : '') . ">" .
+                        $check['write'] . ">" .
                         "<input type='checkbox' id = 'approve_orgobject_$orgobject->orgobjectId' name = 'approve_orgobject_$orgobject->orgobjectId' " .
-                        (($privType == 'approve') ? 'checked' : '') . ">";
+                        $check['approve'] . ">";
                 '</li>' . PHP_EOL;
             }
         }
