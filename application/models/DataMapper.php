@@ -152,6 +152,50 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     }
 
     /**
+     * 
+     * @param array $filterArray - array(0=>array('condition'=>'AND', 'column'=> 'orgobject', 'comp'=>'=', 'operand'=>234))
+     *                              You can omit 'comp' and 'condition' elements, default are '=' and 'AND'
+     * @return string
+     * @throws InvalidArgumentException
+     */
+    private function prepareFilter(array $filterArray) {
+        if (is_array($filterArray)) {
+            $result = ' WHERE 1 = 1 ';
+            foreach ($filterArray as $filterElement) {
+                if (!empty($filterElement['condition']) && 'IN' == $filterElement['condition']) {
+                    $inString = 'AND ' . $filterElement['column'] . ' IN (';
+                    if (empty($filterElement['operand']) || !is_array($filterElement['operand'])) {
+                        throw new InvalidArgumentException('For IN filter operand should be an array() type');
+                    }
+                    foreach ($filterElement['operand'] as $element) {
+                        $inString .= $this->dbLink->quoteinto('?', $element) . ',';
+                    }
+                    $inString = rtrim($inString, ',');
+                    $inString .= ') ';
+                    $result .= $inString;
+                } else {
+                    if (empty($filterElement['comp'])) {
+                        $comp = '=';
+                    } else {
+                        $comp = $filterElement['comp'];
+                    }
+                    if (empty($filterElement['condition'])) {
+                        $condition = 'AND';
+                    } else {
+                        $condition = $filterElement['condition'];
+                    }
+                    $result .= $condition .
+                            ' ' . $filterElement['column'] . ' ' .
+                            $comp . ' ' .
+                            $this->dbLink->quoteinto('?', $filterElement['operand']) .
+                            ' ';
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Returns array of objects of $class. All data from $this->tableName are selected.
      * If $filter is set in form of array('userId'=>4) return all entries that has userId=4 in their properties
      * @param string $class
@@ -169,11 +213,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             $objectsArray = $this->dbLink->fetchAll('SELECT * FROM ' . $this->tableName . ' ');
         } else {
             if (is_array($filter)) {
-                $selectFilter = ' WHERE 1=1 ';
-                foreach ($filter as $item => $value) {
-                    $selectFilter.= $this->dbLink->quoteinto(' AND ' . $item . ' = ? ', $value);
-                }
-                $objectsArray = $this->dbLink->fetchAll('SELECT * FROM ' . $this->tableName . $selectFilter);
+                $objectsArray = $this->dbLink->fetchAll('SELECT * FROM ' . $this->tableName . $this->prepareFilter($filter));
             } else {
                 throw new InvalidArgumentException('$filter should be of Array()');
             }
