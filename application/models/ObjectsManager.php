@@ -76,7 +76,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
     }
 
     /**
-     * 
+     * getForm() - returns form searched by ID
      * @param int $formId 
      * @return Application_Model_Form
      */
@@ -102,6 +102,16 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         }
     }
 
+    public function prepareFormForOutput($formId) {
+        if (!empty($formId)) {
+            $form['form'] = $this->getForm($formId);
+            $form['owner'] = $this->dataMapper->getObject($form['form']->userId, 'Application_Model_User');
+        } else {
+            throw new InvalidArgumentException('No $formId provided.');
+        }
+        return $form;
+    }
+
     /**
      * Return array of objects if there are any, false otherwise
      * @todo FILTER Functionality Use filter to limit forms in selection
@@ -111,8 +121,8 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         $formArray = $this->dataMapper->dbLink->fetchAll('SELECT * FROM forms WHERE 1=1 ');
         if (!empty($formArray) && is_array($formArray)) {
             foreach ($formArray as $form) {
-                $form['items'] = $this->dataMapper->getAllObjects('Application_Model_Item', array(0=>array('column'=>'formId',
-                                                                                                           'operand'=> $form['formId'])));
+                $form['items'] = $this->dataMapper->getAllObjects('Application_Model_Item', array(0 => array('column' => 'formId',
+                        'operand' => $form['formId'])));
                 $forms[] = new Application_Model_Form($form);
             }
             return $forms;
@@ -148,45 +158,6 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         }
     }
 
-    public function formPrivilegesTable($userId) {
-        $parentLevels = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => -1));
-        $result = array();
-        $counter = 0;
-        foreach ($parentLevels as $parentLevel) {
-            $descendLevels = true;
-            $parentLevelId = $parentLevel->levelId;
-            $result[$counter]['objectType'] = 'level';
-            $result[$counter]['objectId'] = $parentLevelId;
-            $result[$counter]['objectName'] = $parentLevel->levelName;
-            $privilege = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
-                'objectType' => 'level',
-                'objectId' => $parentLevelId));
-            if ($privilege) {
-                $result[$counter]['privilege'] = $privilege[0]->privilege;
-            }
-            $innerCounter = 0;
-            while ($descendLevels = $this->dataMapper->getAllObjects('Application_Model_Level', array('parentLevelId' => $parentLevelId))) {
-                foreach ($descendLevels as $descendLevel) {
-                    $innerresult[$innerCounter]['objectType'] = 'level';
-                    $innerresult[$innerCounter]['objectId'] = $descendLevel->levelId;
-                    $innerresult[$innerCounter]['objectName'] = $descendLevel->levelName;
-                    $innerprivilege = $this->dataMapper->getAllObjects('Application_Model_Privilege', array('userId' => $userId,
-                        'objectType' => 'level',
-                        'objectId' => $descendLevel->levelId)
-                    );
-                    if ($innerprivilege) {
-                        $innerresult[$innerCounter]['privilege'] = $innerprivilege->privilege;
-                    }
-                    $innerCounter++;
-                }
-                $result[$counter]['objects'] = $innerresult;
-                $parentLevelId = $descendLevel->levelId;
-            }
-            $counter++;
-        }
-        return ((empty($result)) ? false : $result);
-    }
-
     /**
      * getPrivilegesTable() - function works with recursive iterator recursiveHTMLFormer() to form
      * multilevel HTML list of levels and orgobjects for output.
@@ -196,7 +167,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
      */
     public function getPrivilegesTable($userId) {
         // Start with selecting topmost levels (that are not dependent)
-        $levels = $this->dataMapper->getAllObjects('Application_Model_Level', array(0=>array('column'=>'parentLevelId', 'operand' => -1)));
+        $levels = $this->dataMapper->getAllObjects('Application_Model_Level', array(0 => array('column' => 'parentLevelId', 'operand' => -1)));
         $output = '';
         foreach ($levels as $level) {
             $output .= '<ul id="expList_' . $level->levelId . '">' . $this->recursiveHTMLFormer($level, $userId) . '</ul>' . PHP_EOL;
@@ -212,17 +183,15 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
     public function recursiveHTMLFormer($level, $userId) {
         $result = '';
         // Trying to get levels that are dependent on $level
-        $descs = $this->dataMapper->getAllObjects('Application_Model_Level',
-                array(0=>array('column'=>'parentLevelId',
-                               'operand' => $level->levelId)));
+        $descs = $this->dataMapper->getAllObjects('Application_Model_Level', array(0 => array('column' => 'parentLevelId',
+                'operand' => $level->levelId)));
         // Trying to get user's privileges for this $level
-        $privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege',
-                                                        array(0=>array('column'=>'userId',
-                                                                       'operand'=> $userId),
-                                                              1=>array('column'=>'objectType',
-                                                                       'operand'=> 'level'),
-                                                              2=>array('column'=>'objectId',
-                                                                       'operand'=> $level->levelId)));
+        $privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege', array(0 => array('column' => 'userId',
+                'operand' => $userId),
+            1 => array('column' => 'objectType',
+                'operand' => 'level'),
+            2 => array('column' => 'objectId',
+                'operand' => $level->levelId)));
         $check = array('read' => null, 'write' => null, 'approve' => null);
         if ($privileges) {
             foreach ($privileges as $privilege) {
@@ -230,7 +199,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             }
         }
         // Trying to get orgobjects that belong to this $level
-        $orgobjects = $this->dataMapper->getAllObjects('Application_Model_Orgobject', array(0=>array('column'=>'levelId', 'operand' => $level->levelId)));
+        $orgobjects = $this->dataMapper->getAllObjects('Application_Model_Orgobject', array(0 => array('column' => 'levelId', 'operand' => $level->levelId)));
         // Form HTML output for level
         $result.= '<li>' . $level->levelName .
                 "<input type='checkbox' id = 'read_level_$level->levelId' name = 'read_level_$level->levelId' " .
@@ -247,10 +216,9 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         // Form HTML for orgobjects
         if ($orgobjects) {
             foreach ($orgobjects as $orgobject) {
-                $objectPrivs = $this->dataMapper->getAllObjects('Application_Model_Privilege',
-                                            array(0=>array('column'=>'userId', 'operand' => $userId),
-                                                  1=>array('column'=>'objectType', 'operand' => 'orgobject'),
-                                                  2=>array('column'=>'objectId', 'operand' => $orgobject->orgobjectId)));
+                $objectPrivs = $this->dataMapper->getAllObjects('Application_Model_Privilege', array(0 => array('column' => 'userId', 'operand' => $userId),
+                    1 => array('column' => 'objectType', 'operand' => 'orgobject'),
+                    2 => array('column' => 'objectId', 'operand' => $orgobject->orgobjectId)));
                 $check = array('read' => null, 'write' => null, 'approve' => null);
                 if ($objectPrivs) {
                     foreach ($objectPrivs as $objectPriv) {
