@@ -26,9 +26,11 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     private $objectName;
     private $objectIdName;
     public $objectParentIdName;
+    private $session;
 
     public function __construct($object = null) {
         parent::__construct();
+        $this->session = new Zend_Session_Namespace('Auth');
         if ($object) {
             $this->setClassAndTableName($object);
         }
@@ -158,7 +160,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @return string
      * @throws InvalidArgumentException
      */
-    private function prepareFilter(array $filterArray) {
+    private function prepareFilter($filterArray) {
+        $result = '';
         if (is_array($filterArray)) {
             $result = ' WHERE 1 = 1 ';
             foreach ($filterArray as $filterElement) {
@@ -191,6 +194,10 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                             ' ';
                 }
             }
+            // Append Domain condition. Every company/customer should be "jailed" in its domain space
+            $result .= ' AND domainId = ' .$this->session->domainId;
+        } else {
+            $result = ' WHERE domainId = '.$this->session->domainId;
         }
         return $result;
     }
@@ -209,15 +216,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         } elseif (!isset($this->className)) {
             throw new InvalidArgumentException('Class name is not set.');
         }
-        if (empty($filter)) {
-            $objectsArray = $this->dbLink->fetchAll('SELECT * FROM ' . $this->tableName . ' ');
-        } else {
-            if (is_array($filter)) {
-                $objectsArray = $this->dbLink->fetchAll('SELECT * FROM ' . $this->tableName . $this->prepareFilter($filter));
-            } else {
-                throw new InvalidArgumentException('$filter should be of Array()');
-            }
-        }
+        $objectsArray = $this->dbLink->fetchAll('SELECT * FROM ' . $this->tableName . $this->prepareFilter($filter));
         $output = array();
         foreach ($objectsArray as $object) {
             $output[] = new $this->className($object);
