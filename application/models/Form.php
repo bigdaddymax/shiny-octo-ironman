@@ -16,7 +16,7 @@ class Application_Model_Form {
     private $_domainId;
     private $_date;
     private $_items;
-    private $_orgobjectId;
+    private $_nodeId;
 
     public function __construct(array $formArray = null) {
         if (isset($formArray['formName'])) {
@@ -34,8 +34,8 @@ class Application_Model_Form {
         if (isset($formArray['projectId'])) {
             $this->_projectId = (int) $formArray['projectId'];
         }
-        if (isset($formArray['orgobjectId'])) {
-            $this->_orgobjectId = (int) $formArray['orgobjectId'];
+        if (isset($formArray['nodeId'])) {
+            $this->_nodeId = (int) $formArray['nodeId'];
         }
         if (isset($formArray['formId'])) {
             $this->_formId = (int) $formArray['formId'];
@@ -79,7 +79,7 @@ class Application_Model_Form {
      */
     private function setItems($items) {
         // Collect valid items here
-        $checkedItems = array();
+        $checkedItems = null;
         if (isset($items) && is_array($items)) {
             foreach ($items as $item) {
                 // Item is of Application_Model_Item type
@@ -105,6 +105,8 @@ class Application_Model_Form {
                     throw new InvalidArgumentException('One of items is neither of Application_Model_Item type nor Array().');
                 }
             }
+        } elseif ($items instanceof Application_Model_Item) {
+            $checkedItems[] = $items;
         }
         $this->_items = $checkedItems;
     }
@@ -138,7 +140,7 @@ class Application_Model_Form {
      */
     public function isValid() {
         $this->_valid = true;
-        if (isset($this->_formName) && isset($this->_domainId) && isset($this->_userId) && isset($this->_orgobjectId) && isset($this->_items)) {
+        if (isset($this->_formName) && isset($this->_domainId) && isset($this->_userId) && isset($this->_nodeId) && isset($this->_items)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;
