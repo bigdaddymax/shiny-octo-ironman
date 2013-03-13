@@ -106,6 +106,16 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         if (!empty($formId)) {
             $form['form'] = $this->getForm($formId);
             $form['owner'] = $this->dataMapper->getObject($form['form']->userId, 'Application_Model_User');
+            $form['node'] = $this->dataMapper->getObject($form['form']->nodeId, 'Application_Model_Node');
+            if (-1 != $form['node']->parentNode) {
+                $form['parentNode'] = $this->dataMapper->getObject($form['node']->parentNodeId, 'Application_Model_Node');
+            }
+            $form['total'] = 0;
+            foreach ($form['form']->items as $item) {
+                $item->element = $this->dataMapper->getObject($item->elementId, 'Application_Model_Element');
+                $form['items'][] = $item;
+                $form['total'] += $item->value;
+            }
         } else {
             throw new InvalidArgumentException('No $formId provided.');
         }
@@ -160,17 +170,17 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
 
     /**
      * getPrivilegesTable() - function works with recursive iterator recursiveHTMLFormer() to form
-     * multilevel HTML list of levels and orgobjects for output.
+     * multinode HTML list of nodes and nodes for output.
      * @param type $userId
      * @return type
      * 
      */
     public function getPrivilegesTable($userId) {
-        // Start with selecting topmost levels (that are not dependent)
-        $levels = $this->dataMapper->getAllObjects('Application_Model_Level', array(0 => array('column' => 'parentLevelId', 'operand' => -1)));
+        // Start with selecting topmost nodes (that are not dependent)
+        $nodes = $this->dataMapper->getAllObjects('Application_Model_Node', array(0 => array('column' => 'parentNodeId', 'operand' => -1)));
         $output = '';
-        foreach ($levels as $level) {
-            $output .= '<ul id="expList_' . $level->levelId . '">' . $this->recursiveHTMLFormer($level, $userId) . '</ul>' . PHP_EOL;
+        foreach ($nodes as $node) {
+            $output .= '<ul id="expList_' . $node->nodeId . '">' . $this->recursiveHTMLFormer($node, $userId) . '</ul>' . PHP_EOL;
         }
         return $output;
     }
@@ -180,68 +190,41 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
      * 
      * @param type $privilegesTable
      */
-    public function recursiveHTMLFormer($level, $userId) {
+    public function recursiveHTMLFormer($node, $userId) {
         $result = '';
-        // Trying to get levels that are dependent on $level
-        $descs = $this->dataMapper->getAllObjects('Application_Model_Level', array(0 => array('column' => 'parentLevelId',
-                'operand' => $level->levelId)));
-        // Trying to get user's privileges for this $level
+        // Trying to get nodes that are dependent on $node
+        $nodes = $this->dataMapper->getAllObjects('Application_Model_Node', array(0 => array('column' => 'parentNodeId',
+                'operand' => $node->nodeId)));
+        // Trying to get user's privileges for this $node
         $privileges = $this->dataMapper->getAllObjects('Application_Model_Privilege', array(0 => array('column' => 'userId',
                 'operand' => $userId),
             1 => array('column' => 'objectType',
-                'operand' => 'level'),
+                'operand' => 'node'),
             2 => array('column' => 'objectId',
-                'operand' => $level->levelId)));
+                'operand' => $node->nodeId)));
         $check = array('read' => null, 'write' => null, 'approve' => null);
         if ($privileges) {
             foreach ($privileges as $privilege) {
                 $check[$privilege->privilege] = 'checked';
             }
         }
-        // Trying to get orgobjects that belong to this $level
-        $orgobjects = $this->dataMapper->getAllObjects('Application_Model_Orgobject', array(0 => array('column' => 'levelId', 'operand' => $level->levelId)));
-        // Form HTML output for level
-        $result.= '<li>' . $level->levelName .
-                "<input type='checkbox' id = 'read_level_$level->levelId' name = 'read_level_$level->levelId' " .
-                $check['read'] . ">" .
-                "<input type='checkbox' id = 'write_level_$level->levelId' name = 'write_level_$level->levelId' " .
-                $check['write'] . ">" .
-                "<input type='checkbox' id = 'approve_level_$level->levelId' name 'approve_level_$level->levelId' " .
-                $check['approve'] . ">";
-        // If level contains orgobjects or other levels start new included list
-        if ($orgobjects || $descs) {
+        // Form HTML output for node
+        $result.= '<li>' . $node->nodeName .
+                "<input type='checkbox' id = 'read_node_$node->nodeId' name = 'read_node_$node->nodeId' " .
+                $check['read'] . ">" . PHP_EOL .
+                "<input type='checkbox' id = 'write_node_$node->nodeId' name = 'write_node_$node->nodeId' " .
+                $check['write'] . ">" . PHP_EOL .
+                "<input type='checkbox' id = 'approve_node_$node->nodeId' name 'approve_node_$node->nodeId' " .
+                $check['approve'] . ">" . PHP_EOL;
+        // If node contains nodes or other nodes start new included list
+        if ($nodes) {
             $result .= '<ul>' . PHP_EOL;
-        }
-
-        // Form HTML for orgobjects
-        if ($orgobjects) {
-            foreach ($orgobjects as $orgobject) {
-                $objectPrivs = $this->dataMapper->getAllObjects('Application_Model_Privilege', array(0 => array('column' => 'userId', 'operand' => $userId),
-                    1 => array('column' => 'objectType', 'operand' => 'orgobject'),
-                    2 => array('column' => 'objectId', 'operand' => $orgobject->orgobjectId)));
-                $check = array('read' => null, 'write' => null, 'approve' => null);
-                if ($objectPrivs) {
-                    foreach ($objectPrivs as $objectPriv) {
-                        $check[$objectPriv->privilege] = 'checked';
-                    }
-                }
-                $result .= '<li>' . $orgobject->orgobjectName .
-                        "<input type='checkbox' id = 'read_orgobject_$orgobject->orgobjectId' name = 'read_orgobject_$orgobject->orgobjectId' " .
-                        $check['read'] . ">" .
-                        "<input type='checkbox' id = 'write_orgobject_$orgobject->orgobjectId' name = 'write_orgobject_$orgobject->orgobjectId' " .
-                        $check['write'] . ">" .
-                        "<input type='checkbox' id = 'approve_orgobject_$orgobject->orgobjectId' name = 'approve_orgobject_$orgobject->orgobjectId' " .
-                        $check['approve'] . ">";
-                '</li>' . PHP_EOL;
+            foreach ($nodes as $node) {
+                $result.= $this->recursiveHTMLFormer($node, $userId) . '</li>';
             }
+            $result .= '</ul>';
         }
-        // If we have dependent (included) levels do recursion
-        if ($descs) {
-            foreach ($descs as $desc) {
-                $result.= $this->recursiveHTMLFormer($desc, $userId);
-            }
-        }
-        return $result . '</li></ul>';
+        return $result;
     }
 
 }
