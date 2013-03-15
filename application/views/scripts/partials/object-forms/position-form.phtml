@@ -1,0 +1,15 @@
+<div id="add-object-form" title="Add new position">
+    <form id="object-form">
+        <label for="objectName">Position Name</label>
+        <input type="text" id="positionName" name="positionName" />
+        <input type="hidden" id="orgobjectId" name="orgobjectId" value="2">
+        <input type="hidden" id="domainId" name="domainId" value="1">
+        <input type="hidden" id="objectType" name="objectType" value="position">
+    </form>
+</div>
+
+<button id="add-object-btn">Add position</button>
+
+<div id="main">
+    <?php echo $this->partial('partials/object-lists/position-list.phtml', array('positions'=> $this->objects)); ?>
+</div>

@@ -1,0 +1,28 @@
+<div id="add-object-form" title="Add new level">
+    <form id="object-form">
+        <label for="levelName">Level Name</label>
+        <input type="text" id="levelName" name="levelName" />
+        <?php
+        if (!empty($this->subobjects['levels']) && is_array($this->subobjects['levels'])) {
+            echo '<select  id="parentLevelId" name="parentLevelId">';
+            echo '<option value="-1">No parent</option>';
+            foreach ($this->subobjects['levels'] as $level) {
+                echo '<option " value="' .
+                $level->levelId .'">' .
+                $level->levelName .
+                '</option>';
+            }
+            echo '</select>';
+        } else {
+            echo '<input type="hidden" id="parentLevelId" name="parentLevelId" value="-1">';
+        }
+        ?>
+        <input type="hidden" id="domainId" name="domainId" value="1">
+    </form>
+</div>
+
+<button id="add-object-btn">Add level</button>
+
+<div id="main">
+<?php echo $this->partial('partials/object-lists/level-list.phtml', array('levels' => $this->objects)); ?>
+</div>

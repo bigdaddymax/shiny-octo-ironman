@@ -1,0 +1,20 @@
+<table>
+<?php
+if (is_array($this->users)){
+    foreach ($this->users as $user) {
+        echo '<tr><td><a href="'.
+                $this->url(array('controller'=>'objects',
+                                 'action'=>'delete',
+                                 'userId'=>$user->userId,
+                                 'objectType'=>'user')).
+                '">x</a></td><td>'.
+                $user->userName .
+                '</td><td>' .
+                $user->login .
+                '</td><td>' .
+                $user->positionId .
+                '</td></tr>';
+    }
+}
+?>
+</table>

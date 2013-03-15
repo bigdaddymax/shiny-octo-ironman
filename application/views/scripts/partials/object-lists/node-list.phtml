@@ -1,0 +1,9 @@
+<table>
+<?php
+if (is_array($this->levels)){
+    foreach ($this->levels as $level) {
+        echo '<tr><td><a href="'.$this->url(array('controller'=>'objects', 'action'=>'delete','levelId'=>$level->levelId)).'">x</a></td><td>'.$level->levelName . '</td><td>' . $level->parentLevelId . '</td></tr>';
+    }
+}
+?>
+</table>
