@@ -9,7 +9,7 @@ class Application_Model_Position {
 
     private $_valid = true;
     private $_positionName;
-    private $_orgobjectId;
+    private $_nodeId;
     private $_positionId;
     private $_active = true;
     private $_domainId;
@@ -29,8 +29,8 @@ class Application_Model_Position {
         if (isset($positionArray['positionId'])) {
             $this->_positionId = (int) $positionArray['positionId'];
         }
-        if (isset($positionArray['orgobjectId'])) {
-            $this->_orgobjectId = (int) $positionArray['orgobjectId'];
+        if (isset($positionArray['nodeId'])) {
+            $this->_nodeId = (int) $positionArray['nodeId'];
         }
     }
 
@@ -60,7 +60,7 @@ class Application_Model_Position {
      * @return type
      */
     public function isValid() {
-        if (isset($this->_positionName) && isset($this->_domainId) && isset($this->_orgobjectId)) {
+        if (isset($this->_positionName) && isset($this->_domainId) && isset($this->_nodeId)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;

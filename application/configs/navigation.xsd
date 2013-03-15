@@ -1,62 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <nav>
+        <home>
+            <label>Home</label>
+            <controller>index</controller>
+            <action>index</action>
+            <resource>home</resource>
+        </home>
+        <form>
+            <label>Forms</label>
+            <controller>form</controller>
+            <action>index</action>
+            <resource>form</resource>
+        </form>
         <admin>
             <label>Administration</label>
             <title>Administration</title>
-            <controller>Objects</controller>
-            <action>Index</action>
+            <controller>objects</controller>
+            <action>index</action>
             <resource>admin</resource>
             <pages>
                 <levels>
-                    <labels>Levels</labels>
-                    <title>Levels administration</title>
-                    <controller>Objects</controller>
-                    <action>Index</action>
+                    <label>Nodes</label>
+                    <title>Nodes administration</title>
+                    <controller>objects</controller>
+                    <action>index</action>
                     <params>
-                        <objectType>level</objectType>
+                        <objectType>node</objectType>
                     </params>
-                    <resource>levels</resource>
+                    <resource>node</resource>
+                    <subgroup>subadmin</subgroup>
                 </levels>
-                <orgobjects>
-                    <label>Organizational object</label>
-                    <title>Administration of organizational object</title>
-                    <controller>Objects</controller>
-                    <action>Index</action>
-                    <params>
-                        <objectType>orgobject</objectType>
-                    </params>
-                    <resource>orgobjects</resource>
-                </orgobjects>
                 <positions>
-                    <labels>Positions</labels>
+                    <label>Positions</label>
                     <title>Positions administration</title>
-                    <controller>Objects</controller>
-                    <action>Index</action>
+                    <controller>objects</controller>
+                    <action>index</action>
                     <params>
                         <objectType>position</objectType>
                     </params>
-                    <resource>positions</resource>
+                    <resource>position</resource>
+                    <subgroup>subadmin</subgroup>
                 </positions>
                 <elements>
-                    <labels>Elements</labels>
+                    <label>Elements</label>
                     <title>Elements administration</title>
-                    <controller>Objects</controller>
-                    <action>Index</action>
+                    <controller>objects</controller>
+                    <action>index</action>
                     <params>
                         <objectType>element</objectType>
                     </params>
-                    <resource>elements</resource>
+                    <resource>element</resource>
+                    <subgroup>subadmin</subgroup>
                 </elements>
                 <users>
-                    <labels>Users</labels>
+                    <label>Users</label>
                     <title>Users administration</title>
-                    <controller>Objects</controller>
-                    <action>Index</action>
+                    <controller>objects</controller>
+                    <action>index</action>
                     <params>
                         <objectType>user</objectType>
                     </params>
-                    <resource>users</resource>
+                    <subgroup>subadmin</subgroup>
+                    <resource>user</resource>
                 </users>
             </pages>
         </admin>

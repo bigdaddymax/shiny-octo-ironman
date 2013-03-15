@@ -1,18 +1,36 @@
 <div id="add-object-form" title="Add new position">
     <form id="object-form">
-        <label for="elementName">Element Name</label>
-        <input type="text" id="elementName" name="elementName" />
-        <label for="elementCode">Element Code</label>
-        <input type="text" id="elementCode" name="elementCode" />
-        <label for="elementComment">Element Comment</label>
-        <input type="text" id="elementComment" name="elementComment" />
-        <input type="hidden" id="domainId" name="domainId" value="1">
-        <input type="hidden" id="objectType" name="objectType" value="element">
+        <table>
+            <tr>
+                <td><label for="elementName">Element Name</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="elementName" name="_elementName" /></td>
+            </tr>
+            <tr>
+                <td><label for="elementCode">Element Code</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="elementCode" name="_elementCode" /></td>
+            </tr>
+            <tr>
+                <td><label for="elementComment">Element Comment</label></td>
+            </tr>
+            <tr>  
+                <td><input type="text" id="elementComment" name="_elementComment" /></td>
+            </tr>
+            <tr>
+                <td><input type="hidden" id="domainId" name="_domainId" value="1"></td>
+            </tr>
+            <tr>
+                <td><input type="hidden" id="objectType" name=_"objectType" value="element"></td>
+            </tr>
+        </table>
     </form>
 </div>
 
 <button id="add-object-btn">Add element</button>
 
 <div id="main">
-<?php echo $this->partial('partials/object-lists/element-list.phtml', $this->objects); ?>
+    <?php echo $this->partial('partials/object-lists/element-list.phtml', $this->objects); ?>
 </div>

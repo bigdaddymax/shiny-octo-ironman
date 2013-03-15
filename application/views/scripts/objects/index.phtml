@@ -29,5 +29,6 @@
     });
 </script>
 <?php
+$session = new Zend_Session_Namespace('Auth');
 echo $this->partial('partials/object-forms/' . $this->objectName . '-form.phtml', array('subobjects' => $this->subobjects));
 echo $this->partial('partials/object-lists/' . $this->objectName . '-list.phtml', array($this->objectName . 's' => $this->objects));

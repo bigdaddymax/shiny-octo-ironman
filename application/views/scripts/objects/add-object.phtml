@@ -1,7 +1,7 @@
 <?php
 
 switch ($this->objectType) {
-    case 'level': echo $this->partial('partials/object-lists/level-list.phtml', array('levels'=>$this->objects));
+    case 'node': echo $this->partial('partials/object-lists/node-list.phtml', array('nodes'=>$this->objects));
         break;
     case 'element': echo $this->partial('partials/object-lists/element-list.phtml', array('elements'=>$this->objects));
         break;
@@ -9,7 +9,5 @@ switch ($this->objectType) {
         break;
     case 'user': echo $this->partial('partials/object-lists/user-list.phtml', array('users'=>$this->objects));
         break;
-    case 'orgobject': echo $this->partial('partials/object-lists/orgobject-list.phtml', array('orgobjects'=>$this->objects));
-        break;
-    default : echo $this->partial('partials/object-lists/level-list.phtml', array('levels'=>$this->objects));
+    default : echo $this->partial('partials/object-lists/node-list.phtml', array('levels'=>$this->objects));
 }
