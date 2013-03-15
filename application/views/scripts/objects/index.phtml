@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<script>
+    $(function(){
+        var addUrl;
+        addUrl = "<?php echo $this->url(array('controller' => 'objects', 'action' => 'add-object')); ?>";
+        $('#add-object-form').dialog({
+            autoOpen: false,
+            modal:    true,
+            buttons:  {
+                'Save' : function(){
+                    $.post(addUrl, $("#object-form").serialize())
+                    .done(function(data){
+                  //      $("#main").html(data);
+                        $("#add-object-form").dialog("close");
+                        location.reload();
+                    });
+                    //                        $(this).dialog("close");
+                },
+                'Cancel' : function(){
+                    $(this).dialog("close");
+                }
+            }
+        });
+             
+        $("#add-object-btn").button()
+        .click(function(){
+            $("#add-object-form").dialog("open");
+        });
+    });
+</script>
+<?php
+echo $this->partial('partials/object-forms/' . $this->objectName . '-form.phtml', array('subobjects' => $this->subobjects));
+echo $this->partial('partials/object-lists/' . $this->objectName . '-list.phtml', array($this->objectName . 's' => $this->objects));

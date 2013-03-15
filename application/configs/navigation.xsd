@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <nav>
+        <admin>
+            <label>Administration</label>
+            <title>Administration</title>
+            <controller>Objects</controller>
+            <action>Index</action>
+            <resource>admin</resource>
+            <pages>
+                <levels>
+                    <labels>Levels</labels>
+                    <title>Levels administration</title>
+                    <controller>Objects</controller>
+                    <action>Index</action>
+                    <params>
+                        <objectType>level</objectType>
+                    </params>
+                    <resource>levels</resource>
+                </levels>
+                <orgobjects>
+                    <label>Organizational object</label>
+                    <title>Administration of organizational object</title>
+                    <controller>Objects</controller>
+                    <action>Index</action>
+                    <params>
+                        <objectType>orgobject</objectType>
+                    </params>
+                    <resource>orgobjects</resource>
+                </orgobjects>
+                <positions>
+                    <labels>Positions</labels>
+                    <title>Positions administration</title>
+                    <controller>Objects</controller>
+                    <action>Index</action>
+                    <params>
+                        <objectType>position</objectType>
+                    </params>
+                    <resource>positions</resource>
+                </positions>
+                <elements>
+                    <labels>Elements</labels>
+                    <title>Elements administration</title>
+                    <controller>Objects</controller>
+                    <action>Index</action>
+                    <params>
+                        <objectType>element</objectType>
+                    </params>
+                    <resource>elements</resource>
+                </elements>
+                <users>
+                    <labels>Users</labels>
+                    <title>Users administration</title>
+                    <controller>Objects</controller>
+                    <action>Index</action>
+                    <params>
+                        <objectType>user</objectType>
+                    </params>
+                    <resource>users</resource>
+                </users>
+            </pages>
+        </admin>
+        
+    </nav>
+</config>
