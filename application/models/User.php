@@ -15,6 +15,7 @@ class Application_Model_User {
     private $_password;
     private $_active = true;
     private $_domainId;
+    private $_salt;
 
     public function __construct(array $userArray = null) {
         if (isset($userArray['userName'])) {
@@ -60,6 +61,7 @@ class Application_Model_User {
         }
     }
 
+        
     /**
      *  Function that returns status of Element instance. We consider Element as valid if user 
      *  has correctly set userName, userCode

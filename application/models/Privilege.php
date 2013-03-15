@@ -14,7 +14,7 @@
  */
 class Application_Model_Privilege {
 
-    private $_valid = true;
+    private $_valid = false;
     private $_privilegeId;
     private $_userId;
     private $_objectId;
@@ -46,6 +46,7 @@ class Application_Model_Privilege {
         if (isset($privilegeArray['userId'])) {
             $this->_userId = (int) $privilegeArray['userId'];
         }
+        $this->_valid = $this->isValid();
     }
 
     public function __set($name, $value) {

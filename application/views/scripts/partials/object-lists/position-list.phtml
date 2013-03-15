@@ -2,7 +2,7 @@
 <?php
 if (is_array($this->positions)){
     foreach ($this->positions as $position) {
-        echo '<tr><td><a href="'.$this->url(array('controller'=>'objects', 'action'=>'delete','positionId'=>$position->positionId)).'">x</a></td><td>'.$position->positionName . '</td><td>' . $position->objectId . '</td></tr>';
+        echo '<tr><td><a href="'.$this->url(array('controller'=>'objects', 'action'=>'delete','positionId'=>$position->positionId)).'">x</a></td><td>'.$position->positionName . '</td><td>' . $position->nodeId . '</td></tr>';
     }
 }
 ?>

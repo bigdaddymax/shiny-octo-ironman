@@ -6,41 +6,41 @@
  */
 
 /**
- * Description of Level
+ * Description of Node
  * 
- * Level is element of organsational structure of the company.
- *  $levelName  - Name of the level
- *  $levelId    - Id of the DB record of level. Used for reference.
- *  $parentLevelId  - Id of parent level. If the level doesnt have upper level, parentLevelId = 0
+ * Node is element of organsational structure of the company.
+ *  $nodeName  - Name of the node
+ *  $nodeId    - Id of the DB record of node. Used for reference.
+ *  $parentNodeId  - Id of parent node. If the node doesnt have upper node, parentNodeId = 0
  *
  * @author Max
  */
-class Application_Model_Level {
+class Application_Model_Node {
 
-    private $_levelId;
-    private $_levelName;
-    private $_parentLevelId;
+    private $_nodeId;
+    private $_nodeName;
+    private $_parentNodeId;
     private $_active = true;
     private $_valid = true;
     private $_domainId;
 
-    public function __construct(array $level) {
-        if (isset($level['levelId'])) {
-            $this->_levelId = (int) $level['levelId'];
+    public function __construct(array $node) {
+        if (isset($node['nodeId'])) {
+            $this->_nodeId = (int) $node['nodeId'];
         }
-        if (isset($level['levelName'])) {
-            $this->_levelName = $level['levelName'];
+        if (isset($node['nodeName'])) {
+            $this->_nodeName = $node['nodeName'];
         } else {
             $this->_valid = false;
         }
-        if (isset($level['active'])) {
-            $this->_active = (int) $level['active'];
+        if (isset($node['active'])) {
+            $this->_active = (int) $node['active'];
         }
-        if (isset($level['parentLevelId'])) {
-            $this->_parentLevelId = (int) $level['parentLevelId'];
+        if (isset($node['parentNodeId'])) {
+            $this->_parentNodeId = (int) $node['parentNodeId'];
         }
-        if (isset($level['domainId'])) {
-            $this->_domainId = (int)$level['domainId'];
+        if (isset($node['domainId'])) {
+            $this->_domainId = (int)$node['domainId'];
         } 
     }
 
@@ -65,11 +65,11 @@ class Application_Model_Level {
     }
 
     /**
-     * Returns true if levelName is set, 
+     * Returns true if nodeName is set, 
      * @return boolean
      */
     public function isValid() {
-        if (isset($this->_levelName) && isset($this->_parentLevelId) && isset($this->_domainId)) {
+        if (isset($this->_nodeName) && isset($this->_parentNodeId) && isset($this->_domainId)) {
             return true;
         } else {
             return false;
@@ -77,8 +77,8 @@ class Application_Model_Level {
     }
 
     public function toArray() {
-        return array('levelId' => (int) $this->_levelId, 'levelName' => $this->_levelName,
-            'parentLevelId' => $this->_parentLevelId, 'active' => (bool) $this->_active, 'domainId' => $this->_domainId);
+        return array('nodeId' => (int) $this->_nodeId, 'nodeName' => $this->_nodeName,
+            'parentNodeId' => $this->_parentNodeId, 'active' => (bool) $this->_active, 'domainId' => $this->_domainId);
     }
 
 }

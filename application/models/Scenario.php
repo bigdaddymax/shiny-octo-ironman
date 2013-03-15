@@ -1,20 +1,18 @@
 <?php
 
 /**
- * Description of Element
+ * Description of Scenario
  *
- * "Element" is a class that represent particular type of entries that could be processed by the system.
- * Examples of elements could be: capex, opex, salary, agreement, particular spending (car service expences, office rent, materials, office supplies etc)
+ * "Element" is a class that represent particular scenario of approval process.
+ * It stores information who is involved in approval process and in what sequence this process should run
  * 
  * @author Max
  */
-class Application_Model_Element {
+class Application_Model_Scenario {
 
     private $_valid = true;
-    private $_elementName;
-    private $_elementCode;  // Code can be used for approvals categorisation, analizys and export to external software
-    private $_elementComment;
-    private $_elementId;
+    private $_scenarioName;
+    private $_scenarioId;
     private $_active = true;
     private $_domainId;
 
