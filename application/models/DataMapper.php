@@ -195,9 +195,9 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 }
             }
             // Append Domain condition. Every company/customer should be "jailed" in its domain space
-            $result .= ' AND domainId = ' .$this->session->domainId;
+            $result .= ' AND domainId = ' . $this->session->domainId;
         } else {
-            $result = ' WHERE domainId = '.$this->session->domainId;
+            $result = ' WHERE domainId = ' . $this->session->domainId;
         }
         return $result;
     }
@@ -242,7 +242,9 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         $count = null;
         foreach ($tables as $table) {
             if ($table != $this->tableName) {
-                $count = $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $table . ' WHERE ' . $this->objectIdName . ' = ? LIMIT 0,1', $id));
+                $query = $this->dbLink->quoteinto("SELECT $this->objectIdName FROM $table  WHERE  $this->objectIdName = ?", $id);
+                $query .= $this->dbLink->quoteinto(" AND domainId = ? LIMIT 0, 1", $this->session->domainId);
+                $count = $this->dbLink->fetchOne($query);
                 if ($count == $id) {
                     return array('dependentTable' => $table, 'ID' => $id);
                 }
