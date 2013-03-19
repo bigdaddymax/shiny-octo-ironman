@@ -4,7 +4,7 @@
  * Description of Scenario
  *
  * "Element" is a class that represent particular scenario of approval process.
- * It stores information who is involved in approval process and in what sequence this process should run
+ * It stores inscenarioation who is involved in approval process and in what sequence this process should run
  * 
  * @author Max
  */
@@ -13,36 +13,89 @@ class Application_Model_Scenario {
     private $_valid = true;
     private $_scenarioName;
     private $_scenarioId;
+    private $_entries;
     private $_active = true;
     private $_domainId;
 
-    public function __construct(array $elementArray = null) {
-        if (isset($elementArray['elementName'])) {
-            $this->_elementName = $elementArray['elementName'];
+    public function __construct(array $scenarioArray = null) {
+        if (isset($scenarioArray['scenarioName'])) {
+            $this->_scenarioName = $scenarioArray['scenarioName'];
         }
 
-        if (isset($elementArray['domainId'])) {
-            $this->domainId = (int) $elementArray['domainId'];
+        if (isset($scenarioArray['domainId'])) {
+            $this->domainId = (int) $scenarioArray['domainId'];
         }
-        if (isset($elementArray['active'])) {
-            $this->_active = (bool) $elementArray['active'];
-        }
-
-        if (isset($elementArray['elementComment']))
-            $this->_elementComment = $elementArray['elementComment'];
-
-        if (isset($elementArray['elementCode'])) {
-            $this->_elementCode = (int) $elementArray['elementCode'];
+        if (isset($scenarioArray['active'])) {
+            $this->_active = (bool) $scenarioArray['active'];
         }
 
-        if (isset($elementArray['elementId'])) {
-            $this->_elementId = (int) $elementArray['elementId'];
+        if (isset($scenarioArray['scenarioId'])) {
+            $this->_scenarioId = (int) $scenarioArray['scenarioId'];
         }
+
+        if (isset($scenarioArray['entries'])) {
+            $this->setEntries($scenarioArray['entries']);
+        }
+
+        if (!isset($this->_entries) && is_array($scenarioArray)) {
+            $keys = array_keys($scenarioArray);
+            foreach ($keys as $key) {
+                if (strpos($key, '_')) {
+                    if ('userId' == substr($key, 0, strpos($key, '_'))) {
+                        $entries[substr($key, strpos($key, '_') + 1)]['userId'] = (int) $scenarioArray[$key];
+                        $entries[substr($key, strpos($key, '_') + 1)]['domainId'] = $this->_domainId;
+                    } elseif ('order' == substr($key, 0, strpos($key, '_'))) {
+                        $entries[substr($key, strpos($key, '_') + 1)]['order'] = (int) $scenarioArray[$key];
+                    }
+                }
+            }
+            if (isset($entries)) {
+                $this->setEntries($entries);
+            }
+        }
+    }
+
+    private function setEntries($entries) {
+        // Collect valid entries here
+        $checkedEntries = null;
+        if (isset($entries) && is_array($entries)) {
+            foreach ($entries as $entry) {
+                // Item is of Application_Model_Item type
+                if ($entry instanceof Application_Model_ScenarioEntry) {
+                    if ($entry->isValid()) {
+                        $checkedEntries[] = $entry;
+                    } else {
+                        throw new InvalidArgumentException('Cannot create entry from array within Scenario. Entry is not valid');
+                    }
+                }
+                // Item is array, try to create valid Item from this array
+                elseif (is_array($entry)) {
+                    $entryObj = new Application_Model_ScenarioEntry($entry);
+                    if (!$entryObj->isValid()) {
+                        // Unsuccssfully
+                        throw new InvalidArgumentException('Cannot create entry from array within Scenario. Entry is not valid');
+                    } else {
+                        // Successfully, add this entry to collection
+                        $checkedEntries[] = $entryObj;
+                    }
+                } else {
+                    // Found not valid data in input array
+                    throw new InvalidArgumentException('One of entries is neither of Application_Model_ScenarioEntry type nor Array().');
+                }
+            }
+        } elseif ($entries instanceof Application_Model_ScenarioEntry) {
+            $checkedEntries[] = $entries;
+        } else {
+            throw new InvalidArgumentException('One of entries is neither of Application_Model_ScenarioEntry type nor Array().');
+        }
+        $this->_entries = $checkedEntries;
     }
 
     public function __set($name, $value) {
         if ('valid' == $name) {
             echo 'Cannot set value for "valid" property';
+        } elseif ('entries' == $name) {
+            $this->setEntries($value);
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
             $this->$name1 = $value;
@@ -61,12 +114,12 @@ class Application_Model_Scenario {
     }
 
     /**
-     *  Function that returns status of Element instance. We consider Element as valid if element 
-     *  has correctly set elementName, elementCode
+     *  Function that returns status of Element instance. We consider Element as valid if scenario 
+     *  has correctly set scenarioName, scenarioCode
      * @return type
      */
     public function isValid() {
-        if (isset($this->_elementCode) && isset($this->_elementName) && isset($this->_domainId)) {
+        if (isset($this->_entries) && isset($this->_scenarioName) && isset($this->_domainId)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;
@@ -75,7 +128,7 @@ class Application_Model_Scenario {
     }
 
     /**
-     * Returns array of properties of element.
+     * Returns array of properties of scenario.
      * @return type
      */
     public function toArray() {
