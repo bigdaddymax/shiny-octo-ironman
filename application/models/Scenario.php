@@ -85,8 +85,6 @@ class Application_Model_Scenario {
             }
         } elseif ($entries instanceof Application_Model_ScenarioEntry) {
             $checkedEntries[] = $entries;
-        } else {
-            throw new InvalidArgumentException('One of entries is neither of Application_Model_ScenarioEntry type nor Array().');
         }
         $this->_entries = $checkedEntries;
     }
