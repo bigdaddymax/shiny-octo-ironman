@@ -10,8 +10,9 @@
 class Application_Model_ScenarioEntry {
 
     private $_valid = true;
-    private $_scenarioEntryId;
-    private $_order;
+    private $_scenarioentryId;
+    private $_scenarioId;
+    private $_orderPos;
     private $_userId;
     private $_active = true;
     private $_domainId;
@@ -23,14 +24,17 @@ class Application_Model_ScenarioEntry {
         if (isset($scenarioEntryArray['active'])) {
             $this->_active = (bool) $scenarioEntryArray['active'];
         }
-        if (isset($scenarioEntryArray['order'])) {
-            $this->_order = (int)$scenarioEntryArray['order'];
+        if (isset($scenarioEntryArray['orderPos'])) {
+            $this->_orderPos = (int)$scenarioEntryArray['orderPos'];
         }
         if (isset($scenarioEntryArray['userId'])) {
             $this->_userId = (int) $scenarioEntryArray['userId'];
         }
-        if (isset($scenarioEntryArray['scenarioEntryId'])) {
-            $this->_scenarioEntryId = (int) $scenarioEntryArray['scenarioEntryId'];
+        if (isset($scenarioEntryArray['scenarioentryId'])) {
+            $this->_scenarioentryId = (int) $scenarioEntryArray['scenarioentryId'];
+        }
+        if (isset($scenarioEntryArray['scenarioId'])) {
+            $this->_scenarioId = (int) $scenarioEntryArray['scenarioId'];
         }
     }
 
@@ -41,7 +45,7 @@ class Application_Model_ScenarioEntry {
             $name1 = '_' . $name;
             $this->$name1 = $order;
         } else {
-            echo 'Cannot set order. Property ' . $name . ' doesnt exist';
+            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
         }
     }
 
@@ -50,7 +54,7 @@ class Application_Model_ScenarioEntry {
             $name = '_' . $name;
             return $this->$name;
         } else {
-            return 'Cannot get order. Property ' . $name . ' doesnt exist';
+            return 'Cannot get value. Property ' . $name . ' doesnt exist';
         }
     }
 
@@ -61,7 +65,7 @@ class Application_Model_ScenarioEntry {
      */
     public function isValid() {
         if (isset($this->_domainId) && isset($this->_userId) &&
-                isset($this->_order)) {
+                isset($this->_orderPos)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;
