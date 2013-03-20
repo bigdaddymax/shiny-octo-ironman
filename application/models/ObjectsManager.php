@@ -2,6 +2,10 @@
 
 /**
  * Description of ObjectsManager
+ * Class for objects manipulation. In contradiction to DataMapper doesnt deal with 
+ * database itself.
+ * Main task - provide save, get and delete methods for complex objects like 
+ * Form and Scenario.
  *
  * @author Max
  * 
@@ -51,18 +55,18 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             if (isset($formData['active'])) {
                 $formData['active'] = (int) $formData['active'];
             }
-            if ($this->dataMapper->checkObjectExistance($form)) {
+            $formId = $this->dataMapper->checkObjectExistance($form);
+            if ($formId) {
                 // We will update form data. Dont forget, that we have to update (or add new) items as well.
                 unset($formData['formId']);
-                $formId = (int) $form->formId;
-                $this->dbLink->update('forms', $formData, array('formId' => $formId));
-                $this->dbLink->delete('items', array('formId' => $formId));
+                $this->dbLink->update('form', $formData, array('formId' => $formId));
+                $this->dbLink->delete('item', array('formId' => $formId));
             } else {
                 // Creating new form
                 if (!isset($formData['date'])) {
                     $formData['date'] = date('Y-m-d H:i:s');
                 }
-                $this->dbLink->insert('forms', $formData);
+                $this->dbLink->insert('form', $formData);
                 $formId = (int) $this->dbLink->lastInsertId();
             }
             foreach ($items as $item) {
@@ -84,12 +88,12 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         if (!is_int($formId)) {
             throw new InvalidArgumentException('Form ID should be integer.');
         }
-        $formArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM forms WHERE formId=?', $formId));
+        $formArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM form WHERE formId=?', $formId));
         if (!is_array($formArray)) {
             throw new Exception('Form with ID ' . $formId . ' doesnt exist.');
         }
         $form = new Application_Model_Form($formArray);
-        $itemsArray = $this->dbLink->fetchAll($this->dbLink->quoteinto('SELECT * FROM items WHERE formId=?', $formId));
+        $itemsArray = $this->dbLink->fetchAll($this->dbLink->quoteinto('SELECT * FROM item WHERE formId=?', $formId));
         $items = array();
         foreach ($itemsArray as $itemArray) {
             $items[] = new Application_Model_Item($itemArray);
@@ -128,7 +132,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
      * @param type $filter
      */
     public function getAllForms($filter = null) {
-        $formArray = $this->dataMapper->dbLink->fetchAll('SELECT * FROM forms WHERE 1=1 ');
+        $formArray = $this->dataMapper->dbLink->fetchAll('SELECT * FROM form ' . $this->dataMapper->prepareFilter($filter));
         if (!empty($formArray) && is_array($formArray)) {
             foreach ($formArray as $form) {
                 $form['items'] = $this->dataMapper->getAllObjects('Application_Model_Item', array(0 => array('column' => 'formId',
@@ -226,7 +230,66 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         }
         return $result;
     }
+    
+    public function saveScenario($scenario){
+        $scenarioId = false;
+       
+        if (($scenario instanceof Application_Model_Scenario) && $scenario->isValid()){
+            $scenarioData = $scenario->toArray();
+        } elseif (is_array($scenario)){
+            $scenarioTest = new Application_Model_Scenario($scenario);
+            if (!$scenarioTest->isValid()){
+                throw new InvalidArgumentException('Argument should be array() or valid instance of Application_Model_Scenario class');
+            }
+        }
+            $scenarioData = $scenario->toArray();
+            // We have to handle Items saving separatly
+            if (!empty($scenarioData['entries'])) {
+                // Remove items data from Form array for storing in DB
+                // We process Items and Form separatelly 
+                $entries = $scenarioData['entries'];
+                unset($scenarioData['entries']);
+            }
+            // Type casting before storing data to DB
+            if (isset($scenarioData['active'])) {
+                $scenarioData['active'] = (int) $scenarioData['active'];
+            }
+            $scenario->entries = null;
+            $scenarioId = $this->dataMapper->checkObjectExistance($scenario);
+            if ($scenarioId) {
+                // We will update form data. Dont forget, that we have to update (or add new) items as well.
+                unset($scenarioData['scenarioId']);
+                $this->dbLink->update('scenario', $scenarioData, array('scenarioId' => $scenarioId));
+                $this->dbLink->delete('scenarioentry', array('scenarioId' => $scenarioId));
+            } else {
+                // Creating new form
+                $this->dbLink->insert('scenario', $scenarioData);
+                $scenarioId = (int) $this->dbLink->lastInsertId();
+            }
+            foreach ($entries as $entry) {
+                $entry->scenarioId = $scenarioId;
+                $this->dataMapper->saveObject($entry);
+            }
 
+        return $scenarioId;
+    }
+
+    public function getScenario($scenarioId){
+        if (!is_int($scenarioId)){
+            throw new InvalidArgumentException('Invalid argumment. $scenarioId should be integer');
+        }
+        $scenarioArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM scenario WHERE scenarioId = ?', $scenarioId));
+        if (!$scenarioArray){
+            return false;
+        }
+        $scenarioArray['entries'] = $this->dataMapper->getAllObjects('Application_Model_ScenarioEntry', array(0=>array('column'=>'scenarioId', 'operand'=>$scenarioId)));
+        $scenario = new Application_Model_Scenario($scenarioArray);
+        if ($scenario->isValid()){
+            return $scenario;
+        } else {
+            throw new Exception('Something wrong, cannot create valid instance of Application_Model_Scenario');
+        }
+    }
 }
 
 ?>
