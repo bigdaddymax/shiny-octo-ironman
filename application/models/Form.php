@@ -40,6 +40,7 @@ class Application_Model_Form {
         if (isset($formArray['formId'])) {
             $this->_formId = (int) $formArray['formId'];
         }
+        // Items are set from normal array
         if (isset($formArray['items'])) {
             $this->setItems($formArray['items']);
         }
@@ -48,7 +49,9 @@ class Application_Model_Form {
         } else {
             $this->_date = date('Y-m-d H:i:s');
         }
-
+        // If items were not set from array, we assume that this is HTTP _POST array
+        // Try to decode items from form 'itemName_3 = "ItemName"', 'value_3 = 44.3' etc, 
+        // where '3' is item's number and 'itemName' or 'value' is name of property to be set
         if (!isset($this->items) && is_array($formArray)) {
             $keys = array_keys($formArray);
             foreach ($keys as $key) {
