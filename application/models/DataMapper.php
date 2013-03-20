@@ -48,7 +48,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         elseif (is_string($object))
             $this->className = $object;
         $this->objectName = strtolower(substr($this->className, strrpos($this->className, '_') + 1));
-        $this->tableName = $this->objectName . 's';
+        $this->tableName = $this->objectName;
         $this->objectIdName = $this->objectName . 'Id';
         $this->objectParentIdName = 'parent' . ucwords($this->objectIdName);
     }
@@ -140,7 +140,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                     }
                     $filter.=$this->dbLink->quoteinto(" AND $key = ? ", $parameter);
                 }
-//                Zend_Debug::dump($filter);
+//                echo $this->tableName;
+   //             Zend_Debug::dump($filter);
                 $stmt = $this->dbLink->query("SELECT $this->objectIdName FROM $this->tableName " . $filter);
                 $id = $stmt->fetchColumn();
                 return (($id != 0) ? $id : false);
@@ -150,7 +151,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $object));
         }
         $row = $stmt->fetchColumn();
-        return (($row != 0) ? true : false);
+        return (($row != 0) ? (int)$row : false);
     }
 
     /**
@@ -160,7 +161,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @return string
      * @throws InvalidArgumentException
      */
-    private function prepareFilter($filterArray) {
+    public function prepareFilter($filterArray) {
         $result = '';
         if (is_array($filterArray)) {
             $result = ' WHERE 1 = 1 ';
