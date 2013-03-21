@@ -51,13 +51,17 @@ class ObjectsController extends Zend_Controller_Action {
     }
 
     public function addObjectAction() {
-        function stripUnderscore(&$value, $key){
-            $value = ltrim($value, '_');
+        if (!function_exists('stripUnderscore')) {
+
+            function stripUnderscore(&$value, $key) {
+                $value = ltrim($value, '_');
+            }
+
         }
         $params = $this->getRequest()->getPost();
         $keys = array_keys($params);
         $values = array_values($params);
- //       $keys = array_keys($params);
+        //       $keys = array_keys($params);
         array_walk($keys, 'stripUnderscore');
         $params = array_combine($keys, $values);
         Zend_Debug::dump($params);
@@ -99,7 +103,7 @@ class ObjectsController extends Zend_Controller_Action {
                         'objectId' => $this->_request->getParam('objectId'),
                         'privilege' => $this->_request->getParam('privilege'),
                         'domainId' => 1));
-            if ((bool)$this->_request->getParam('state')) {
+            if ((bool) $this->_request->getParam('state')) {
                 $this->objectsManager->grantPrivilege($privilege);
             } else {
                 $this->objectsManager->revokePrivilege($privilege);
