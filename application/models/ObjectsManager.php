@@ -290,6 +290,20 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             throw new Exception('Something wrong, cannot create valid instance of Application_Model_Scenario');
         }
     }
+    
+    public function getAllScenarios($filter = null){
+        $result = array();
+        $scenarios = $this->dbLink->fetchAll('SELECT * FROM scenario ' . $this->dataMapper->prepareFilter($filter));
+        foreach ($scenarios as $scenario){
+            $entries = $this->dataMapper->getAllObjects('Application_Model_ScenarioEntry',
+                                                            array(0=>array('column'=>'scenarioId',
+                                                                           'operand'=>$scenario['scenarioId'])));
+            $scenario['entries'] = $entries;
+            $scenario = new Application_Model_Scenario($scenario);
+            $result[] = $scenario;
+        }
+        return $result;
+    }
 }
 
 ?>
