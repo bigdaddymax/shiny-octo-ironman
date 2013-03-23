@@ -102,7 +102,7 @@ class ObjectsController extends Zend_Controller_Action {
                         'objectType' => $this->_request->getParam('object'),
                         'objectId' => $this->_request->getParam('objectId'),
                         'privilege' => $this->_request->getParam('privilege'),
-                        'domainId' => 1));
+                        'domainId' => $this->session->domainId));
             if ((bool) $this->_request->getParam('state')) {
                 $this->objectsManager->grantPrivilege($privilege);
             } else {
