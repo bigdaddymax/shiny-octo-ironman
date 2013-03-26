@@ -1,7 +1,14 @@
 <?php
 
 /**
- * Description of AdminController
+ * Description of ObjectController
+ * Takes care of objects with common structure (Node, Element, Position, Item, User)
+ * Controller allows to create new objects, show list of existing ones, delete objects
+ * and edit objects.
+ * 
+ * Controller allows also to deal with specific object Privilege via special actions:
+ * userPrivilegesAction() and editPrivilegesAction()
+ * 
  * * @author Max
  */
 class ObjectsController extends Zend_Controller_Action {
@@ -14,8 +21,38 @@ class ObjectsController extends Zend_Controller_Action {
     private $subobjects;
     private $objectsManager;
     private $session;
+    private $params;
 
+    /**
+     * init() performs all preparations needed to complete requested action. Its main task
+     * is to determine which object we are dealing with and prepare necessery variables
+     * and/or include correct files
+     */
     public function init() {
+        // Ugly workaround about strange reaction of JQuery on input elements with
+        // name = "nodeName". Nevertheless "nodeName" is not reserved word JQuery throws
+        // error that some element doesnt have HTMLToLower() method.
+        // So all risky input field names are prefixed with underscore (_)
+        // To maintain code consistancy before we proceed with received parameters
+        // we remove underscore char from the begining of every parameter name
+        // If parameter doesnt have undescore before its name we pass it without changes
+        if (!function_exists('stripUnderscore')) {
+
+            function stripUnderscore(&$value, $key) {
+                $value = ltrim($value, '_');
+            }
+
+        }
+        $params = $this->getRequest()->getParams();
+        if (!empty($params)) {
+            $keys = array_keys($params);
+            $values = array_values($params);
+            //       $keys = array_keys($params);
+            array_walk($keys, 'stripUnderscore');
+            $this->params = array_combine($keys, $values);
+        }
+        //+++++++++++++++++++++++++++ END OF WORKAROUND ++++++++++++++++++++++++++++++++++++
+
         $this->dataMapper = new Application_Model_DataMapper();
         $this->objectsManager = new Application_Model_ObjectsManager();
         $this->redirector = $this->_helper->getHelper('Redirector');
@@ -35,6 +72,7 @@ class ObjectsController extends Zend_Controller_Action {
         }
         $this->setClassAndTableName($this->className);
         $this->session = new Zend_Session_Namespace('Auth');
+        $this->params['domainId'] = $this->session->domainId;
     }
 
     private function setClassAndTableName() {
@@ -51,21 +89,8 @@ class ObjectsController extends Zend_Controller_Action {
     }
 
     public function addObjectAction() {
-        if (!function_exists('stripUnderscore')) {
-
-            function stripUnderscore(&$value, $key) {
-                $value = ltrim($value, '_');
-            }
-
-        }
-        $params = $this->getRequest()->getPost();
-        $keys = array_keys($params);
-        $values = array_values($params);
-        //       $keys = array_keys($params);
-        array_walk($keys, 'stripUnderscore');
-        $params = array_combine($keys, $values);
-        Zend_Debug::dump($params);
-        $object = new $this->className($params);
+//        Zend_Debug::dump($params);
+        $object = new $this->className($this->params);
         if ($object->isValid()) {
             $this->dataMapper->saveObject($object);
             $this->view->objects = $this->dataMapper->getAllObjects($this->className);
@@ -110,6 +135,23 @@ class ObjectsController extends Zend_Controller_Action {
             }
         }
         exit;
+    }
+
+    public function editObjectAction() {
+        $objectId = (int) $this->params[$this->objectIdName];
+        switch ($this->className) {
+            case 'Application_Model_Node':
+                $node = $this->dataMapper->getObject($objectId, $this->className);
+                $scenarios = $this->objectsManager->getAllScenarios();
+                $assignment = $this->dataMapper->getAllObjects('Application_Model_ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
+                $nodes = $this->dataMapper->getAllObjects('Application_Model_Node');
+                $this->view->objects = array('node' => $node,
+                    'scenarios' => $scenarios,
+                    'nodes' => $nodes, 'assignment' => $assignment);
+                $this->view->partialFile = 'edit-node.phtml';
+                Zend_Debug::dump($this->params);
+                break;
+        }
     }
 
 }
