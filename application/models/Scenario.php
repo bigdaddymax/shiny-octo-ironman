@@ -41,11 +41,10 @@ class Application_Model_Scenario {
             $keys = array_keys($scenarioArray);
             foreach ($keys as $key) {
                 if (strpos($key, '_')) {
-                    if ('userId' == substr($key, 0, strpos($key, '_'))) {
-                        $entries[substr($key, strpos($key, '_') + 1)]['userId'] = (int) $scenarioArray[$key];
-                        $entries[substr($key, strpos($key, '_') + 1)]['domainId'] = $this->_domainId;
-                    } elseif ('order' == substr($key, 0, strpos($key, '_'))) {
-                        $entries[substr($key, strpos($key, '_') + 1)]['order'] = (int) $scenarioArray[$key];
+                    if ('orderPos' == substr($key, 0, strpos($key, '_'))) {
+                        $entries[(int) $scenarioArray[$key]]['orderPos'] = (int) $scenarioArray[$key];
+                        $entries[(int) $scenarioArray[$key]]['domainId'] = $this->_domainId;
+                        $entries[(int) $scenarioArray[$key]]['userId'] = substr($key, strpos($key, '_') + 1);
                     }
                 }
             }
