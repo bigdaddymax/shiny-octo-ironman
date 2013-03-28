@@ -16,10 +16,12 @@ require_once APPLICATION_PATH . '/models/BaseDBAbstract.php';
 class Application_Model_ObjectsManager extends BaseDBAbstract {
 
     private $dataMapper;
+    private $session;
 
     public function __construct() {
         parent::__construct();
         $this->dataMapper = new Application_Model_DataMapper();
+        $this->session = new Zend_Session_Namespace('Auth');
     }
 
     /**
@@ -230,80 +232,126 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         }
         return $result;
     }
-    
-    public function saveScenario($scenario){
+
+    public function saveScenario($scenario) {
         $scenarioId = false;
-       
-        if (($scenario instanceof Application_Model_Scenario) && $scenario->isValid()){
+
+        if (($scenario instanceof Application_Model_Scenario) && $scenario->isValid()) {
             $scenarioData = $scenario->toArray();
-        } elseif (is_array($scenario)){
+        } elseif (is_array($scenario)) {
             $scenarioTest = new Application_Model_Scenario($scenario);
-            if (!$scenarioTest->isValid()){
+            if (!$scenarioTest->isValid()) {
                 throw new InvalidArgumentException('Argument should be array() or valid instance of Application_Model_Scenario class');
             }
         }
-            $scenarioData = $scenario->toArray();
-            // We have to handle Items saving separatly
-            if (!empty($scenarioData['entries'])) {
-                // Remove items data from Form array for storing in DB
-                // We process Items and Form separatelly 
-                $entries = $scenarioData['entries'];
-                unset($scenarioData['entries']);
-            }
-            // Type casting before storing data to DB
-            if (isset($scenarioData['active'])) {
-                $scenarioData['active'] = (int) $scenarioData['active'];
-            }
-            $scenario->entries = null;
-            $scenarioId = $this->dataMapper->checkObjectExistance($scenario);
-            if ($scenarioId) {
-                // We will update form data. Dont forget, that we have to update (or add new) items as well.
-                unset($scenarioData['scenarioId']);
-                $this->dbLink->update('scenario', $scenarioData, array('scenarioId' => $scenarioId));
-                $this->dbLink->delete('scenarioentry', array('scenarioId' => $scenarioId));
-            } else {
-                // Creating new form
-                $this->dbLink->insert('scenario', $scenarioData);
-                $scenarioId = (int) $this->dbLink->lastInsertId();
-            }
-            foreach ($entries as $entry) {
-                $entry->scenarioId = $scenarioId;
-                $this->dataMapper->saveObject($entry);
-            }
+        $scenarioData = $scenario->toArray();
+        // We have to handle Items saving separatly
+        if (!empty($scenarioData['entries'])) {
+            // Remove items data from Form array for storing in DB
+            // We process Items and Form separatelly 
+            $entries = $scenarioData['entries'];
+            unset($scenarioData['entries']);
+        }
+        // Type casting before storing data to DB
+        if (isset($scenarioData['active'])) {
+            $scenarioData['active'] = (int) $scenarioData['active'];
+        }
+        $scenario->entries = null;
+        $scenarioId = $this->dataMapper->checkObjectExistance($scenario);
+        if ($scenarioId) {
+            // We will update form data. Dont forget, that we have to update (or add new) items as well.
+            unset($scenarioData['scenarioId']);
+            $this->dbLink->update('scenario', $scenarioData, array('scenarioId' => $scenarioId));
+            $this->dbLink->delete('scenarioentry', array('scenarioId' => $scenarioId));
+        } else {
+            // Creating new form
+            $this->dbLink->insert('scenario', $scenarioData);
+            $scenarioId = (int) $this->dbLink->lastInsertId();
+        }
+        foreach ($entries as $entry) {
+            $entry->scenarioId = $scenarioId;
+            $this->dataMapper->saveObject($entry);
+        }
 
         return $scenarioId;
     }
 
-    public function getScenario($scenarioId){
-        if (!is_int($scenarioId)){
+    public function getScenario($scenarioId) {
+        if (!is_int($scenarioId)) {
             throw new InvalidArgumentException('Invalid argumment. $scenarioId should be integer');
         }
         $scenarioArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM scenario WHERE scenarioId = ?', $scenarioId));
-        if (!$scenarioArray){
+        if (!$scenarioArray) {
             return false;
         }
-        $scenarioArray['entries'] = $this->dataMapper->getAllObjects('Application_Model_ScenarioEntry', array(0=>array('column'=>'scenarioId', 'operand'=>$scenarioId)));
+        $scenarioArray['entries'] = $this->dataMapper->getAllObjects('Application_Model_ScenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $scenarioId)));
         $scenario = new Application_Model_Scenario($scenarioArray);
-        if ($scenario->isValid()){
+        if ($scenario->isValid()) {
             return $scenario;
         } else {
             throw new Exception('Something wrong, cannot create valid instance of Application_Model_Scenario');
         }
     }
-    
-    public function getAllScenarios($filter = null){
+
+    public function getAllScenarios($filter = null) {
         $result = array();
         $scenarios = $this->dbLink->fetchAll('SELECT * FROM scenario ' . $this->dataMapper->prepareFilter($filter));
-        foreach ($scenarios as $scenario){
-            $entries = $this->dataMapper->getAllObjects('Application_Model_ScenarioEntry',
-                                                            array(0=>array('column'=>'scenarioId',
-                                                                           'operand'=>$scenario['scenarioId'])));
+        foreach ($scenarios as $scenario) {
+            $entries = $this->dataMapper->getAllObjects('Application_Model_ScenarioEntry', array(0 => array('column' => 'scenarioId',
+                    'operand' => $scenario['scenarioId'])));
             $scenario['entries'] = $entries;
             $scenario = new Application_Model_Scenario($scenario);
             $result[] = $scenario;
         }
         return $result;
     }
+
+    /**
+     * saveObject() - unified method for saving new and/or modified objects to database
+     *                from the web input.
+     *                Main tasks - parse JSON or Array() representation of the input data
+     *                and performing appropriate manipulation with object(s)
+     * $inputData - array() of parameters passed from the web. Every array should contain 
+     *              objectType item that actualy describes what kind of object we are dealing with.
+     */
+    public function saveObject($inputData) {
+        if (!is_array($inputData)) {
+            throw new InvalidArgumentException('Input data should be array for saveObject method');
+        }
+        switch ($inputData['objectType']) {
+            case 'node':
+                if ($inputData['nodeId']) {
+                    $node = $this->dataMapper->getObject($inputData['nodeId'], 'Application_Model_Node');
+                    $node->parentNodeId = $inputData['parentNodeId'];
+                    $node->nodeName = $inputData['nodeName'];
+                    $this->dataMapper->saveObject($node);
+                    // Are we going to assign scenario to this node?
+                    if (-1 != $inputData['scenarioId']) {
+                        // Yes, lets check if scenarioId is from valid scenario
+                        $scenario = $this->dataMapper->getObject($inputData['scenarioId'], 'Application_Model_Scenario');
+                        if ($scenario) {
+                            $assignmentArray = array('nodeId' => $node->nodeId,
+                                                     'scenarioId' => $scenario->scenarioId,
+                                                     'domainId'=>$this->session->domainId);
+                            $assignment = new Application_Model_ScenarioAssignment($assignmentArray);
+                            $this->dataMapper->saveObject($assignment);
+                        }
+                    } else {
+                        $assignment = $this->dataMapper->getAllObjects('Application_Model_ScenarioAssignment',
+                                                                        array(0=>array('column'=>'nodeId',
+                                                                                        'operand'=>$node->nodeId)));
+                        if($assignment){
+                            $this->dataMapper->deleteObject($assignment[0]->scenarioassignmentId, 'Application_Model_ScenarioAssignment');
+                        }
+                    }
+                    return true;
+                }
+
+                break;
+        }
+        return false;
+    }
+
 }
 
 ?>
