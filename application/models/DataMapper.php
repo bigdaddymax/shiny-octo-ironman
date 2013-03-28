@@ -48,7 +48,17 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         elseif (is_string($object))
             $this->className = $object;
         $this->objectName = strtolower(substr($this->className, strrpos($this->className, '_') + 1));
-        $this->tableName = $this->objectName;
+        if (preg_match_all('/[A-Z]/', substr($this->className, strrpos($this->className, '_') + 1), $mathces, PREG_OFFSET_CAPTURE)) {
+           if (2 == count($mathces[0])){
+               $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $mathces[0][1][1]) .
+                   '_' .     
+                   substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), $mathces[0][1][1]);
+           } else
+           {
+                $this->tableName = $this->objectName;
+           }
+        }
+ //       echo $this->tableName . PHP_EOL;
         $this->objectIdName = $this->objectName . 'Id';
         $this->objectParentIdName = 'parent' . ucwords($this->objectIdName);
     }
