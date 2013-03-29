@@ -262,7 +262,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             // We will update form data. Dont forget, that we have to update (or add new) items as well.
             unset($scenarioData['scenarioId']);
             $this->dbLink->update('scenario', $scenarioData, array('scenarioId' => $scenarioId));
-            $this->dbLink->delete('scenarioentry', array('scenarioId' => $scenarioId));
+            $this->dbLink->delete('scenario_entry', array('scenarioId' => $scenarioId));
         } else {
             // Creating new form
             $this->dbLink->insert('scenario', $scenarioData);
@@ -331,17 +331,16 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
                         $scenario = $this->dataMapper->getObject($inputData['scenarioId'], 'Application_Model_Scenario');
                         if ($scenario) {
                             $assignmentArray = array('nodeId' => $node->nodeId,
-                                                     'scenarioId' => $scenario->scenarioId,
-                                                     'domainId'=>$this->session->domainId);
+                                'scenarioId' => $scenario->scenarioId,
+                                'domainId' => $this->session->domainId);
                             $assignment = new Application_Model_ScenarioAssignment($assignmentArray);
                             $this->dataMapper->saveObject($assignment);
                         }
                     } else {
-                        $assignment = $this->dataMapper->getAllObjects('Application_Model_ScenarioAssignment',
-                                                                        array(0=>array('column'=>'nodeId',
-                                                                                        'operand'=>$node->nodeId)));
-                        if($assignment){
-                            $this->dataMapper->deleteObject($assignment[0]->scenarioassignmentId, 'Application_Model_ScenarioAssignment');
+                        $assignment = $this->dataMapper->getAllObjects('Application_Model_ScenarioAssignment', array(0 => array('column' => 'nodeId',
+                                'operand' => $node->nodeId)));
+                        if ($assignment) {
+                            $this->dataMapper->deleteObject($assignment[0]->scenarioAssignmentId, 'Application_Model_ScenarioAssignment');
                         }
                     }
                     return true;
@@ -350,6 +349,22 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
                 break;
         }
         return false;
+    }
+
+    public function deleteScenario($scenarioId) {
+//        if (!$this->dataMapper->checkObjectDependencies($scenarioId, 'Application_Model_Scenario')) {
+            $entries = $this->dataMapper->getAllObjects('Application_Model_ScenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $scenarioId)));
+            Zend_Debug::dump($entries);
+//            exit;
+           if (is_array($entries)){
+                foreach($entries as $entry){
+                    $this->dbLink->delete('scenario_entry', $this->dbLink->quoteinto('scenarioEntryId =?',$entry->scenarioEntryId));
+                }
+            }
+            $this->dbLink->delete('scenario', $this->dbLink->quoteinto('scenarioId =?', $scenarioId));
+  //      } else {
+    //        return false;
+      //  }
     }
 
 }
