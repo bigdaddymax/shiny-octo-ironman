@@ -59,10 +59,11 @@ class Application_Model_DataMapper extends BaseDBAbstract {
            }
         }
  //       echo $this->tableName . PHP_EOL;
-        $this->objectIdName = $this->objectName . 'Id';
+//        $this->objectIdName = $this->objectName . 'Id';
+        
+        $this->objectIdName = lcfirst(substr($this->className, strrpos($this->className, '_') + 1)) . 'Id';
         $this->objectParentIdName = 'parent' . ucwords($this->objectIdName);
     }
-
     /**
      * 
      * saveObject($object) If object is new - save it in DB, if object exists - update it in DB
