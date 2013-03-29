@@ -34,6 +34,7 @@ class FormController extends Zend_Controller_Action {
     public function addFormAction() {
         $params = $this->getRequest()->getPost();
         $params['userId'] = $this->session->userId;
+        $params['domainId'] = $this->session->domainId;
         $form = new Application_Model_Form($params);
         if ($form->isValid()) {
             $objectsManager = new Application_Model_ObjectsManager();
