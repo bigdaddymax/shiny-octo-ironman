@@ -8,16 +8,16 @@
 class Application_Model_UserGroup {
 
     private $_valid = true;
-    private $_usergroupName;
+    private $_userGroupName;
     private $_userId;
-    private $_usergroupId;
+    private $_userGroupId;
     private $_role;
     private $_active = true;
     private $_domainId;
 
     public function __construct(array $userArray = null) {
-        if (isset($userArray['usergroupName'])) {
-            $this->_usergroupName = $userArray['usergroupName'];
+        if (isset($userArray['userGroupName'])) {
+            $this->_userGroupName = $userArray['userGroupName'];
         }
         if (isset($userArray['domainId'])) {
             $this->domainId = (int) $userArray['domainId'];
@@ -28,8 +28,8 @@ class Application_Model_UserGroup {
         if (isset($userArray['role'])) {
             $this->_role = $userArray['role'];
         }
-        if (isset($userArray['usergroupId'])) {
-            $this->_usergroupId = (int) $userArray['usergroupId'];
+        if (isset($userArray['userGroupId'])) {
+            $this->_userGroupId = (int) $userArray['userGroupId'];
         }
         if (isset($userArray['userId'])) {
             $this->_userId = (int) $userArray['userId'];
@@ -62,7 +62,7 @@ class Application_Model_UserGroup {
      * @return type
      */
     public function isValid() {
-        if (isset($this->_role) && isset($this->_usergroupName) &&
+        if (isset($this->_role) && isset($this->_userGroupName) &&
                 isset($this->_domainId) &&
                  isset($this->_userId)) {
             $this->_valid = true;
