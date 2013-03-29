@@ -10,7 +10,7 @@
 class Application_Model_ScenarioEntry {
 
     private $_valid = true;
-    private $_scenarioentryId;
+    private $_scenarioEntryId;
     private $_scenarioId;
     private $_orderPos;
     private $_userId;
@@ -30,8 +30,8 @@ class Application_Model_ScenarioEntry {
         if (isset($scenarioEntryArray['userId'])) {
             $this->_userId = (int) $scenarioEntryArray['userId'];
         }
-        if (isset($scenarioEntryArray['scenarioentryId'])) {
-            $this->_scenarioentryId = (int) $scenarioEntryArray['scenarioentryId'];
+        if (isset($scenarioEntryArray['scenarioEntryId'])) {
+            $this->_scenarioEntryId = (int) $scenarioEntryArray['scenarioEntryId'];
         }
         if (isset($scenarioEntryArray['scenarioId'])) {
             $this->_scenarioId = (int) $scenarioEntryArray['scenarioId'];
