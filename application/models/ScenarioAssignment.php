@@ -35,7 +35,7 @@ class Application_Model_ScenarioAssignment {
         }
 
         if (isset($assignmentArray['scenarioId']))
-            $this->_scenarioId = $assignmentArray['scenarioId'];
+            $this->_scenarioId = (int)$assignmentArray['scenarioId'];
 
         if (isset($assignmentArray['scondition']))
             $this->_condition = $assignmentArray['condition'];
