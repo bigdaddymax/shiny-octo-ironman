@@ -39,6 +39,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
         $this->acl->addResource('user', 'admin');
         $this->acl->addResource('position', 'admin');
         $this->acl->addResource('privilege', 'admin');
+        $this->acl->addResource('scenario', 'admin');
         $this->acl->addResource('error');
         $this->acl->addResource('form');
         $this->acl->addResource('new-form', 'form');
