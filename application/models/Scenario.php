@@ -88,6 +88,20 @@ class Application_Model_Scenario {
         $this->_entries = $checkedEntries;
     }
 
+    // Method returns order in which $userId can do approval according to this scenario
+    public function getUserOrder($userId) {
+        if ($this->_entries){
+            foreach ($this->_entries as $entry){
+                if ($userId == $entry->userId){
+                    return $entry->orderPos;
+                }
+            }
+            return false;
+        } else {
+            throw new InvalidArgumentException('This scenario doesnt have entry with userId = '.$userId);
+        }
+    }
+
     public function __set($name, $value) {
         if ('valid' == $name) {
             echo 'Cannot set value for "valid" property';
