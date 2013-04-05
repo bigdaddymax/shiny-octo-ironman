@@ -405,8 +405,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         $existingApprovals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry',
                                                                   array(0 => array('column' => 'formId',
                                                                                    'operand' => $formId)));
-        echo count($existingApprovals) . PHP_EOL;
-        if ($myApproval && count($existingApprovals) > $scenarios[0]->getUserOrder($userId)) {
+        if ($myApproval && (count($existingApprovals) == $scenarios[0]->getUserOrder($userId))) {
             $entry->approvalEntryId = $myApproval[0]->approvalEntryId;
             $entryId = $this->dataMapper->saveObject($entry);
             return $entryId;
@@ -416,7 +415,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             if ($existingApprovals){
                 // There are
                 if ((count($existingApprovals) + 1) == $scenarios[0]->getUserOrder($userId)){
-                    $entryId = $this->dataMapper->saveObject($entry);
+                     $entryId = $this->dataMapper->saveObject($entry);
                 } 
             } else {
                 // No others. Lets see if we are first in the line
