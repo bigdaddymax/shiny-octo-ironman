@@ -31,7 +31,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
      * @return boolean false if not succesful
      * @return int FormID if succesfull
      */
-    public function SaveFormData($form) {
+    public function saveForm($form) {
         $formId = false;
         $formData = array();
         // If input parameter is object we derive array from it.
@@ -72,6 +72,9 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
                 $formId = (int) $this->dbLink->lastInsertId();
             }
             foreach ($items as $item) {
+                if (is_array($item)) {
+                    $item = new Application_Model_Item($item);
+                }
                 $item->formId = $formId;
                 $this->dataMapper->saveObject($item);
             }
@@ -353,18 +356,76 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
 
     public function deleteScenario($scenarioId) {
 //        if (!$this->dataMapper->checkObjectDependencies($scenarioId, 'Application_Model_Scenario')) {
-            $entries = $this->dataMapper->getAllObjects('Application_Model_ScenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $scenarioId)));
-            Zend_Debug::dump($entries);
+        $entries = $this->dataMapper->getAllObjects('Application_Model_ScenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $scenarioId)));
 //            exit;
-           if (is_array($entries)){
-                foreach($entries as $entry){
-                    $this->dbLink->delete('scenario_entry', $this->dbLink->quoteinto('scenarioEntryId =?',$entry->scenarioEntryId));
+        if (is_array($entries)) {
+            foreach ($entries as $entry) {
+                $this->dbLink->delete('scenario_entry', $this->dbLink->quoteinto('scenarioEntryId =?', $entry->scenarioEntryId));
+            }
+        }
+        $this->dbLink->delete('scenario', $this->dbLink->quoteinto('scenarioId =?', $scenarioId));
+        //      } else {
+        //        return false;
+        //  }
+    }
+
+/**
+ * approveForm() method is used to approve/decline forms
+ * @param type $formId
+ * @param type $userId
+ * @param type $decision
+ * @return boolean|null
+ */    
+    public function approveForm($formId, $userId, $decision) {
+        $entryId = false;
+        $form = $this->getForm($formId);
+        // Lets find what scenarios are assigned to this form (node)
+        $assignments = $this->dataMapper->getAllObjects('Application_Model_ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $form->nodeId)));
+        if ($assignments) {
+            foreach ($assignments as $assignment) {
+                $scenarios[] = $this->getScenario($assignment->scenarioId);
+            }
+        } else {
+            // No scenarios found, we cannot process approvement for this form
+            return false;
+        }
+
+        // Lets check if this user already performed any approve/decline actions on this form
+        $entryArray = array('formId' => $formId, 'userId' => $userId, 'decision' => $decision, 'domainId'=>$this->session->domainId);
+        $entry = new Application_Model_ApprovalEntry($entryArray);
+        $myApproval = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry', array(0 => array('column' => 'formId',
+                'operand' => $formId),
+            1 => array('column' => 'userId',
+                'operand' => $userId)));
+        // If yes, we just modify previous entry. If user changed his mind about this form new decision should overwrite old one.
+        // +++++++++ FIXME FIXME ++++++ 
+        // We have to check also if form was approved by user that is next in scenario. If so - we cannot touch the decision.
+        // Otherwise we would have to cancel all following decisions and start process again
+        // ++++++++++++++++++++++++++++
+        if ($myApproval) {
+            $entry->approvalEntryId = $myApproval[0]->approvalEntryId;
+            $entryId = $this->dataMapper->saveObject($entry);
+            return $entryId;
+        } else {
+            // If not, we have to determine if this is user's turn to do approval.
+            // Lets check if there are other approvals
+            $existingApprovals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry',
+                                                                  array(0 => array('column' => 'formId',
+                                                                                   'operand' => $formId)));
+            if ($existingApprovals){
+                // There are
+                if ((count($existingApprovals) + 1) == $scenarios[0]->getUserOrder($userId)){
+                    $entryId = $this->dataMapper->saveObject($entry);
+                } 
+            } else {
+                // No others. Lets see if we are first in the line
+                if ($scenarios[0]->getUserOrder($userId) == 1){
+                    // Yes, we are.
+                    $entryId = $this->dataMapper->saveObject($entry);
                 }
             }
-            $this->dbLink->delete('scenario', $this->dbLink->quoteinto('scenarioId =?', $scenarioId));
-  //      } else {
-    //        return false;
-      //  }
+        }
+        return $entryId;
     }
 
 }
