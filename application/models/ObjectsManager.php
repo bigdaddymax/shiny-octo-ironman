@@ -402,16 +402,17 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         // We have to check also if form was approved by user that is next in scenario. If so - we cannot touch the decision.
         // Otherwise we would have to cancel all following decisions and start process again
         // ++++++++++++++++++++++++++++
-        if ($myApproval) {
+        $existingApprovals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry',
+                                                                  array(0 => array('column' => 'formId',
+                                                                                   'operand' => $formId)));
+        echo count($existingApprovals) . PHP_EOL;
+        if ($myApproval && count($existingApprovals) > $scenarios[0]->getUserOrder($userId)) {
             $entry->approvalEntryId = $myApproval[0]->approvalEntryId;
             $entryId = $this->dataMapper->saveObject($entry);
             return $entryId;
         } else {
             // If not, we have to determine if this is user's turn to do approval.
             // Lets check if there are other approvals
-            $existingApprovals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry',
-                                                                  array(0 => array('column' => 'formId',
-                                                                                   'operand' => $formId)));
             if ($existingApprovals){
                 // There are
                 if ((count($existingApprovals) + 1) == $scenarios[0]->getUserOrder($userId)){
