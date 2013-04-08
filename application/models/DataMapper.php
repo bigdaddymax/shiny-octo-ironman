@@ -49,21 +49,21 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             $this->className = $object;
         $this->objectName = strtolower(substr($this->className, strrpos($this->className, '_') + 1));
         if (preg_match_all('/[A-Z]/', substr($this->className, strrpos($this->className, '_') + 1), $mathces, PREG_OFFSET_CAPTURE)) {
-           if (2 == count($mathces[0])){
-               $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $mathces[0][1][1]) .
-                   '_' .     
-                   substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), $mathces[0][1][1]);
-           } else
-           {
+            if (2 == count($mathces[0])) {
+                $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $mathces[0][1][1]) .
+                        '_' .
+                        substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), $mathces[0][1][1]);
+            } else {
                 $this->tableName = $this->objectName;
-           }
+            }
         }
- //       echo $this->tableName . PHP_EOL;
+        //       echo $this->tableName . PHP_EOL;
 //        $this->objectIdName = $this->objectName . 'Id';
-        
+
         $this->objectIdName = lcfirst(substr($this->className, strrpos($this->className, '_') + 1)) . 'Id';
         $this->objectParentIdName = 'parent' . ucwords($this->objectIdName);
     }
+
     /**
      * 
      * saveObject($object) If object is new - save it in DB, if object exists - update it in DB
@@ -152,7 +152,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                     $filter.=$this->dbLink->quoteinto(" AND $key = ? ", $parameter);
                 }
 //                echo $this->tableName;
-   //             Zend_Debug::dump($filter);
+                //             Zend_Debug::dump($filter);
                 $stmt = $this->dbLink->query("SELECT $this->objectIdName FROM $this->tableName " . $filter);
                 $id = $stmt->fetchColumn();
                 return (($id != 0) ? $id : false);
@@ -162,7 +162,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $object));
         }
         $row = $stmt->fetchColumn();
-        return (($row != 0) ? (int)$row : false);
+        return (($row != 0) ? (int) $row : false);
     }
 
     /**
@@ -174,36 +174,47 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      */
     public function prepareFilter($filterArray) {
         $result = '';
+        $limit = '';
+        $order = '';
         if (is_array($filterArray)) {
             $result = ' WHERE 1 = 1 ';
-            foreach ($filterArray as $filterElement) {
-                if (!empty($filterElement['condition']) && 'IN' == $filterElement['condition']) {
-                    $inString = 'AND ' . $filterElement['column'] . ' IN (';
-                    if (empty($filterElement['operand']) || !is_array($filterElement['operand'])) {
-                        throw new InvalidArgumentException('For IN filter operand should be an array() type');
+            foreach ($filterArray as $key => $filterElement) {
+                if (is_int($key)) {
+                    if (!empty($filterElement['condition']) && 'IN' == $filterElement['condition']) {
+                        $inString = 'AND ' . $filterElement['column'] . ' IN (';
+                        if (empty($filterElement['operand']) || !is_array($filterElement['operand'])) {
+                            throw new InvalidArgumentException('For IN filter operand should be an array() type');
+                        }
+                        foreach ($filterElement['operand'] as $element) {
+                            $inString .= $this->dbLink->quoteinto('?', $element) . ',';
+                        }
+                        $inString = rtrim($inString, ',');
+                        $inString .= ') ';
+                        $result .= $inString;
+                    } else {
+                        if (empty($filterElement['comp'])) {
+                            $comp = '=';
+                        } else {
+                            $comp = $filterElement['comp'];
+                        }
+                        if (empty($filterElement['condition'])) {
+                            $condition = 'AND';
+                        } else {
+                            $condition = $filterElement['condition'];
+                        }
+                        $result .= $condition .
+                                ' ' . $filterElement['column'] . ' ' .
+                                $comp . ' ' .
+                                $this->dbLink->quoteinto('?', $filterElement['operand']) .
+                                ' ';
                     }
-                    foreach ($filterElement['operand'] as $element) {
-                        $inString .= $this->dbLink->quoteinto('?', $element) . ',';
-                    }
-                    $inString = rtrim($inString, ',');
-                    $inString .= ') ';
-                    $result .= $inString;
                 } else {
-                    if (empty($filterElement['comp'])) {
-                        $comp = '=';
-                    } else {
-                        $comp = $filterElement['comp'];
+                    if ('LIMIT' == (string)$key){
+                echo $key . PHP_EOL;
+                        $limit = ' LIMIT ' . ((int)$filterElement['start']) . ', ' . ((int)$filterElement['number']);
+                    } elseif ('ORDER' == $key) {
+                        $order = ' ORDER BY ' . $this->dbLink->quoteinto('?', $filterElement['column']) . ' ' . $filterElement['operand'];
                     }
-                    if (empty($filterElement['condition'])) {
-                        $condition = 'AND';
-                    } else {
-                        $condition = $filterElement['condition'];
-                    }
-                    $result .= $condition .
-                            ' ' . $filterElement['column'] . ' ' .
-                            $comp . ' ' .
-                            $this->dbLink->quoteinto('?', $filterElement['operand']) .
-                            ' ';
                 }
             }
             // Append Domain condition. Every company/customer should be "jailed" in its domain space
@@ -211,7 +222,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         } else {
             $result = ' WHERE domainId = ' . $this->session->domainId;
         }
-        return $result;
+        return $result . $limit . $order;
     }
 
     /**
