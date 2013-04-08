@@ -90,8 +90,9 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
      * @return Application_Model_Form
      */
     public function getForm($formId) {
-        if (!is_int($formId)) {
-            throw new InvalidArgumentException('Form ID should be integer.');
+        $formId = (int) $formId;
+        if (!$formId){
+            throw new InvalidArgumentException('Incorrect FormIID');
         }
         $formArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM form WHERE formId=?', $formId));
         if (!is_array($formArray)) {
@@ -369,13 +370,61 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         //  }
     }
 
-/**
- * approveForm() method is used to approve/decline forms
- * @param type $formId
- * @param type $userId
- * @param type $decision
- * @return boolean|null
- */    
+    public function isApprovalAllowed($formId, $userId) {
+        // If this form was already approved by somebody?
+        $existingApprovals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry', 
+                                                                array(0 => array('column' => 'formId',
+                                                                                 'operand' => $formId)));
+        // Get this form
+        $form = $this->getForm($formId);
+        if (!$form->isValid()){
+            // The form is not valid, probably wrong formId. No sense to continue
+            return false;
+        }
+        // Lets retrieve all possible scenarios for this form (this node)
+        $assignments = $this->dataMapper->getAllObjects('Application_Model_ScenarioAssignment',
+                                                        array(0 => array('column' => 'nodeId',
+                                                                         'operand' => $form->nodeId)));
+        if ($assignments){
+            foreach ($assignments as $assignment){
+                $scenarios[] = $this->getScenario($assignment->scenarioId);
+            }
+        } else {
+            // No scenarios found, nothing to do here
+            return false;
+        }
+        
+        // Lets check if we deal with conditional scenarios or not
+        if (count($scenarios) > 1){
+            throw new Exception('We cannot deal with conditional approval scenarios yet. Please come later.');
+        } else {
+            // Lets go
+            // Are there any other approvals yet? 
+            if (empty($existingApprovals)){
+                // No one approved this form yet
+                // Lets check if we are the first in line
+                if (1 == $scenarios[0]->getUserOrder($userId)){
+                    // Yes, we are the number one, we can approve
+                    return true;
+                } else {
+                    // No, we have to wait for our turn
+                    return false;
+                }
+            } else {
+                //OK, there are approvals already
+                // Did we make our decision but now changing it?
+                
+            }
+        }
+    }
+
+    /**
+     * approveForm() method is used to approve/decline forms
+     * @param type $formId
+     * @param type $userId
+     * @param type $decision
+     * @return boolean|null
+     */
     public function approveForm($formId, $userId, $decision) {
         $entryId = false;
         $form = $this->getForm($formId);
@@ -391,7 +440,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         }
 
         // Lets check if this user already performed any approve/decline actions on this form
-        $entryArray = array('formId' => $formId, 'userId' => $userId, 'decision' => $decision, 'domainId'=>$this->session->domainId);
+        $entryArray = array('formId' => $formId, 'userId' => $userId, 'decision' => $decision, 'domainId' => $this->session->domainId);
         $entry = new Application_Model_ApprovalEntry($entryArray);
         $myApproval = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry', array(0 => array('column' => 'formId',
                 'operand' => $formId),
@@ -402,9 +451,8 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         // We have to check also if form was approved by user that is next in scenario. If so - we cannot touch the decision.
         // Otherwise we would have to cancel all following decisions and start process again
         // ++++++++++++++++++++++++++++
-        $existingApprovals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry',
-                                                                  array(0 => array('column' => 'formId',
-                                                                                   'operand' => $formId)));
+        $existingApprovals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry', array(0 => array('column' => 'formId',
+                'operand' => $formId)));
         if ($myApproval && (count($existingApprovals) == $scenarios[0]->getUserOrder($userId))) {
             $entry->approvalEntryId = $myApproval[0]->approvalEntryId;
             $entryId = $this->dataMapper->saveObject($entry);
@@ -412,14 +460,14 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         } else {
             // If not, we have to determine if this is user's turn to do approval.
             // Lets check if there are other approvals
-            if ($existingApprovals){
+            if ($existingApprovals) {
                 // There are
-                if ((count($existingApprovals) + 1) == $scenarios[0]->getUserOrder($userId)){
-                     $entryId = $this->dataMapper->saveObject($entry);
-                } 
+                if ((count($existingApprovals) + 1) == $scenarios[0]->getUserOrder($userId)) {
+                    $entryId = $this->dataMapper->saveObject($entry);
+                }
             } else {
                 // No others. Lets see if we are first in the line
-                if ($scenarios[0]->getUserOrder($userId) == 1){
+                if ($scenarios[0]->getUserOrder($userId) == 1) {
                     // Yes, we are.
                     $entryId = $this->dataMapper->saveObject($entry);
                 }
