@@ -6,12 +6,14 @@
             <controller>index</controller>
             <action>index</action>
             <resource>home</resource>
+            <className>Home</className>
         </home>
         <form>
             <label>Forms</label>
             <controller>form</controller>
             <action>index</action>
             <resource>form</resource>
+            <className>Form</className>
         </form>
         <admin>
             <label>Administration</label>
@@ -30,6 +32,7 @@
                     </params>
                     <resource>node</resource>
                     <subgroup>subadmin</subgroup>
+                    <className>Node</className>
                 </levels>
                 <positions>
                     <label>Positions</label>
@@ -40,6 +43,7 @@
                         <objectType>position</objectType>
                     </params>
                     <resource>position</resource>
+                    <className>Position</className>
                     <subgroup>subadmin</subgroup>
                 </positions>
                 <elements>
@@ -51,6 +55,7 @@
                         <objectType>element</objectType>
                     </params>
                     <resource>element</resource>
+                    <className>Element</className>
                     <subgroup>subadmin</subgroup>
                 </elements>
                 <users>
@@ -63,7 +68,17 @@
                     </params>
                     <subgroup>subadmin</subgroup>
                     <resource>user</resource>
+                    <className>User</className>
                 </users>
+                <scenario>
+                    <label>Scenario</label>
+                    <title>Scenario</title>
+                    <controller>scenario</controller>
+                    <action>index</action>
+                    <subgroup>subadmin</subgroup>
+                    <resource>scenario</resource>
+                    <className>Scenario</className>
+                </scenario>
             </pages>
         </admin>
         

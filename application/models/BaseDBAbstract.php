@@ -6,7 +6,7 @@ abstract class BaseDBAbstract {
     
     public function __construct()
     {
-        $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', 'production');
+        $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', APPLICATION_ENV);
         $this->dbLink = Zend_Db::factory('Pdo_Mysql', $this->config->database->params);
     }
 }

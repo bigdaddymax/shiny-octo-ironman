@@ -17,4 +17,6 @@ TODO
 <li>Admin staff - backup, export/import, restore etc</li>
 <li> API with accounting software.</li>
 <li>OpenID authentification</li>
+<li>JSON It All!!!</li>
+<li>Fix possibility to create recursive parenting in nodes!!!</li>
 </ol>
