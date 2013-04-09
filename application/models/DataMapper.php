@@ -331,6 +331,18 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         $this->setClassAndTableName($class);
         return $this->dbLink->fetchOne("SELECT count($this->objectIdName) FROM $this->tableName");
     }
+    
+    
+    
+    public function getNodesAssigned(){
+      /**
+     * getNodesAssigned() method is a helper method that returns array of scenarios and node names and Ids 
+     *                    to which these scenarios are assigned (if any).
+     * @return type
+     */
+        return $this->dbLink->fetchAll('SELECT s.scenarioId, s.scenarioName, n.nodeId, n.nodeName FROM scenario s LEFT JOIN scenario_assignment a ON s.scenarioId = a.scenarioId LEFT JOIN node n ON n.nodeId = a.nodeId');
+        
+    }
 
 }
 

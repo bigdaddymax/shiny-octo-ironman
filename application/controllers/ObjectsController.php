@@ -137,7 +137,7 @@ class ObjectsController extends Zend_Controller_Action {
         exit;
     }
 
-    public function editObjectAction() {
+    public function openObjectAction() {
         $objectId = (int) $this->params[$this->objectIdName];
         switch ($this->className) {
             case 'Application_Model_Node':
@@ -147,13 +147,33 @@ class ObjectsController extends Zend_Controller_Action {
                 $nodes = $this->dataMapper->getAllObjects('Application_Model_Node');
                 $this->view->objects = array('node' => $node,
                     'scenarios' => $scenarios,
-                    'nodes' => $nodes, 'assignment' => $assignment);
-                $this->view->partialFile = 'edit-node.phtml';
-                Zend_Debug::dump($this->params);
+                    'nodes' => $nodes, 'assignment' => ($assignment)?$assignment[0]:NULL);
+                $this->view->partialFile = 'open-node.phtml';
                 break;
         }
     }
 
+    public function editObjectAction(){
+        $this->objectsManager->saveObject($this->params);
+         $objectId = (int) $this->params[$this->objectIdName];
+        switch ($this->className) {
+            case 'Application_Model_Node':
+                $node = $this->dataMapper->getObject($objectId, $this->className);
+                $scenarios = $this->objectsManager->getAllScenarios();
+                $assignment = $this->dataMapper->getAllObjects('Application_Model_ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
+                $nodes = $this->dataMapper->getAllObjects('Application_Model_Node');
+                $this->view->objects = array('node' => $node,
+                    'scenarios' => $scenarios,
+                    'nodes' => $nodes, 'assignment' => ($assignment)?$assignment[0]:NULL);
+                $this->view->partialFile = 'edit-node.phtml';
+                break;
+        }
+//       $this->redirector->gotoSimple('open-object',
+ //                                     'objects',
+ //                                     null,
+ //                                     array('objectType'=>$this->objectName,
+ //                                           'objectId'=>$this->params[$this->objectIdName]));
+    }
 }
 
 ?>

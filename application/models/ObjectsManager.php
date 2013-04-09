@@ -281,7 +281,8 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
     }
 
     public function getScenario($scenarioId) {
-        if (!is_int($scenarioId)) {
+        $scenarioId = (int) $scenarioId;
+        if (empty($scenarioId)) {
             throw new InvalidArgumentException('Invalid argumment. $scenarioId should be integer');
         }
         $scenarioArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM scenario WHERE scenarioId = ?', $scenarioId));
@@ -417,6 +418,22 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             }
         }
     }
+
+    /**
+     * getNodesAssigned() method is a helper method that returns array of scenarios and node names and Ids 
+     *                    to which these scenarios are assigned (if any).
+     * @return type
+     */
+    public function getNodesAssigned(){
+        $scenarios = $this->dataMapper->getNodesAssigned();
+        foreach($scenarios as $scenario){
+            $assignedNodes[$scenario['scenarioId']]['nodeId'] = $scenario['nodeId'];
+            $assignedNodes[$scenario['scenarioId']]['scenarioName'] = $scenario['scenarioName'];
+            $assignedNodes[$scenario['scenarioId']]['nodeName'] = $scenario['nodeName'];
+        }
+        return $assignedNodes;
+    }
+
 
     /**
      * approveForm() method is used to approve/decline forms

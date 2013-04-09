@@ -1,0 +1,58 @@
+<script type="text/javascript">
+/**************************************************************/
+/* Prepares the cv to be dynamically expandable/collapsible   */
+/**************************************************************/
+function prepareList() {
+    
+    
+    function toggleList(event){
+         if (this == event.target) {
+            $(this).toggleClass('expanded');
+            $(this).children('ul').toggle('medium');
+        }
+        return false;
+    }
+    
+    $('ul').find('li:has(ul)')
+    .bind('click', toggleList)
+    .addClass('collapsed')
+    .children('ul').hide();
+
+    function checkboxToggle(event){
+        var chkbox = event.target.id;
+        var items = chkbox.split("_");
+        $.post('<?php echo $this->url(array('controller'=>'objects', 'action'=>'edit-privileges', null, false));?>', 
+               {'privilege': items[0],
+                'object': items[1],
+                'objectId': items[2],
+                'state': Number($(event.target).prop('checked'))
+               }
+              );
+        event.stopPropagation();
+    }
+    
+    $('#list :checkbox')
+        .unbind('click.toggleList')
+        .click(checkboxToggle);
+  
+};
+
+
+/**************************************************************/
+/* Functions to execute on loading the document               */
+/**************************************************************/
+$(document).ready( function() {
+    prepareList()
+});
+</script>
+
+
+<div id="list">
+<?php
+$this->headLink()->setStylesheet($this->baseUrl() . 'css/style.css');
+echo $this->userPrivileges;
+?>    
+    
+</div>
+
+

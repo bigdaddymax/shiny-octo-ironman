@@ -2,7 +2,7 @@
 <script>
     $(function(){
         var addUrl;
-        addUrl = "<?php echo $this->url(array('controller' => 'objects', 'action' => 'add-object')); ?>";
+        addUrl = "<?php echo $this->url(array('controller' => 'objects', 'action' => 'add-object'), null, true); ?>";
         $('#add-object-form').dialog({
             autoOpen: false,
             modal:    true,

@@ -1,7 +1,7 @@
 <table>
     <tr><td><?php echo $this->form['form']->formName; ?></td></tr>
     <tr><td><?php echo $this->form['form']->date; ?></td></tr>
-    <tr><td><?php echo $this->form['parentNode']->nodeName; ?></td></tr>
+    <tr><td><?php if (!empty($this->form['parentNode']->nodeName)) echo $this->form['parentNode']->nodeName; ?></td></tr>
     <tr><td><?php echo $this->form['node']->nodeName; ?></td></tr>
     <tr><td><?php echo $this->form['owner']->userName; ?></td></tr>
 </table>
@@ -13,3 +13,8 @@
     ?>
     <tr><td>Total</td><td><?php echo $this->form['total'];?></td><td></td></tr>
 </table>
+<?php
+Zend_Debug::dump($this->showApproval);
+if ($this->showApproval){
+    echo '<button id="approve" name="approve">Approve</button>';
+}

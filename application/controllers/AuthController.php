@@ -39,7 +39,7 @@ class AuthController extends Zend_Controller_Action {
             } else {
                 // User login not found, lets check if this is not default admin login attempt
                         $this->session->domainId = 1;
-                $checkGroups = $this->auth->getAllObjects('Application_Model_Usergroup', array(0=>array('column'=>'role',
+                $checkGroups = $this->auth->getAllObjects('Application_Model_UserGroup', array(0=>array('column'=>'role',
                                                                                                'operand'=> 'admin')));
                 if (is_array($checkGroups) && !empty($checkGroups)) {
                     // There are users with admin privileges in database, default admin login disabled

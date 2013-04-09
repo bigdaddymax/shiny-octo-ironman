@@ -1,0 +1,48 @@
+<?php
+
+$pages = $this->container->findAllBy('subgroup', 'subadmin');
+$dataMapper = new Application_Model_DataMapper();
+
+if (is_array($pages)) {
+    foreach ($pages as $page) {
+        $counts[$page->resource] = $dataMapper->getObjectsCount('Application_Model_' . $page->className);
+        if ($this->navigation()->menu()->accept($page)) {
+            $links[$page->resource] = $this->navigation()->menu()->htmlify($page);
+        }
+    }
+}
+/*
+ * PATCH
+ * Here we decide what items are available in admin menu. Main idea here is in securing dependencies between objects
+ * and simplifying user's life.
+ * For example, before creating object "User" you have to create objects "level", "orgobject", "position"
+ * Therefore, untile we have at least one entry in tables "level", "orgobject" and "position", our admin
+ * will not have access to "User" menu.
+ * 
+ * Later we want this to be configurable through application.ini and/or DB
+ */
+
+// Generate url for every available object
+//foreach ($counts as $resource => $count) {
+//    $links[$resource] = '<a href="' .
+//                         $this->url(array("controller" => "objects",
+//                                          "action" => 'index',
+//                                          'objectType' => $resource), null, true) .
+//                         '">' . $resource . '</a>';
+//}
+// Print them out
+if (isset($links)) {
+    if ($counts['node'] == 0) {
+        unset($links['position']);
+        unset($links['user']);
+    }
+
+
+    if ($counts['position'] == 0) {
+        unset($links['user']);
+    }
+
+    foreach ($links as $link) {
+        echo ' | ' . $link;
+    }
+}
