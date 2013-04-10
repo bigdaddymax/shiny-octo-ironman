@@ -426,10 +426,10 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
      */
     public function getNodesAssigned(){
         $scenarios = $this->dataMapper->getNodesAssigned();
-        foreach($scenarios as $scenario){
-            $assignedNodes[$scenario['scenarioId']]['nodeId'] = $scenario['nodeId'];
-            $assignedNodes[$scenario['scenarioId']]['scenarioName'] = $scenario['scenarioName'];
-            $assignedNodes[$scenario['scenarioId']]['nodeName'] = $scenario['nodeName'];
+        foreach($scenarios as $key => $scenario){
+            $assignedNodes[$scenario['scenarioId']][$key]['nodeId'] = $scenario['nodeId'];
+            $assignedNodes[$scenario['scenarioId']][$key]['scenarioName'] = $scenario['scenarioName'];
+            $assignedNodes[$scenario['scenarioId']][$key]['nodeName'] = $scenario['nodeName'];
         }
         return $assignedNodes;
     }
