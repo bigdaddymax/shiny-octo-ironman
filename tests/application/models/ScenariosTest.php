@@ -11,6 +11,8 @@ class ScenarioTest extends TestCase {
 
     private $userId;
     private $nodeId;
+    private $nodeId1;
+    private $nodeId2;
     private $objectsManager;
     private $dataMapper;
 
@@ -21,6 +23,12 @@ class ScenarioTest extends TestCase {
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
         $this->nodeId = $this->dataMapper->saveObject($node);
+        $nodeArray1 = array('nodeName' => 'Second node', 'parentNodeId' => -1, 'domainId' => 1);
+        $node1 = new Application_Model_Node($nodeArray1);
+        $this->nodeId1 = $this->dataMapper->saveObject($node1);
+        $nodeArray2 = array('nodeName' => 'third node', 'parentNodeId' => -1, 'domainId' => 1);
+        $node2 = new Application_Model_Node($nodeArray2);
+        $this->nodeId2 = $this->dataMapper->saveObject($node2);
         $positionArray = array('positionName' => 'First position', 'nodeId' => $this->nodeId, 'domainId' => 1);
         $position = new Application_Model_Position($positionArray);
         $positionId = $this->dataMapper->saveObject($position);
@@ -209,9 +217,20 @@ class ScenarioTest extends TestCase {
         $assignment = new Application_Model_ScenarioAssignment($assignmentArray);
         $assignmentId = $this->dataMapper->saveObject($assignment);
         $this->assertTrue(is_int($assignmentId));
+        $assignmentArray1 = array('domainId'=>1, 'nodeId'=>$this->nodeId1, 'scenarioId'=>$scenarioId);
+        $assignment1 = new Application_Model_ScenarioAssignment($assignmentArray1);
+        $assignmentId1 = $this->dataMapper->saveObject($assignment1);
+        $assignmentArray2 = array('domainId'=>1, 'nodeId'=>$this->nodeId2, 'scenarioId'=>$scenarioId);
+        $assignment2 = new Application_Model_ScenarioAssignment($assignmentArray2);
+        $assignmentId2 = $this->dataMapper->saveObject($assignment2);
         $assignedNodes = $this->objectsManager->getNodesAssigned();
+        Zend_Debug::dump($assignedNodes);
         $node = $this->dataMapper->getObject($this->nodeId, 'Application_Model_Node');
-        $assignedNodesEx = array($scenarioId => array('nodeId'=> (string) $this->nodeId, 'scenarioName'=>'eName1','nodeName'=>$node->nodeName));
+        $node1 = $this->dataMapper->getObject($this->nodeId1, 'Application_Model_Node');
+        $node2 = $this->dataMapper->getObject($this->nodeId2, 'Application_Model_Node');
+        $assignedNodesEx = array($scenarioId=>array( 0=> array('nodeId'=> (string) $this->nodeId, 'scenarioName'=>'eName1','nodeName'=>$node->nodeName),
+                                 1=> array('nodeId'=> (string) $this->nodeId1, 'scenarioName'=>'eName1','nodeName'=>$node1->nodeName),
+                                 2=> array('nodeId'=> (string) $this->nodeId2, 'scenarioName'=>'eName1','nodeName'=>$node2->nodeName)));
         $this->assertEquals($assignedNodes, $assignedNodesEx);
     }
 }
