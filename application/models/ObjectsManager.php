@@ -17,11 +17,13 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
 
     private $dataMapper;
     private $session;
+    private $accessMapper;
 
     public function __construct() {
         parent::__construct();
         $this->dataMapper = new Application_Model_DataMapper();
         $this->session = new Zend_Session_Namespace('Auth');
+        $this->accessMapper = new Application_Model_AccessMapper();
     }
 
     /**
@@ -99,6 +101,9 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             throw new Exception('Form with ID ' . $formId . ' doesnt exist.');
         }
         $form = new Application_Model_Form($formArray);
+        if (!$this->accessMapper->isAllowed($this->session->login, 'node', 'read', $form->nodeId)){
+            throw new Exception('User has no read access to forms wiht nodeId='.$form->nodeId);
+        }
         $itemsArray = $this->dbLink->fetchAll($this->dbLink->quoteinto('SELECT * FROM item WHERE formId=?', $formId));
         $items = array();
         foreach ($itemsArray as $itemArray) {
@@ -426,6 +431,8 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
      */
     public function getNodesAssigned(){
         $scenarios = $this->dataMapper->getNodesAssigned();
+        
+        $assignedNodes = array();
         foreach($scenarios as $key => $scenario){
             $assignedNodes[$scenario['scenarioId']][$key]['nodeId'] = $scenario['nodeId'];
             $assignedNodes[$scenario['scenarioId']][$key]['scenarioName'] = $scenario['scenarioName'];
