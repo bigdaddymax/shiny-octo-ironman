@@ -123,7 +123,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
     /**
      * Addon to standart ACL->isAllowed() procedure.
      * As we use dynamic resources table first we check if resource exists in user's table.
-     * If not - user is denyed access to this resource.
+     * If not - user is denyed access to this resource. By default everything is denied.
      * If yes - we use standart acl->isAllowed method to determine user privilege.
      * 
      * @param type $user
