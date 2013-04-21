@@ -19,7 +19,7 @@ class PrivilegeDataMapperTest extends TestCase {
     
     public function setUp()
     {
-        $this->dataMapper = new Application_Model_DataMapper('Application_Model_Privilege');
+        $this->dataMapper = new Application_Model_DataMapper(1, 'Application_Model_Privilege');
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
         $nodeId = $this->dataMapper->saveObject($node);

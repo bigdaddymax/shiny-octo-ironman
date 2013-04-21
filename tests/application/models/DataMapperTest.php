@@ -7,9 +7,11 @@ class DataMapperTest extends TestCase {
     private $positionId;
     
     public function setUp() {
-        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper = new Application_Model_DataMapper(1);
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('user');
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
         $nodeId = $this->dataMapper->saveObject($node);
@@ -25,6 +27,7 @@ class DataMapperTest extends TestCase {
         
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('privilege');
         $this->dataMapper->dbLink->delete('user');
         parent::tearDown();
     }
@@ -35,7 +38,7 @@ class DataMapperTest extends TestCase {
      * @expectedExceptionMessage Class name is not set.
      */
     public function testCheckDeleteObjectNoClass() {
-        $dataMapper = new Application_Model_DataMapper();
+        $dataMapper = new Application_Model_DataMapper(1);
         $dataMapper->deleteObject(1);
     }
     
@@ -45,7 +48,7 @@ class DataMapperTest extends TestCase {
      * @expectedExceptionMessage Class name is not set.
      */
     public function testCheckObjectDependenciesNoClass() {
-        $dataMapper = new Application_Model_DataMapper();
+        $dataMapper = new Application_Model_DataMapper(1);
         $dataMapper->checkObjectDependencies(1, null);
     }
 
@@ -55,7 +58,7 @@ class DataMapperTest extends TestCase {
      * @expectedExceptionMessage Class name is not set.
      */
     public function testCheckGetAllObjectsNoClass() {
-        $dataMapper = new Application_Model_DataMapper();
+        $dataMapper = new Application_Model_DataMapper(1);
         $dataMapper->getAllObjects();
     }
     

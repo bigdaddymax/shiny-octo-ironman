@@ -18,8 +18,8 @@ class Capex_Plugins_AuthPlugin extends Zend_Controller_Plugin_Abstract {
         $nav = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
         $this->navigation = new Zend_Navigation($nav);
         $resource = $this->getResource($request);
-        $accessMapper = new Application_Model_AccessMapper($this->session->userId);
-        if ($accessMapper->isAllowed($this->session->login, $resource) && $resource) {
+        $accessMapper = new Application_Model_AccessMapper($this->session->userId, $this->session->domainId);
+        if ($accessMapper->isAllowed($resource) && $resource) {
             return;
         }
         $request->setControllerName('index');

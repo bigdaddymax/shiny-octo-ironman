@@ -7,7 +7,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     public function setup() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
-        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper = new Application_Model_DataMapper(1);
         $this->dataMapper->dbLink->delete('item');
         $this->dataMapper->dbLink->delete('form');
         $this->dataMapper->dbLink->delete('privilege');
@@ -19,6 +19,11 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('position');
         $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('domain');
+        $this->dataMapper->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
 
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
@@ -43,6 +48,11 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         
         $this->dataMapper->dbLink->delete('position');
         $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('domain');
+        $this->dataMapper->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
     }
     
 
@@ -52,6 +62,8 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setMethod('post');
         $this->request->setPost($user);
         $this->dispatch($this->url($this->urlizeOptions($params)));
+        $response = $this->getResponse();
+//        echo $response->outputBody();
         $session = new Zend_Session_Namespace('Auth');
         $this->assertTrue((bool)$session->auth);
     }
@@ -62,15 +74,32 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
   
     public function testDefaultAdminAuth() {
 //        rer;
-        $user = array('login' => 'admin', 'password' => 'admin');
+        $userArray = array('userName'=>'testName', 'login'=>'login', 'email'=>'test@domain', 'password'=>'test_pwd');
+        $params = array('controller'=>'index', 'action'=>'new-user');
+        $this->request->setMethod('post');
+        $this->request->setPost($userArray);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->assertController('index');
+        $this->assertAction('new-user');
+        $session = new Zend_Session_Namespace('Auth');
+        $domainArray = array('domainName'=>'Domain Name');
+        $params = array('controller'=>'index', 'action'=>'new-domain');
+        $this->request->setMethod('post');
+        $this->request->setPost($domainArray);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+        $user = array('login' => 'login', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
         $this->dispatch($this->url($this->urlizeOptions($params)));
-        $session = new Zend_Session_Namespace('Auth');
-        $this->assertTrue((bool)$session->auth);
-        $acl = new Application_Model_AccessMapper();
-        $acl->isAllowed('admin', 'admin', 'read');
+        $response = $this->getResponse();
+        echo $response->outputBody();
+       $session = new Zend_Session_Namespace('Auth');
+       $this->assertEquals($session->userName, 'testName');
+       $this->assertEquals($session->login, 'login');
+       $this->assertEquals($session->role, 'admin');
     }
 
 }

@@ -45,7 +45,7 @@ class ScenarioController extends Zend_Controller_Action {
         $params['domainId'] = $this->session->domainId;
         $scenario = new Application_Model_Scenario($params);
         if ($scenario->isValid()) {
-            $objectsManager = new Application_Model_ObjectsManager();
+            $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
             $this->view->newScenarioId = $objectsManager->SaveScenario($scenario);
         } else {
             $this->view->error = 'Cannot create form';
@@ -66,7 +66,7 @@ class ScenarioController extends Zend_Controller_Action {
     
     public function deleteScenarioAction(){
         $scenarioId = $this->_request->getParam('scenarioId');
-        $objectsManager = new Application_Model_ObjectsManager();
+        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
         Zend_Debug::dump($scenarioId);
         $objectsManager->deleteScenario($scenarioId);
     }

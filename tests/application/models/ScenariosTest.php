@@ -18,8 +18,8 @@ class ScenarioTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $this->objectsManager = new Application_Model_ObjectsManager();
-        $this->dataMapper = new Application_Model_DataMapper();
+        $this->objectsManager = new Application_Model_ObjectsManager(1);
+        $this->dataMapper = new Application_Model_DataMapper(1);
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
         $this->nodeId = $this->dataMapper->saveObject($node);
@@ -224,7 +224,7 @@ class ScenarioTest extends TestCase {
         $assignment2 = new Application_Model_ScenarioAssignment($assignmentArray2);
         $assignmentId2 = $this->dataMapper->saveObject($assignment2);
         $assignedNodes = $this->objectsManager->getNodesAssigned();
-        Zend_Debug::dump($assignedNodes);
+//        Zend_Debug::dump($assignedNodes);
         $node = $this->dataMapper->getObject($this->nodeId, 'Application_Model_Node');
         $node1 = $this->dataMapper->getObject($this->nodeId1, 'Application_Model_Node');
         $node2 = $this->dataMapper->getObject($this->nodeId2, 'Application_Model_Node');

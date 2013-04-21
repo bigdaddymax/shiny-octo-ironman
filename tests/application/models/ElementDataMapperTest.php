@@ -13,7 +13,7 @@ class ElementDataMapperTest extends TestCase {
     private $object;
 
     public function setUp() {
-        $this->object = new Application_Model_DataMapper('Application_Model_Element');
+        $this->object = new Application_Model_DataMapper(1, 'Application_Model_Element');
     }
 
     public function tearDown() {

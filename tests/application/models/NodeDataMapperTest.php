@@ -9,7 +9,7 @@ class NodeDataMapperTest extends TestCase {
     public function setUp() {
         $nodeArray = array('nodeName' => 'lName', 'parentNodeId' => 3);
         $node = new Application_Model_Node($nodeArray);
-        $this->dataMapper = new Application_Model_DataMapper($node);
+        $this->dataMapper = new Application_Model_DataMapper(1, $node);
         $this->dataMapper->dbLink->delete('item');
         $this->dataMapper->dbLink->delete('form');
         $this->dataMapper->dbLink->delete('element');
@@ -107,7 +107,7 @@ class NodeDataMapperTest extends TestCase {
         $id = $this->dataMapper->saveObject($node1);
         $nodes = $this->dataMapper->getAllObjects();
         $this->assertEquals($nodes, array(0 => $node, 1 => $node1));
-        $emptyObject = new Application_Model_DataMapper();
+        $emptyObject = new Application_Model_DataMapper(1);
         $nodes2 = $emptyObject->getAllObjects('Application_Model_Node');
         $this->assertEquals($nodes, $nodes2);
         $this->assertEquals($nodes[0]->nodeName, 'lName1');
@@ -127,7 +127,7 @@ class NodeDataMapperTest extends TestCase {
         $id1 = $this->dataMapper->saveObject($node1);
         $this->assertEquals($this->dataMapper->objectParentIdName, 'parentNodeId');
         $this->assertEquals($this->dataMapper->className, 'Application_Model_Node');
-        $dataMapper = new Application_Model_DataMapper();
+        $dataMapper = new Application_Model_DataMapper(1);
         $node2 = $dataMapper->getObject($id, 'Application_Model_Node');
         $this->assertEquals($node2->nodeId, $node1->parentNodeId);
         $this->assertTrue(is_array($dataMapper->checkObjectDependencies($id, 'Application_Model_Node')));
@@ -147,7 +147,7 @@ class NodeDataMapperTest extends TestCase {
         $this->dataMapper->deleteObject($id);
         $nodes1 = $this->dataMapper->getAllObjects();
         $this->assertEquals($nodes1, array(0=>$node1));
-        $dataMapper = new Application_Model_DataMapper();
+        $dataMapper = new Application_Model_DataMapper(1);
         $dataMapper->deleteObject($id1, 'Application_Model_Node');
         $nodes2 = $dataMapper->getAllObjects('Application_Model_Node');
         $this->assertTrue(empty($nodes2));

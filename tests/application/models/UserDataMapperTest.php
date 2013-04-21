@@ -20,7 +20,7 @@ class UserDataMapperTest extends TestCase {
     private $positionId;
 
     public function setUp() {
-        $this->dataMapper = new Application_Model_DataMapper('Application_Model_User');
+        $this->dataMapper = new Application_Model_DataMapper(1, 'Application_Model_User');
         $this->dataMapper->dbLink->delete('item');
         $this->dataMapper->dbLink->delete('form');
         $this->dataMapper->dbLink->delete('privilege');
@@ -81,7 +81,7 @@ class UserDataMapperTest extends TestCase {
         $element = new Application_Model_Element($elementArray);
         $this->assertTrue($element->isValid());
         $this->elementId1 = $this->dataMapper->saveObject($element);
-        $this->objectManager = new Application_Model_ObjectsManager();
+        $this->objectManager = new Application_Model_ObjectsManager(1);
         $elementArray1 = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
         $element1 = new Application_Model_Element($elementArray1);
         $this->assertTrue($element1->isValid());
@@ -174,7 +174,7 @@ class UserDataMapperTest extends TestCase {
         $userArray1 = $user->toArray();
         unset($userArray1['password']);
         $this->assertEquals($userArray1, $userArray2);
-        $this->assertTrue($auth->checkUserPassword($id, $user->password));
+        $this->assertTrue($auth->checkUserPassword($user2->login, $user->password));
     }
 
     /**
@@ -203,7 +203,7 @@ class UserDataMapperTest extends TestCase {
         $this->assertEquals($id, $id2);
         $auth = new Application_Model_Auth();
 //        $this->assertTrue($auth->checkUserPassword($id, 'testp'));
-        $this->assertTrue($auth->checkUserPassword($user1->userId, 'testp'));
+        $this->assertTrue($auth->checkUserPassword($user1->login, 'testp'));
         $userArray1 = $user1->toArray();
         unset($userArray1['password']);
         $user2 = $this->dataMapper->getObject($id2);
@@ -241,9 +241,9 @@ class UserDataMapperTest extends TestCase {
         unset($userArray3['password']);
         $this->assertEquals($userArray3, $userArray2);
         $auth = new Application_Model_Auth();
-        $this->assertTrue($auth->checkUserPassword($id, 'testp'));
-        $this->assertTrue($auth->checkUserPassword($user2->userId, 'testp'));
-        $dataMapper = new Application_Model_DataMapper();
+        $this->assertTrue($auth->checkUserPassword($user2->login, 'testp'));
+        $this->assertTrue($auth->checkUserPassword($user->login, 'testp'));
+        $dataMapper = new Application_Model_DataMapper(1);
         $user3 = $dataMapper->getObject($id, 'Application_Model_User');
         $userArray4 = $user3->toArray();
         unset($userArray['userId']);
@@ -251,7 +251,7 @@ class UserDataMapperTest extends TestCase {
 
         unset($userArray['password']);
         unset($userArray4['password']);
-        $this->assertTrue($auth->checkUserPassword($user3->userId, 'testp'));
+        $this->assertTrue($auth->checkUserPassword($user3->login, 'testp'));
         $this->assertEquals($userArray, $userArray4);
     }
 
@@ -269,7 +269,7 @@ class UserDataMapperTest extends TestCase {
      * @group userMapper
      */
     public function testGetInvalidArguments() {
-        $dataMapper = new Application_Model_DataMapper();
+        $dataMapper = new Application_Model_DataMapper(1);
         $dataMapper->getObject(3);
         $dataMapper->getObject();
     }

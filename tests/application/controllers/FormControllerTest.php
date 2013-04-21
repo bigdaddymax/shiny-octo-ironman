@@ -3,7 +3,6 @@
 class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     private $dataMapper;
-    private $object;
     private $userId;
     private $userId1;
     private $nodeId;
@@ -16,8 +15,8 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     public function setUp() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
-        $this->objectManager = new Application_Model_ObjectsManager();
-        $this->dataMapper = new Application_Model_DataMapper();
+        $this->objectManager = new Application_Model_ObjectsManager(1);
+        $this->dataMapper = new Application_Model_DataMapper(1);
         $this->dataMapper->dbLink->delete('item');
         $this->dataMapper->dbLink->delete('form');
         $this->dataMapper->dbLink->delete('privilege');
@@ -42,17 +41,17 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //NODES
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
-        $nodeId = $this->dataMapper->saveObject($node);
+        $this->nodeId = $this->dataMapper->saveObject($node);
 
-        $nodeArray3 = array('nodeName' => 'First object', 'parentNodeId' => $nodeId, 'domainId' => 1);
+        $nodeArray3 = array('nodeName' => 'First object', 'parentNodeId' => $this->nodeId, 'domainId' => 1);
         $node3 = new Application_Model_Node($nodeArray3);
-        $nodeId3 = $this->dataMapper->saveObject($node3);
-        $nodeArray1 = array('nodeName' => 'Second object', 'parentNodeId' => $nodeId, 'domainId' => 1);
+        $this->nodeId3 = $this->dataMapper->saveObject($node3);
+        $nodeArray1 = array('nodeName' => 'Second object', 'parentNodeId' => $this->nodeId, 'domainId' => 1);
         $node1 = new Application_Model_Node($nodeArray1);
-        $nodeId1 = $this->dataMapper->saveObject($node1);
-        $nodeArray2 = array('nodeName' => 'Third bject', 'parentNodeId' => $nodeId3, 'domainId' => 1);
+        $this->nodeId1 = $this->dataMapper->saveObject($node1);
+        $nodeArray2 = array('nodeName' => 'Third bject', 'parentNodeId' => $this->nodeId3, 'domainId' => 1);
         $node2 = new Application_Model_Node($nodeArray2);
-        $nodeId2 = $this->dataMapper->saveObject($node2);
+        $this->nodeId2 = $this->dataMapper->saveObject($node2);
 
 // ELEMENTS
         $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
@@ -66,10 +65,10 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
 
 // POSITIONS        
-        $positionArray = array('positionName' => 'First position', 'nodeId' => $nodeId, 'domainId' => 1);
+        $positionArray = array('positionName' => 'First position', 'nodeId' => $this->nodeId, 'domainId' => 1);
         $position = new Application_Model_Position($positionArray);
         $positionId = $this->dataMapper->saveObject($position);
-        $positionArray1 = array('positionName' => 'First position', 'nodeId' => $nodeId1, 'domainId' => 1);
+        $positionArray1 = array('positionName' => 'First position', 'nodeId' => $this->nodeId1, 'domainId' => 1);
         $position1 = new Application_Model_Position($positionArray1);
         $positionId1 = $this->dataMapper->saveObject($position1);
 
@@ -87,18 +86,21 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $resourceId = $this->dataMapper->saveObject($resource);
 
 // PRIVILEGES        
-        $privilegeArray = array('objectType' => 'node', 'objectId' => $nodeId, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
+        $privilegeArray = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
         $privilege = new Application_Model_Privilege($privilegeArray);
         $this->dataMapper->saveObject($privilege);
-        $privilegeArray1 = array('objectType' => 'node', 'objectId' => $nodeId, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
+        $privilegeArray1 = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
         $privilege1 = new Application_Model_Privilege($privilegeArray1);
         $this->dataMapper->saveObject($privilege1);
-        $privilegeArray2 = array('objectType' => 'node', 'objectId' => $nodeId1, 'userId' => $this->userId1, 'privilege' => 'write', 'domainId' => 1);
+        $privilegeArray2 = array('objectType' => 'node', 'objectId' => $this->nodeId2, 'userId' => $this->userId1, 'privilege' => 'write', 'domainId' => 1);
         $privilege2 = new Application_Model_Privilege($privilegeArray2);
         $this->dataMapper->saveObject($privilege2);
         $privilegeArray3 = array('objectType' => 'resource', 'objectId' => $resourceId, 'userId' => $this->userId, 'privilege' => 'read', 'domainId' => 1);
         $privilege3 = new Application_Model_Privilege($privilegeArray3);
         $this->dataMapper->saveObject($privilege3);
+        $privilegeArray4 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
+        $privilege4 = new Application_Model_Privilege($privilegeArray4);
+        $this->dataMapper->saveObject($privilege4);
 
 // USERGROUPS        
         $usergroupArray = array('userId' => $this->userId, 'role' => 'admin', 'domainId' => 1, 'userGroupName' => 'administrators');
@@ -108,10 +110,6 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $usergroup1 = new Application_Model_Usergroup($usergroupArray1);
         $this->dataMapper->saveObject($usergroup1);
 
-        $this->nodeId = $nodeId;
-        $this->nodeId1 = $nodeId;
-        $this->nodeId2 = $nodeId1;
-        $this->nodeId3 = $nodeId2;
         parent::setUp();
     }
 
@@ -160,21 +158,24 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertEquals($session->login, 'user login2');
         $this->assertEquals($session->domainId, 1);
         $this->assertEquals($session->auth, 1);
-        Zend_Debug::dump($session->userName);
+        $accessMapper = new Application_Model_AccessMapper($session->userId, 1);
+ //       $this->assertTrue($this->accessMapper->isAllowed($session->login, 'node', 'write', $this->nodeId1));
         $itemArray1 = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'elementId' => $this->elementId1, 'active' => true);
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId2, 'active' => true);
-        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId1, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true);
+        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId2, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true);
         $params = array('controller' => 'form', 'action' => 'add-form');
         $this->request->setMethod('post');
         $this->request->setPost($formArray1);
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $response = $this->getResponse();
+//        Zend_Debug::dump($accessMapper->getAllowedObjectIds());
+        echo $response->outputBody();
         $this->assertController('form');
         $this->assertAction('add-form');
-        $objectManager = new Application_Model_ObjectsManager();
+        $objectManager = new Application_Model_ObjectsManager(1);
         $forms = $objectManager->getAllForms();
         $this->assertEquals(count($forms), 1);
-        $form = $objectManager->getForm($forms[0]->formId);
+        $form = $objectManager->getForm($forms[0]->formId, $this->userId1);
         $this->assertEquals($form->formName, $forms[0]->formName);
         $this->assertEquals($form->formName, 'fName1');
        $items = $form->items;
@@ -193,11 +194,13 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setMethod('post');
         $this->request->setPost($user);
         $this->dispatch($this->url($this->urlizeOptions($params)));
+        $session = new Zend_Session_Namespace('Auth');
+        $this->assertEquals($session->userId, $this->userId1);
         $this->resetRequest();
         $this->resetResponse();
-        $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId1, 'domainId' => 1,
+        $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId);
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1);
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -209,14 +212,16 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         }
         $this->dispatch($this->url($this->urlizeOptions($params)));
 //        $this->assertController('objects');
-        $response = $this->getResponse();
+ //       $response = $this->getResponse();
+ //     echo $response->outputBody();
 //        Zend_Debug::dump($this->request->getPost());
-//        echo $response->outputBody();
-        $objectManager = new Application_Model_ObjectsManager();
+ //$accessMapper = new Application_Model_AccessMapper($this->userId1, 1);
+ //Zend_Debug::dump($accessMapper->getAllowedObjectIds());
+        $objectManager = new Application_Model_ObjectsManager(1);
         $forms = $objectManager->getAllForms();
 //        $this->assertEquals('rr', $response->outputBody());
 //        $this->assertEquals('tt', $forms);
-        $form = $objectManager->getForm($forms[0]->formId);
+        $form = $objectManager->getForm($forms[0]->formId, $this->userId1);
         $this->assertEquals($form->formName, $forms[0]->formName);
         $this->assertEquals($form->formName, 'test');
     }

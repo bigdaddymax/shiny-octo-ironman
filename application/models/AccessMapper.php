@@ -22,16 +22,12 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
     // single record (node1, 'read') to (node2, 'read') (orgobject3, 'read')
     // then for node2 repeat this procedure.
     // Result we store in $orgobjectPrivileges array();
-    private $orgobjectPrivileges; // credentials prepared for future use. 
+    private $nodesPrivileges; // credentials prepared for future use. 
     public $acl;
 
-    public function __construct($userId = null) {
+    public function __construct($userId, $domainId) {
         parent::__construct();
-        $dataMapper = new Application_Model_DataMapper();
-        if (empty($userId)) {
-            $session = new Zend_Session_Namespace('auth');
-            $userId = $session->userId;
-        }
+        $dataMapper = new Application_Model_DataMapper($domainId);
         $this->acl = new Zend_Acl();
         $this->acl->addResource('admin');
         $this->acl->addResource('node', 'admin');
@@ -59,9 +55,10 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
         $this->acl->allow('guest', 'form');
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++        
         $this->acl->allow('admin', 'admin');
+
         if ($userId) {
             $this->user = $dataMapper->getObject($userId, 'Application_Model_User');
-            if (!$this->user) {
+        if (!$this->user) {
                 // We have session variables set up but for some reason user doesnt exist
                 Zend_Session::destroy();
                 return;
@@ -95,8 +92,8 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
                             $this->acl->addResource($resourceName);
                         }
                     }
-                    $this->acl->allow($this->user->login, $resourceName, $credential->privilege);
-                }
+                        $this->acl->allow($this->user->login, $resourceName, $credential->privilege);
+                    }
             } else {
                 return;
                 //throw new Exception('No privileges loaded from DB');
@@ -116,8 +113,8 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
      * 
      * @param type $userId
      */
-    public function reinit($userId = null) {
-        self::__construct($userId);
+    public function reinit($userId, $domainId) {
+        self::__construct($userId, $domainId);
     }
 
     /**
@@ -132,25 +129,27 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
      * @return boolean
      * 
      */
-    public function isAllowed($user, $resourceType, $privilege = null, $resourceId = null) {
+    public function isAllowed($resourceType, $privilege = null, $resourceId = null) {
         if (empty($resourceId)) {
             $resource = $resourceType;
         } else {
             $resource = $resourceType . '_' . $resourceId;
         }
         if (!$this->acl->has($resource)) {
-            return false;
+            throw new Exception('User ' . $this->user->login . ' Resourse ' . $resource . ' for privilege ' . $privilege . ' not found. ', 500);
         }
 //        echo $user.' => ' .$privilege. ' for '.$resource.': '. $this->acl->isAllowed($user, $resource, $privilege).PHP_EOL;   
-        return $this->acl->isAllowed($user, $resource, $privilege);
+
+        return $this->acl->isAllowed($this->user->login, $resource, $privilege);
     }
 
     /**
      * getAllowedObjectsIds() method returns ids of objects of specified class that 
-     * user can read, write or approve.
+     *                        user can read, write or approve.
      * @param string $class
      * @param string $privilege
-     * @return array
+     * @return array          Array has following format: Array('privilege1'=> array(nodeId1, nodeId2, ....),
+     *                                                          'privilege2'=> array(nodeId3, nodeId4, ....))
      * 
      */
     public function getAllowedObjectIds() {
@@ -163,7 +162,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
                     } else {
                         $result[$credential->privilege] = array_merge($result[$credential->privilege], $this->getNodeObjects($credential->objectId));
                     }
-                } 
+                }
             }
             return $result;
         } else {
@@ -177,7 +176,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
      * @return type
      */
     private function getNodeObjects($nodeId) {
-        $dataMapper = new Application_Model_DataMapper();
+        $dataMapper = new Application_Model_DataMapper($this->user->domainId);
         $result[] = $nodeId;
         $nodes = $dataMapper->getAllObjects('Application_Model_Node', array(0 => array('column' => 'parentNodeId',
                 'operand' => $nodeId)));

@@ -16,8 +16,8 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     public function setUp() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
-        $this->objectManager = new Application_Model_ObjectsManager();
-        $this->dataMapper = new Application_Model_DataMapper();
+        $this->objectManager = new Application_Model_ObjectsManager(1);
+        $this->dataMapper = new Application_Model_DataMapper(1);
         $this->dataMapper->dbLink->delete('item');
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario');
@@ -151,7 +151,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
      */
     
     public function testGetScenarioInvalid() {
-        $objectsManager = new Application_Model_ObjectsManager();
+        $objectsManager = new Application_Model_ObjectsManager(1);
         $scenario = $objectsManager->getScenario('r');
     }
 
@@ -174,7 +174,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setPost($scenarioArray1);
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->assertController('scenario');
-        $objectManager = new Application_Model_ObjectsManager();
+        $objectManager = new Application_Model_ObjectsManager(1);
         $scenarios = $objectManager->getAllScenarios();
         $this->assertEquals(count($scenarios), 1);
         $scenario = $objectManager->getScenario($scenarios[0]->scenarioId);
@@ -215,7 +215,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         //Zend_Debug::dump($response);
 //        Zend_Debug::dump($this->request->getPost());
 //        echo $response->outputBody();
-        $objectManager = new Application_Model_ObjectsManager();
+        $objectManager = new Application_Model_ObjectsManager(1);
         $scenarios = $objectManager->getAllScenarios();
 //        $this->assertEquals('rr', $response->outputBody());
 //        $this->assertEquals('tt', $scenarios);
@@ -244,7 +244,9 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params)));
 //        $response = $this->getResponse();
 //        echo $response->outputBody();
-        $objectManager = new Application_Model_ObjectsManager();
+//        $response = $this->getResponse();
+//        echo $response->outputBody();
+        $objectManager = new Application_Model_ObjectsManager(1);
         $scenario = $objectManager->getAllScenarios(array(0 => array('operand' => 'test', 'column' => 'scenarioName')));
         $this->assertTrue(!empty($scenario));
         $this->assertEquals($scenario[0]->scenarioName, 'test');
@@ -263,8 +265,8 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
         $this->request->setMethod('get');
         $this->dispatch($this->url($this->urlizeOptions($deleteFormData)));
-//        $response = $this->getResponse();
-//        echo $response->outputBody();
+//       $response = $this->getResponse();
+//       echo $response->outputBody();
         $this->assertController('scenario');
         $this->assertAction('delete-scenario');
 

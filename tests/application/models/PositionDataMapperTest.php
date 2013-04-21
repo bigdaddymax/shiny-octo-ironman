@@ -8,7 +8,7 @@ class PositionDataMapperTest extends TestCase {
     private $nodeId;
 
     public function setUp() {
-        $this->dataMapper = new Application_Model_DataMapper('Application_Model_Position');
+        $this->dataMapper = new Application_Model_DataMapper(1, 'Application_Model_Position');
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
         $this->nodeId = $this->dataMapper->saveObject($node);

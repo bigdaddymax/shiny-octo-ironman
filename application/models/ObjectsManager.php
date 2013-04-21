@@ -16,26 +16,26 @@ require_once APPLICATION_PATH . '/models/BaseDBAbstract.php';
 class Application_Model_ObjectsManager extends BaseDBAbstract {
 
     private $dataMapper;
-    private $session;
-    private $accessMapper;
 
-    public function __construct() {
+    public function __construct($domainId) {
         parent::__construct();
-        $this->dataMapper = new Application_Model_DataMapper();
-        $this->session = new Zend_Session_Namespace('Auth');
-        $this->accessMapper = new Application_Model_AccessMapper();
+        $this->domainId = $domainId;
+        $this->dataMapper = new Application_Model_DataMapper($this->domainId);
     }
 
     /**
      * 
      * @param Application_Model_Form $form
      * @param array() $form
+     * @param int $userId Optional parameter that allows to setup userId that will
+     *            be associated with the Form
      * @return boolean false if not succesful
      * @return int FormID if succesfull
      */
-    public function saveForm($form) {
+    public function saveForm($form, $userId) {
         $formId = false;
         $formData = array();
+        $user = $this->dataMapper->getObject($userId, 'Application_Model_User');
         // If input parameter is object we derive array from it.
         // If input parameter is array we derive object from it.
         if ($form instanceof Application_Model_Form) {
@@ -46,6 +46,14 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         } else {
             throw new InvalidArgumentException('Argument should be array() or instance of Application_Model_Form');
         }
+        // OK, we have preliminary Form object, lets check if this user has credentials 
+        // to create this form
+        $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
+        if (!$accessMapper->isAllowed('node', 'write', $form->nodeId)){
+            //If user has no rights throw exception
+            throw new Exception('User has no write access to forms wiht nodeId='.$form->nodeId);
+        }
+        
         if ($form->isValid()) {
             // We have to handle Items saving separatly
             if (!empty($formData['items'])) {
@@ -89,19 +97,32 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
     /**
      * getForm() - returns form searched by ID
      * @param int $formId 
+     * @param int $userId Optional parameter that allows to setup userId that will
+     *            be associated with the Form
      * @return Application_Model_Form
      */
-    public function getForm($formId) {
+    public function getForm($formId, $userId) {
+        $user = $this->dataMapper->getObject($userId, 'Application_Model_User');
         $formId = (int) $formId;
         if (!$formId){
             throw new InvalidArgumentException('Incorrect FormIID');
         }
+        
+        // Lets get Form data from the database
+        
         $formArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM form WHERE formId=?', $formId));
         if (!is_array($formArray)) {
             throw new Exception('Form with ID ' . $formId . ' doesnt exist.');
         }
+        // Create preliminary form object
         $form = new Application_Model_Form($formArray);
-        if (!$this->accessMapper->isAllowed($this->session->login, 'node', 'read', $form->nodeId)){
+        // Lets check if user has credentials to read this Form
+        $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
+        if (!$accessMapper->isAllowed('node', 'read', $form->nodeId) &&
+              !$accessMapper->isAllowed('node', 'write', $form->nodeId) &&
+                !$accessMapper->isAllowed('node', 'approve', $form->nodeId)
+               ){
+            // No read rights, throw exception
             throw new Exception('User has no read access to forms wiht nodeId='.$form->nodeId);
         }
         $itemsArray = $this->dbLink->fetchAll($this->dbLink->quoteinto('SELECT * FROM item WHERE formId=?', $formId));
@@ -158,6 +179,23 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
 
     public function ChangeUserPassword($user) {
         
+    }
+    
+   /**
+    * getUserGroupRole() returns role of user if it is assigned in user_group table.
+    *                    So far there can be only 'admin' role assigned.
+    *                    Returns empty string if no roles found
+    * @param Application_Model_User $user
+    * @return string
+    */ 
+    
+    public function getUserGroupRole(Application_Model_User $user){
+        $userGroups = $this->dataMapper->getAllObjects('Application_Model_UserGroup', array(0=>array('column'=>'userId', 'operand'=>$user->userId)));
+        if (!empty($userGroups[0])){
+            return $userGroups[0]->role;
+        } else {
+            return '';
+        }
     }
 
     public function grantPrivilege($privilege) {
@@ -342,7 +380,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
                         if ($scenario) {
                             $assignmentArray = array('nodeId' => $node->nodeId,
                                 'scenarioId' => $scenario->scenarioId,
-                                'domainId' => $this->session->domainId);
+                                'domainId' => $this->domainId);
                             $assignment = new Application_Model_ScenarioAssignment($assignmentArray);
                             $this->dataMapper->saveObject($assignment);
                         }
@@ -382,7 +420,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
                                                                 array(0 => array('column' => 'formId',
                                                                                  'operand' => $formId)));
         // Get this form
-        $form = $this->getForm($formId);
+        $form = $this->getForm($formId, $userId);
         if (!$form->isValid()){
             // The form is not valid, probably wrong formId. No sense to continue
             return false;
@@ -451,7 +489,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
      */
     public function approveForm($formId, $userId, $decision) {
         $entryId = false;
-        $form = $this->getForm($formId);
+        $form = $this->getForm($formId, $userId);
         // Lets find what scenarios are assigned to this form (node)
         $assignments = $this->dataMapper->getAllObjects('Application_Model_ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $form->nodeId)));
         if ($assignments) {
@@ -464,7 +502,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
         }
 
         // Lets check if this user already performed any approve/decline actions on this form
-        $entryArray = array('formId' => $formId, 'userId' => $userId, 'decision' => $decision, 'domainId' => $this->session->domainId);
+        $entryArray = array('formId' => $formId, 'userId' => $userId, 'decision' => $decision, 'domainId' => $this->domainId);
         $entry = new Application_Model_ApprovalEntry($entryArray);
         $myApproval = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry', array(0 => array('column' => 'formId',
                 'operand' => $formId),
