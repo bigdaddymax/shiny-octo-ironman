@@ -43,6 +43,7 @@ class ObjectsController extends Zend_Controller_Action {
             }
 
         }
+        $this->session = new Zend_Session_Namespace('Auth');
         $params = $this->getRequest()->getParams();
         if (!empty($params)) {
             $keys = array_keys($params);
@@ -53,8 +54,8 @@ class ObjectsController extends Zend_Controller_Action {
         }
         //+++++++++++++++++++++++++++ END OF WORKAROUND ++++++++++++++++++++++++++++++++++++
 
-        $this->dataMapper = new Application_Model_DataMapper();
-        $this->objectsManager = new Application_Model_ObjectsManager();
+        $this->dataMapper = new Application_Model_DataMapper($this->session->domainId);
+        $this->objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
         $this->redirector = $this->_helper->getHelper('Redirector');
         switch ($this->_request->getParam('objectType')) {
             case 'node': $this->className = 'Application_Model_Node';
@@ -71,13 +72,12 @@ class ObjectsController extends Zend_Controller_Action {
             default : $this->className = 'Application_Model_Node';
         }
         $this->setClassAndTableName($this->className);
-        $this->session = new Zend_Session_Namespace('Auth');
         $this->params['domainId'] = $this->session->domainId;
     }
 
     private function setClassAndTableName() {
         $this->objectName = strtolower(substr($this->className, strrpos($this->className, '_') + 1));
-        $this->tableName = $this->objectName . 's';
+        $this->tableName = $this->objectName;
         $this->objectIdName = $this->objectName . 'Id';
         $this->view->objectName = $this->objectName;
         $this->view->objectIdName = $this->objectIdName;
@@ -105,12 +105,13 @@ class ObjectsController extends Zend_Controller_Action {
 
     public function deleteAction() {
         $objectId = (int) $this->_request->getParam($this->objectIdName);
-        try {
+        //try {
+            Zend_Debug::dump($this->className);
             $this->dataMapper->deleteObject($objectId, $this->className);
             $this->redirector->gotoSimple('index', 'objects', null, array('objectType' => $this->objectName));
-        } catch (Zend_Exception $e) {
-            $this->view->exceptionMessage = 'Got exception while trying to delete ' . $this->objectName . ': ' . $e->getMessage();
-        }
+        //} catch (Zend_Exception $e) {
+          //  $this->view->exceptionMessage = 'Got exception while trying to delete ' . $this->objectName . ': ' . $e->getMessage();
+//        }
     }
 
     public function userPrivilegesAction() {

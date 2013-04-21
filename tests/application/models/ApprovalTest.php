@@ -21,8 +21,8 @@ class ApprovalTest extends TestCase {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
         $session = new Zend_Session_Namespace('Auth');
         $session->domainId = 1;
-        $this->objectManager = new Application_Model_ObjectsManager();
-        $this->dataMapper = new Application_Model_DataMapper();
+        $this->objectManager = new Application_Model_ObjectsManager(1);
+        $this->dataMapper = new Application_Model_DataMapper(1);
         $this->dataMapper->dbLink->delete('approval_entry');
         
         $this->dataMapper->dbLink->delete('item');
@@ -49,17 +49,17 @@ class ApprovalTest extends TestCase {
 //NODES
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
-        $nodeId = $this->dataMapper->saveObject($node);
+        $this->nodeId = $this->dataMapper->saveObject($node);
 
-        $nodeArray3 = array('nodeName' => 'First object', 'parentNodeId' => $nodeId, 'domainId' => 1);
+        $nodeArray3 = array('nodeName' => 'First object', 'parentNodeId' => $this->nodeId, 'domainId' => 1);
         $node3 = new Application_Model_Node($nodeArray3);
-        $nodeId3 = $this->dataMapper->saveObject($node3);
-        $nodeArray1 = array('nodeName' => 'Second object', 'parentNodeId' => $nodeId, 'domainId' => 1);
+        $this->nodeId3 = $this->dataMapper->saveObject($node3);
+        $nodeArray1 = array('nodeName' => 'Second object', 'parentNodeId' => $this->nodeId, 'domainId' => 1);
         $node1 = new Application_Model_Node($nodeArray1);
-        $nodeId1 = $this->dataMapper->saveObject($node1);
-        $nodeArray2 = array('nodeName' => 'Third bject', 'parentNodeId' => $nodeId3, 'domainId' => 1);
+        $this->nodeId1 = $this->dataMapper->saveObject($node1);
+        $nodeArray2 = array('nodeName' => 'Third bject', 'parentNodeId' => $this->nodeId3, 'domainId' => 1);
         $node2 = new Application_Model_Node($nodeArray2);
-        $nodeId2 = $this->dataMapper->saveObject($node2);
+        $this->nodeId2 = $this->dataMapper->saveObject($node2);
 
 // ELEMENTS
         $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
@@ -73,10 +73,10 @@ class ApprovalTest extends TestCase {
 
 
 // POSITIONS        
-        $positionArray = array('positionName' => 'First position', 'nodeId' => $nodeId, 'domainId' => 1);
+        $positionArray = array('positionName' => 'First position', 'nodeId' => $this->nodeId, 'domainId' => 1);
         $position = new Application_Model_Position($positionArray);
         $positionId = $this->dataMapper->saveObject($position);
-        $positionArray1 = array('positionName' => 'First position', 'nodeId' => $nodeId1, 'domainId' => 1);
+        $positionArray1 = array('positionName' => 'First position', 'nodeId' => $this->nodeId1, 'domainId' => 1);
         $position1 = new Application_Model_Position($positionArray1);
         $positionId1 = $this->dataMapper->saveObject($position1);
 
@@ -94,18 +94,24 @@ class ApprovalTest extends TestCase {
         $resourceId = $this->dataMapper->saveObject($resource);
 
 // PRIVILEGES        
-        $privilegeArray = array('objectType' => 'node', 'objectId' => $nodeId, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
+        $privilegeArray = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
         $privilege = new Application_Model_Privilege($privilegeArray);
         $this->dataMapper->saveObject($privilege);
-        $privilegeArray1 = array('objectType' => 'node', 'objectId' => $nodeId, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
+        $privilegeArray1 = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
         $privilege1 = new Application_Model_Privilege($privilegeArray1);
         $this->dataMapper->saveObject($privilege1);
-        $privilegeArray2 = array('objectType' => 'node', 'objectId' => $nodeId1, 'userId' => $this->userId1, 'privilege' => 'write', 'domainId' => 1);
+        $privilegeArray2 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId1, 'privilege' => 'write', 'domainId' => 1);
         $privilege2 = new Application_Model_Privilege($privilegeArray2);
         $this->dataMapper->saveObject($privilege2);
         $privilegeArray3 = array('objectType' => 'resource', 'objectId' => $resourceId, 'userId' => $this->userId, 'privilege' => 'read', 'domainId' => 1);
         $privilege3 = new Application_Model_Privilege($privilegeArray3);
         $this->dataMapper->saveObject($privilege3);
+        $privilegeArray4 = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId1, 'privilege' => 'approve', 'domainId' => 1);
+        $privilege4 = new Application_Model_Privilege($privilegeArray4);
+        $this->dataMapper->saveObject($privilege4);
+        $privilegeArray5 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
+        $privilege5 = new Application_Model_Privilege($privilegeArray5);
+        $this->dataMapper->saveObject($privilege5);
 
 // USERGROUPS        
         $usergroupArray = array('userId' => $this->userId, 'role' => 'admin', 'domainId' => 1, 'userGroupName' => 'administrators');
@@ -124,7 +130,7 @@ class ApprovalTest extends TestCase {
         $this->scenario = $this->objectManager->getScenario($this->scenarioId);
         
 // Assignment
-        $assignmentArray = array('domainId'=>1, 'nodeId'=>$nodeId1, 'scenarioId'=>$this->scenarioId);
+        $assignmentArray = array('domainId'=>1, 'nodeId'=>$this->nodeId1, 'scenarioId'=>$this->scenarioId);
         $assignment = new Application_Model_ScenarioAssignment($assignmentArray);
         $assignmentId = $this->dataMapper->saveObject($assignment);
         $this->assertTrue(is_int($assignmentId));
@@ -133,16 +139,12 @@ class ApprovalTest extends TestCase {
 // FORM
         $itemArray1 = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'elementId' => $this->elementId1, 'active' => true);
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId2, 'active' => true);
-        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $nodeId1, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true);
+        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId1, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true);
         $form = new Application_Model_Form($formArray1);
 //        Zend_Debug::dump($form);
         $this->assertTrue($form->isValid());
-        $this->formId = $this->objectManager->saveForm($formArray1);
+        $this->formId = $this->objectManager->saveForm($formArray1, $this->userId1);
 
-        $this->nodeId = $nodeId;
-        $this->nodeId1 = $nodeId;
-        $this->nodeId2 = $nodeId1;
-        $this->nodeId3 = $nodeId2;
         parent::setUp();
     }
 
@@ -176,9 +178,11 @@ class ApprovalTest extends TestCase {
     public function testApproveAction(){
         $session = new Zend_Session_Namespace('Auth');
         $session->domainId = 1;
+        $session->userId = $this->userId;
         $result = $this->objectManager->approveForm($this->formId, $this->userId,'approve');
         $this->assertTrue(is_int($result));
-        $result1 = $this->objectManager->approveForm($this->formId, $this->userId,'approve');
+        $session->userId = $this->userId1;
+        $result1 = $this->objectManager->approveForm($this->formId, $this->userId1,'approve');
         $this->assertTrue(is_int($result1));
         $result2 = $this->objectManager->approveForm($this->formId, $this->userId1,'approve');
         $this->assertTrue(is_int($result2));
@@ -192,7 +196,11 @@ class ApprovalTest extends TestCase {
         $session->domainId = 1;
         $result = $this->objectManager->approveForm($this->formId, $this->userId1,'approve');
         $this->assertFalse($result);
-        $result = $this->objectManager->approveForm($this->formId, $this->userId,'approve');
+        $privilege = new Application_Model_AccessMapper($this->userId1, 1);
+Zend_Debug::dump($privilege->getAllowedObjectIds());
+Zend_Debug::dump($privilege->isAllowed('node', 'approve', $this->nodeId1));
+
+$result = $this->objectManager->approveForm($this->formId, $this->userId,'approve');
         $this->assertTrue(is_int($result));
         $result1 = $this->objectManager->approveForm($this->formId, $this->userId1,'approve');
         $this->assertTrue(is_int($result1));

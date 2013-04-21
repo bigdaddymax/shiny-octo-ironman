@@ -46,10 +46,10 @@
 $session = new Zend_Session_Namespace('Auth');
 if (1 == $session->auth) {
     echo '<a href="#" id="signoff-link">Logout</a>';
-    $acl = new Application_Model_AccessMapper($session->userId);
+    $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
 } else {
     echo '<a href="#" id="signin-link">Sign in</a>';
-    $acl = new Application_Model_AccessMapper();
+    $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
 }
 $navigationConfig = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
 $container = new Zend_Navigation($navigationConfig);

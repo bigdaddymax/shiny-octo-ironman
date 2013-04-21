@@ -5,22 +5,25 @@
  *
  * @author Olenka
  */
-class Application_Model_Auth extends Application_Model_DataMapper {
+class Application_Model_Auth extends BaseDBAbstract {
 
     //put your code here
     private $passwordChecker;
 
-    public function __construct($object = null) {
+    public function __construct() {
         $this->passwordChecker = new Capex_PasswordHash(8, TRUE);
-        parent::__construct($object);
+        parent::__construct();
     }
 
     public function hashPassword($password) {
         return $this->passwordChecker->HashPassword($password);
     }
 
-    public function checkUserPassword($userId, $password) {
-        $user = $this->getObject($userId, 'Application_Model_User');
+    public function checkUserPassword($login, $password) {
+        $user = $this->findUser($login);
+        if (!$user){
+            throw new Exception('User ' . $login . ' not found.');
+        }
         return $this->passwordChecker->CheckPassword($password, $user->password);
     }
 

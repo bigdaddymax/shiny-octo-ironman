@@ -1,7 +1,7 @@
 <?php
-
+$session = new Zend_Session_Namespace('Auth');
 $pages = $this->container->findAllBy('subgroup', 'subadmin');
-$dataMapper = new Application_Model_DataMapper();
+$dataMapper = new Application_Model_DataMapper($session->domainId);
 
 if (is_array($pages)) {
     foreach ($pages as $page) {

@@ -26,11 +26,11 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     private $objectName;
     private $objectIdName;
     public $objectParentIdName;
-    private $session;
+    private $domainId;
 
-    public function __construct($object = null) {
+    public function __construct($domainId, $object = null) {
         parent::__construct();
-        $this->session = new Zend_Session_Namespace('Auth');
+        $this->domainId = $domainId;
         if ($object) {
             $this->setClassAndTableName($object);
         }
@@ -48,11 +48,11 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         elseif (is_string($object))
             $this->className = $object;
         $this->objectName = strtolower(substr($this->className, strrpos($this->className, '_') + 1));
-        if (preg_match_all('/[A-Z]/', substr($this->className, strrpos($this->className, '_') + 1), $mathces, PREG_OFFSET_CAPTURE)) {
-            if (2 == count($mathces[0])) {
-                $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $mathces[0][1][1]) .
+        if (preg_match_all('/[A-Z]/', substr($this->className, strrpos($this->className, '_') + 1), $matches, PREG_OFFSET_CAPTURE)) {
+            if (2 == count($matches[0])) {
+                $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $matches[0][1][1]) .
                         '_' .
-                        substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), $mathces[0][1][1]);
+                        substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), $matches[0][1][1]);
             } else {
                 $this->tableName = $this->objectName;
             }
@@ -94,7 +94,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 unset($objectArray[$this->objectIdName]);
                 $objectArray['active'] = (int) $objectArray['active'];
                 if (isset($objectArray['password'])) {
-                    $auth = new Application_Model_Auth();
+                    $auth = new Application_Model_Auth($this->domainId);
                     $objectArray['password'] = $auth->hashPassword($objectArray['password']);
                 }
                 $this->dbLink->insert($this->tableName, $objectArray);
@@ -119,7 +119,10 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         } elseif (!isset($this->className)) {
             throw new InvalidArgumentException('Class name is not set.');
         }
-        $objectArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $id));
+        $objectArray = $this->dbLink->fetchRow('SELECT * FROM ' .
+                                                $this->tableName . ' WHERE ' .
+                                                $this->dbLink->quoteinto($this->objectIdName . '=?', $id) . 
+                                                $this->dbLink->quoteinto(' AND domainId = ?', $this->domainId));
         if (is_array($objectArray)) {
             $object = new $this->className($objectArray);
             return $object;
@@ -166,18 +169,40 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     }
 
     /**
+     * createAccessFilterArray() function creates preformatted array in form that 
+     *                           prepareFilter() method understands to add to all
+     *                           database requests condition to restrict functions
+     *                           access data that current user is not allowed to.
+     *                              
+     * @return array
+     * 
+     */
+    public function createAccessFilterArray(){
+        $accessMapper = new Application_Model_AccessMapper();
+        $accessibleIds = $accessMapper->getAllowedObjectIds();
+        $accessFilter = array(0=>array('condition'=>'IN', 'operand'=>$accessibleIds['read']));
+        return $accessFilter;
+    }
+    
+    
+    /**
      * 
      * @param array $filterArray - array(0=>array('condition'=>'AND', 'column'=> 'orgobject', 'comp'=>'=', 'operand'=>234))
      *                              You can omit 'comp' and 'condition' elements, default are '=' and 'AND'
+     *                              Handled conditions = ['AND', 'OR', 'IN']
+     *                              Handled comp = [=, >, <, <>, <=, >=]
+     *                              If you need to order output: array('ORDER'=>array('column'=>'columnOrder', 'operand'=>'ASC'))
+     *                              If you need to limit nmber of results:
+     *                              array('LIMIT'=>array('start'=>startId, 'number'=>numberOfItems))
+     * @param int $domainId         ID of domain that this user is jailed to.
      * @return string
      * @throws InvalidArgumentException
      */
     public function prepareFilter($filterArray) {
-        $result = '';
+        $result = $this->dbLink->quoteinto(' WHERE domainId = ? ', $this->domainId);
         $limit = '';
         $order = '';
         if (is_array($filterArray)) {
-            $result = ' WHERE 1 = 1 ';
             foreach ($filterArray as $key => $filterElement) {
                 if (is_int($key)) {
                     if (!empty($filterElement['condition']) && 'IN' == $filterElement['condition']) {
@@ -217,10 +242,6 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                     }
                 }
             }
-            // Append Domain condition. Every company/customer should be "jailed" in its domain space
-            $result .= ' AND domainId = ' . $this->session->domainId;
-        } else {
-            $result = ' WHERE domainId = ' . $this->session->domainId;
         }
         return $result . $limit . $order;
     }
@@ -261,12 +282,12 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             throw new InvalidArgumentException('Class name is not set.');
         }
         // Get all tables in our database schema that contain column $this->objectIdName (for example, "positionId" or "userId")
-        $tables = $this->dbLink->fetchCol($this->dbLink->quoteinto('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME = ? AND TABLE_SCHEMA="supercapex"', $this->objectIdName));
+        $tables = $this->dbLink->fetchCol($this->dbLink->quoteinto('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME = ? AND TABLE_SCHEMA="'.$this->config->database->params->dbname.'supercapex"', $this->objectIdName));
         $count = null;
         foreach ($tables as $table) {
             if ($table != $this->tableName) {
                 $query = $this->dbLink->quoteinto("SELECT $this->objectIdName FROM $table  WHERE  $this->objectIdName = ?", $id);
-                $query .= $this->dbLink->quoteinto(" AND domainId = ? LIMIT 0, 1", $this->session->domainId);
+                $query .= $this->dbLink->quoteinto(" AND domainId = ? LIMIT 0, 1", $this->domainId);
                 $count = $this->dbLink->fetchOne($query);
                 if ($count == $id) {
                     return array('dependentTable' => $table, 'ID' => $id);

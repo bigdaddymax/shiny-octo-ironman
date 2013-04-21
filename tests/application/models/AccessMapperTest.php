@@ -34,8 +34,8 @@ class AccessMapperTest extends TestCase {
          * Lets clear all tables before we start
          */
         $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', 'production');
-        $this->object = new Application_Model_AccessMapper($this->userId);
-        $this->dataMapper = new Application_Model_DataMapper();
+        $this->object = new Application_Model_AccessMapper($this->userId, 1);
+        $this->dataMapper = new Application_Model_DataMapper(1);
         $this->dataMapper->dbLink->delete('item');
         $this->dataMapper->dbLink->delete('form');
         $this->dataMapper->dbLink->delete('privilege');
@@ -152,62 +152,65 @@ class AccessMapperTest extends TestCase {
     }
 
     public function testGetAllowedObjectIds() {
-        $this->object->reinit($this->userId);
+        $this->object->reinit($this->userId, 1);
         $allowedObjects = $this->object->getAllowedObjectIds();
         $testObjects = array('approve' => array($this->nodeId, $this->nodeId1, $this->nodeId2, $this->nodeId5));
         $this->assertEquals($allowedObjects, $testObjects);
     }
 
     public function testResourcesAccess() {
-        $this->dataMapper = new Application_Model_DataMapper();
-        $this->object->reinit($this->userId);
+        $this->dataMapper = new Application_Model_DataMapper(1);
+        $this->object->reinit($this->userId, 1);
         $login1 = $this->dataMapper->getObject($this->userId, 'Application_Model_User');
         $login2 = $this->dataMapper->getObject($this->userId1, 'Application_Model_User');
         $this->assertTrue($login1 instanceof Application_Model_User);
         $this->assertTrue($login2 instanceof Application_Model_User);
-        $this->assertTrue($this->object->isAllowed($login1->login, 'admin', 'read'));
-        $this->assertTrue($this->object->isAllowed($login1->login, 'element', 'read'));
-        $this->object->reinit($login2->userId);
-        $this->assertFalse($this->object->isAllowed($login2->login, 'admin', 'read'));
-        $this->assertTrue($this->object->isAllowed($login2->login, 'element', 'read'));
+        $this->assertTrue($this->object->isAllowed('admin', 'read'));
+        $this->assertTrue($this->object->isAllowed('element', 'read'));
+        $this->object->reinit($login2->userId, 1);
+        $this->assertFalse($this->object->isAllowed('admin', 'read'));
+        $this->assertTrue($this->object->isAllowed('element', 'read'));
 //        $this->expectOutputString('ttt');
-//        Zend_Debug::dump($this->object);
     }
 
     public function testACLPrivileges() {
-        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper = new Application_Model_DataMapper(1);
         $login1 = $this->dataMapper->getObject($this->userId, 'Application_Model_User');
         $login2 = $this->dataMapper->getObject($this->userId1, 'Application_Model_User');
-        $privilege = new Application_Model_AccessMapper($login1->userId);
+        $privilege = new Application_Model_AccessMapper($login1->userId,1);
 //        echo $login1->login;
 //        Zend_Debug::dump($privilege);
-        $this->assertFalse($privilege->isAllowed($login1->login, 'node', 'read', $this->nodeId));
-        $this->assertTrue($privilege->isAllowed($login1->login, 'node', 'approve', $this->nodeId));
-        $this->assertFalse($privilege->isAllowed($login1->login, 'node', 'write', $this->nodeId));
+        $this->assertFalse($privilege->isAllowed('node', 'read', $this->nodeId));
+        $this->assertTrue($privilege->isAllowed('node', 'approve', $this->nodeId));
+        $this->assertFalse($privilege->isAllowed('node', 'write', $this->nodeId));
 
-        $privilege->reinit($login2->userId);
-        $this->assertTrue($privilege->isAllowed($login2->login, 'node', 'read', $this->nodeId));
-        $this->assertFalse($privilege->isAllowed($login2->login, 'node', 'approve', $this->nodeId));
-        $this->assertFalse($privilege->isAllowed($login2->login, 'node,', 'write', $this->nodeId));
+        $privilege->reinit($login2->userId, 1);
+        $this->assertTrue($privilege->isAllowed('node', 'read', $this->nodeId));
+        $this->assertFalse($privilege->isAllowed('node', 'approve', $this->nodeId));
+        $this->assertFalse($privilege->isAllowed('node', 'write', $this->nodeId));
+        $this->assertTrue($privilege->isAllowed('node', 'write', $this->nodeId1));
+        $this->assertTrue($privilege->isAllowed('node', 'read', $this->nodeId));
+        $this->assertTrue($privilege->isAllowed('element', 'read'));
+        $this->assertTrue($privilege->isAllowed('node', 'write', $this->nodeId3));
     }
 
     public function testDefaultLoginPrivileges() {
-        $acl = new Application_Model_AccessMapper();
-        $this->assertTrue($acl->isAllowed($this->config->default->adminlogin, 'admin', 'read'));
+        $acl = new Application_Model_AccessMapper($this->userId, 1);
+        $this->assertTrue($acl->isAllowed('admin', 'read'));
     }
 
     public function testCredentialsRetrieval() {
-        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper = new Application_Model_DataMapper(1);
         $login1 = $this->dataMapper->getObject($this->userId, 'Application_Model_User');
         $login2 = $this->dataMapper->getObject($this->userId1, 'Application_Model_User');
-        $privilege = new Application_Model_AccessMapper($login1->userId);
+        $privilege = new Application_Model_AccessMapper($login1->userId, 1);
         $node = $this->dataMapper->getObject($this->nodeId4, 'Application_Model_Node');
         //       $this->assertFalse($node);
         $this->assertEquals($node->nodeId, $this->nodeId4);
         $credentials1 = array('approve' => array($this->nodeId, $this->nodeId1, $this->nodeId2, $this->nodeId5));
         $credentials2 = array('read' => array($this->nodeId, $this->nodeId1, $this->nodeId2, $this->nodeId5), 'write' => array($this->nodeId1, $this->nodeId2, $this->nodeId3));
         $this->assertEquals($credentials1, $privilege->getAllowedObjectIds());
-        $privilege->reinit($login2->userId);
+        $privilege->reinit($login2->userId,1);
 //        Zend_Debug::dump($privilege->getAllowedOrgobjectIds());
         $this->assertEquals($credentials2, $privilege->getAllowedObjectIds());
     }
