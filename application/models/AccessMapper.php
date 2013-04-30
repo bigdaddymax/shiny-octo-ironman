@@ -22,7 +22,6 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
     // single record (node1, 'read') to (node2, 'read') (orgobject3, 'read')
     // then for node2 repeat this procedure.
     // Result we store in $orgobjectPrivileges array();
-    private $nodesPrivileges; // credentials prepared for future use. 
     public $acl;
 
     public function __construct($userId, $domainId) {
@@ -46,7 +45,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
         $this->acl->addRole('guest');
         $this->acl->addRole('staff', 'guest');
         $this->acl->addRole('manager', 'staff');
-        $this->acl->addRole('admin', null);
+        $this->acl->addRole('admin', 'guest');
         $this->acl->deny('guest', null);
         $this->acl->allow('guest', 'error');
         $this->acl->allow('guest', 'auth');
@@ -58,11 +57,12 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
 
         if ($userId) {
             $this->user = $dataMapper->getObject($userId, 'Application_Model_User');
-        if (!$this->user) {
+        if ((!$this->user) || (!$this->user->isValid())) {
                 // We have session variables set up but for some reason user doesnt exist
-                Zend_Session::destroy();
-                return;
-            }
+                $session = new Zend_Session_Namespace('Auth');
+                $session->unsetAll();
+                throw new Exception('Trying to initialize Access Mapper with userId = '.$userId);
+           }
             $this->credentials = $dataMapper->getAllObjects('Application_Model_Privilege', array(0 => array('column' => 'userId',
                     'operand' => $userId)));
 
@@ -98,13 +98,8 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
                 return;
                 //throw new Exception('No privileges loaded from DB');
             }
-        }
-        // userId parameter wasn't suppluyed
-        // Assume that user uses default admin login
-        else {
-            if (!$this->acl->hasRole($this->config->default->adminlogin)) {
-                $this->acl->addRole($this->config->default->adminlogin, 'admin');
-            }
+        } else {
+            throw new InvalidArgumentException('No userId provided', 500);
         }
     }
 
@@ -139,10 +134,21 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
             throw new Exception('User ' . $this->user->login . ' Resourse ' . $resource . ' for privilege ' . $privilege . ' not found. ', 500);
         }
 //        echo $user.' => ' .$privilege. ' for '.$resource.': '. $this->acl->isAllowed($user, $resource, $privilege).PHP_EOL;   
-
         return $this->acl->isAllowed($this->user->login, $resource, $privilege);
     }
 
+    
+    public function getAllowedObjectIds(){
+        if (!empty($this->credentials)){
+            foreach ($this->credentials as $credential){
+                if ('node' == $credential->objectType){
+                    $result[$credential->privilege][] = $credential->objectId;
+                }
+            }
+        }
+        return $result;
+    }
+    
     /**
      * getAllowedObjectsIds() method returns ids of objects of specified class that 
      *                        user can read, write or approve.
@@ -152,7 +158,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
      *                                                          'privilege2'=> array(nodeId3, nodeId4, ....))
      * 
      */
-    public function getAllowedObjectIds() {
+    public function getAllowedObjectIds1() {
 //        Zend_Debug::dump($this->credentials);
         if (is_array($this->credentials)) {
             foreach ($this->credentials as $credential) {

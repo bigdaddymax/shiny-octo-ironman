@@ -16,7 +16,8 @@
             }
             if (a2){
                 a2.onclick = function (){
-                    $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'logoff'), null, true); ?>', function(data){location.reload();});
+                    $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'logoff'), null, true); ?>')
+                    .done(function(data){window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");});
                 }
             }
         }
@@ -29,7 +30,9 @@
                 buttons: {
                     'Login': function(){
                         $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'auth'), null, true); ?>', $('#signin-form').serialize())
-                        .done(function(data){location.reload();});
+                        .done(function(data){
+                            window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");
+                        });
                         $(this).dialog("close");
                     },
                     'Close': function() {
@@ -45,26 +48,27 @@
 <?php
 $session = new Zend_Session_Namespace('Auth');
 if (1 == $session->auth) {
-    echo '<a href="#" id="signoff-link">Logout</a>';
+    echo '<a href="#" id="signoff-link">'.$this->translate('logout').'</a>';
     $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
+    $navigationConfig = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
+    $container = new Zend_Navigation($navigationConfig);
+    $this->navigation($container);
+    $this->navigation()->setAcl($acl->acl);
+    $this->navigation()->setRole($session->login);
 } else {
-    echo '<a href="#" id="signin-link">Sign in</a>';
-    $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
+    echo '<a href="#" id="signin-link">'.$this->translate('login').'</a>';
 }
-$navigationConfig = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
-$container = new Zend_Navigation($navigationConfig);
-$this->navigation($container);
-$this->navigation()->setAcl($acl->acl);
-$this->navigation()->setRole($session->login);
-//Zend_Debug::dump($session->login);
+
 // +++++++++++ FIX ME ++++++++++++++++++ FIX ME ++++++++++++++++++++++++ FIX ME
-if ($session->admin) {
+if ('admin' == $session->role) {
     $this->navigation()->menu()->setPartial('partials/navigation/adminmenu.phtml');
-} elseif ($session->auth) {
+    echo $this->navigation()->menu()->render();
+}
+if ($session->auth) {
     $this->navigation()->menu()->setPartial('partials/navigation/mainmenu.phtml');
+    echo $this->navigation()->menu()->render();
 }
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-echo $this->navigation()->menu()->render();
 ?>
 <hr>
 

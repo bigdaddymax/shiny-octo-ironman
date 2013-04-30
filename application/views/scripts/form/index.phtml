@@ -1,64 +1,17 @@
 <script>
-
     $(function(){
-        var addUrl;
-        addUrl = "<?php echo $this->url(array('controller' => 'form', 'action' => 'add-form')); ?>";
-        $('#add-form').dialog({
-            autoOpen: false,
-            modal:    true,
-            buttons:  {
-                'Save' : function(){
-                    $.post(addUrl, $("#app-form").serialize()+'&'+$("#items").serialize())
-                    .done(function(data){
-                  //      $("#main").html(data);
-                        $("#add-form").dialog("close");
-                        location.reload();
-                    });
-                    //                        $(this).dialog("close");
-                },
-                'Cancel' : function(){
-                    $(this).dialog("close");
-                }
-            }
-        });
-        
-        $("#add-item").dialog({
-            autoOpen: false,
-            modal:    true,
-            buttons: {
-                'Add' :function(){
-                    var counter  = $("#counter").val();
-                    counter++;
-                    $("#counter").val(counter);
-                    $("#items-table").after('<tr><td>x</td><td>'+$("#itemName").val()+'</td><td>'+$("#value").val()+'</td></tr>');
-                    $("#counter").after('<input type="hidden" id="itemName_'+counter+'" name="itemName_'+counter+'" value="'+$("#itemName").val()+'">');
-                    $("#counter").after('<input type="hidden" id="value_'+counter+'" name="value_'+counter+'" value="'+$("#value").val()+'">');
-                    $("#counter").after('<input type="hidden" id="elementId_'+counter+'" name="elementId_'+counter+'" value="'+$("#elementId").val()+'">');
-                    $(this).dialog("close");
-                },
-                'Cancel': function(){
-                    $(this).dialog("close");
-                }
-            }
-        });
-             
         $("#add-form-btn").button()
         .click(function(){
-            $("#add-form").dialog("open");
-            $("#add-item-btn").button().click(
-                function(){
-                    $("#add-item").dialog("open");
-                });
+            window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'edit-form'), null, true); ?>";
         });
     });
     
     function openForm(formId){
-    var url = '<?php echo $this->url(array('controller'=>'form', 'action'=>'open-form'), null, true);?>' + '/formId/' + formId.slice(formId.indexOf('_')+1);
+        var url = '<?php echo $this->url(array('controller' => 'form', 'action' => 'open-form'), null, true); ?>' + '/formId/' + formId.slice(formId.indexOf('_')+1);
         location = url;
     }
 </script>
-
+<button id="add-form-btn">Add application</button>
 <?php
-echo $this->partial('partials/form/forms.php', array('nodes'=>$this->nodes, 'elements'=>$this->elements));
 echo $this->partial('partials/form/list.php', array('forms'=>$this->forms));
 

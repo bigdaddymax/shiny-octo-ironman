@@ -6,7 +6,8 @@
  * @author Max
  */
 
-
+require_once APPLICATION_PATH . '/models/ObjectsManager.php';
+require_once APPLICATION_PATH . '/models/DataMapper.php';
 class ObjectsManagerTest extends TestCase {
 
     private $node1;
@@ -72,7 +73,7 @@ class ObjectsManagerTest extends TestCase {
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId, 'formId' => 1);
         $item2 = new Application_Model_Item($itemArray2);
         $this->assertTrue($item2->isValid());
-        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true);
+        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => 1, 'public'=>1);
         $this->form = new Application_Model_Form($formArray1);
         $formArray2 = $this->form->toArray();
         unset($formArray2['date']);
@@ -137,6 +138,9 @@ class ObjectsManagerTest extends TestCase {
         $this->assertTrue($form->isValid());
         $formId = $this->objectManager->saveForm($formArray1, $this->userId);
         $form2 = $this->objectManager->getForm($formId, $this->userId);
+
+        
+        
         $form2->formName = 'fName2';
         $itemArray3 = array('itemName' => 'item3', 'domainId' => 1, 'value' => 22.1, 'userId' => $this->userId, 'elementId' => $this->elementId, 'formId' => 1);
         $item3 = new Application_Model_Item($itemArray3);
@@ -150,6 +154,28 @@ class ObjectsManagerTest extends TestCase {
         $this->assertEquals($formId, $formId);
         $form3 = $this->objectManager->getForm($formId2, $this->userId);
         $this->assertEquals($form3, $form2);
+        
+        $itemArray5 = array('itemName' => 'item5', 'domainId' => 1, 'value' => 222, 'userId' => $this->userId, 'elementId' => $this->elementId, 'formId' => 1);
+        $item5 = new Application_Model_Item($itemArray5);
+        $this->assertTrue($item5->isValid());
+        $itemArray4 = array('itemName' => 'item4', 'domainId' => 1, 'value' => 333, 'userId' => $this->userId, 'elementId' => $this->elementId, 'formId' => 1);
+        $item4 = new Application_Model_Item($itemArray4);
+        $this->assertTrue($item4->isValid());
+        $formArray5 = array('userId' => $this->userId, 'formName' => 'fName5', 'nodeId' => $this->nodeId, 'items' => array(0 => $item4, 1 => $item5), 'domainId' => 1, 'active' => true);
+        $form5 = new Application_Model_Form($formArray5, $this->userId);
+        $this->assertTrue($form5->isValid());
+        $formId5 = $this->objectManager->saveForm($form5, $this->userId);
+        $formsave = $this->objectManager->getForm($formId5,$this->userId);
+        $formsave->public = 1;
+        $formId6 = $this->objectManager->saveForm($formsave, $this->userId);
+        $formtest1 = $this->objectManager->getForm($formId6, $this->userId);
+        $formtest2 = $this->objectManager->getForm($formId2, $this->userId);
+        $this->assertNotEquals($formtest1->formName, $formtest2->formname);
+        $this->assertEquals($formtest1->formName, 'fName5');
+        $this->assertTrue($formtest2->isValid());
+        $this->assertEquals($formtest2->formName, 'fName2');
+        $this->assertEquals($formtest1->public, true);
+        $this->assertEquals($formtest2->items, array(0=>$item3));
     }
     
     /**
@@ -199,7 +225,7 @@ class ObjectsManagerTest extends TestCase {
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'userId' => $this->userId, 'elementId' => $this->elementId, 'formId' => 1);
         $item2 = new Application_Model_Item($itemArray2);
         $this->assertTrue($item2->isValid());
-        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true);
+        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => 1, 'public'=>1);
         $form = new Application_Model_Form($formArray1);
         $this->assertTrue($form->isValid());
         $formId = $this->objectManager->saveForm($formArray1, $this->userId);
@@ -209,6 +235,11 @@ class ObjectsManagerTest extends TestCase {
         unset($formArray2['date']);
         unset($formArray2['formId']);
         $this->assertEquals($formArray1, $formArray2);
+    }
+    
+    public function testCheckUserExustance(){
+        $this->assertTrue($this->objectManager->checkLoginExistance('login_omt'));
+        $this->assertFalse($this->objectManager->checkLoginExistance('login_non_existing'));
     }
 
 }

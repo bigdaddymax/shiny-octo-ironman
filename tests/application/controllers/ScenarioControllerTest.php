@@ -274,5 +274,6 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertFalse($scenarioDeleted);
     }
 
+    
 }
 

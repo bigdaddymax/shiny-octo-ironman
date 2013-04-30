@@ -1,4 +1,5 @@
 <?php
+
 $session = new Zend_Session_Namespace('Auth');
 $pages = $this->container->findAllBy('subgroup', 'subadmin');
 $dataMapper = new Application_Model_DataMapper($session->domainId);
@@ -35,9 +36,13 @@ if (isset($links)) {
     if ($counts['node'] == 0) {
         unset($links['position']);
         unset($links['user']);
+        unset($links['scenario']);
     }
 
-
+    if ($counts['user'] == 0) {
+        unset($links['scenario']);
+    }
+    
     if ($counts['position'] == 0) {
         unset($links['user']);
     }

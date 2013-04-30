@@ -6,6 +6,7 @@ class ApprovalTest extends TestCase {
     private $objectManager;
     private $userId;
     private $userId1;
+    private $userId2;
     private $nodeId;
     private $nodeId1;
     private $nodeId2;
@@ -24,7 +25,7 @@ class ApprovalTest extends TestCase {
         $this->objectManager = new Application_Model_ObjectsManager(1);
         $this->dataMapper = new Application_Model_DataMapper(1);
         $this->dataMapper->dbLink->delete('approval_entry');
-        
+
         $this->dataMapper->dbLink->delete('item');
         $this->dataMapper->dbLink->delete('form');
         $this->dataMapper->dbLink->delete('privilege');
@@ -87,6 +88,9 @@ class ApprovalTest extends TestCase {
         $userArray1 = array('userName' => 'user2', 'domainId' => 1, 'login' => 'user login2', 'password' => 'user password', 'positionId' => $positionId1);
         $user1 = new Application_Model_User($userArray1);
         $this->userId1 = $this->dataMapper->saveObject($user1);
+        $userArray2 = array('userName' => 'user3', 'domainId' => 1, 'login' => 'user login3', 'password' => 'user password', 'positionId' => $positionId1);
+        $user2 = new Application_Model_User($userArray2);
+        $this->userId2 = $this->dataMapper->saveObject($user2);
 
 // RESOURCES
         $resourceArray = array('resourceName' => 'admin', 'domainId' => 1);
@@ -112,6 +116,9 @@ class ApprovalTest extends TestCase {
         $privilegeArray5 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
         $privilege5 = new Application_Model_Privilege($privilegeArray5);
         $this->dataMapper->saveObject($privilege5);
+        $privilegeArray6 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId2, 'privilege' => 'approve', 'domainId' => 1);
+        $privilege6 = new Application_Model_Privilege($privilegeArray6);
+        $this->dataMapper->saveObject($privilege6);
 
 // USERGROUPS        
         $usergroupArray = array('userId' => $this->userId, 'role' => 'admin', 'domainId' => 1, 'userGroupName' => 'administrators');
@@ -120,22 +127,23 @@ class ApprovalTest extends TestCase {
         $usergroupArray1 = array('userId' => $this->userId1, 'role' => 'manager', 'domainId' => 1, 'userGroupName' => 'managers');
         $usergroup1 = new Application_Model_Usergroup($usergroupArray1);
         $this->dataMapper->saveObject($usergroup1);
-        
+
 // SCENARIO
         $entryArray1 = array('domainId' => 1, 'orderPos' => 1, 'userId' => $this->userId, 'active' => true);
         $entryArray2 = array('domainId' => 1, 'orderPos' => 2, 'userId' => $this->userId1, 'active' => true);
-        $scenarioArray1 = array('scenarioName' => 'eName1', 'active' => false, 'domainId' => 1, 'entries' => array(0 => $entryArray1, 1 => $entryArray2));
+        $entryArray3 = array('domainId' => 1, 'orderPos' => 3, 'userId' => $this->userId2, 'active' => true);
+        $scenarioArray1 = array('scenarioName' => 'eName1', 'active' => false, 'domainId' => 1, 'entries' => array(0 => $entryArray1, 1 => $entryArray2, 2=>$entryArray3));
         $this->scenario = new Application_Model_Scenario($scenarioArray1);
         $this->scenarioId = $this->objectManager->saveScenario($this->scenario);
         $this->scenario = $this->objectManager->getScenario($this->scenarioId);
-        
+
 // Assignment
-        $assignmentArray = array('domainId'=>1, 'nodeId'=>$this->nodeId1, 'scenarioId'=>$this->scenarioId);
+        $assignmentArray = array('domainId' => 1, 'nodeId' => $this->nodeId1, 'scenarioId' => $this->scenarioId);
         $assignment = new Application_Model_ScenarioAssignment($assignmentArray);
         $assignmentId = $this->dataMapper->saveObject($assignment);
         $this->assertTrue(is_int($assignmentId));
-        
-        
+
+
 // FORM
         $itemArray1 = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'elementId' => $this->elementId1, 'active' => true);
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId2, 'active' => true);
@@ -163,9 +171,8 @@ class ApprovalTest extends TestCase {
         $this->dataMapper->dbLink->delete('node');
     }
 
-    
-    public function testApprovalEntry(){
-        $entryArray = array('domainId'=>1, 'userId'=>$this->userId, 'formId'=>$this->formId, 'decision'=>'approve');
+    public function testApprovalEntry() {
+        $entryArray = array('domainId' => 1, 'userId' => $this->userId, 'formId' => $this->formId, 'decision' => 'approve');
         $entry = new Application_Model_ApprovalEntry($entryArray);
         $this->assertTrue($entry->isValid());
         $this->assertEquals($entry->userId, $this->userId);
@@ -173,50 +180,66 @@ class ApprovalTest extends TestCase {
         $entryId = $this->dataMapper->saveObject($entry);
         $this->assertTrue(is_int($entryId));
     }
-    
-    
-    public function testApproveAction(){
+
+    public function testApproveAction() {
         $session = new Zend_Session_Namespace('Auth');
         $session->domainId = 1;
         $session->userId = $this->userId;
-        $result = $this->objectManager->approveForm($this->formId, $this->userId,'approve');
+        $result = $this->objectManager->approveForm($this->formId, $this->userId, 'approve');
         $this->assertTrue(is_int($result));
         $session->userId = $this->userId1;
-        $result1 = $this->objectManager->approveForm($this->formId, $this->userId1,'approve');
+        $result1 = $this->objectManager->approveForm($this->formId, $this->userId1, 'approve');
         $this->assertTrue(is_int($result1));
-        $result2 = $this->objectManager->approveForm($this->formId, $this->userId1,'approve');
+        $result2 = $this->objectManager->approveForm($this->formId, $this->userId1, 'approve');
         $this->assertTrue(is_int($result2));
-        $approvals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry', array(0=>array('column'=>'formId', 'operand'=>$this->formId)));
+        $approvals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry', array(0 => array('column' => 'formId', 'operand' => $this->formId)));
         $this->assertEquals(count($approvals), 2);
         $this->assertTrue(!empty($approvals));
     }
-    
-    public function testWrongOrderApproveAction(){
-        $session = new Zend_Session_Namespace('Auth');
-        $session->domainId = 1;
-        $result = $this->objectManager->approveForm($this->formId, $this->userId1,'approve');
-        $this->assertFalse($result);
-        $privilege = new Application_Model_AccessMapper($this->userId1, 1);
-Zend_Debug::dump($privilege->getAllowedObjectIds());
-Zend_Debug::dump($privilege->isAllowed('node', 'approve', $this->nodeId1));
 
-$result = $this->objectManager->approveForm($this->formId, $this->userId,'approve');
-        $this->assertTrue(is_int($result));
-        $result1 = $this->objectManager->approveForm($this->formId, $this->userId1,'approve');
-        $this->assertTrue(is_int($result1));
-        $result = $this->objectManager->approveForm($this->formId, $this->userId,'decline');
-        $this->assertFalse($result);
-        $approvals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry', array(0=>array('column'=>'formId', 'operand'=>$this->formId), 1=>array('column'=>'userId', 'operand'=>$this->userId)));
-        $this->assertTrue(!empty($approvals));
-        $this->assertEquals($approvals[0]->decision, 'approve');
-    }
     
-    public function testApprovalAllowance(){
+    /**
+     * @expectedException Exception
+     */
+    public function testWrongOrderApproveAction() {
         $session = new Zend_Session_Namespace('Auth');
         $session->domainId = 1;
-        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
-        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId));
+        $result = $this->objectManager->approveForm($this->formId, $this->userId1, 'approve');
     }
-    
+
+    public function testOrderApproveAction() {
+       $session = new Zend_Session_Namespace('Auth');
+        $session->domainId = 1;
+
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId));
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId2));
+        $this->objectManager->approveForm($this->formId, $this->userId, 'decline');
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId));
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId2));
+         $this->objectManager->approveForm($this->formId, $this->userId, 'approve');
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId));
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId2));
+         $this->objectManager->approveForm($this->formId, $this->userId1, 'decline');
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId));
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId2));
+         $this->objectManager->approveForm($this->formId, $this->userId1, 'approve');
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId));
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId2));
+         $this->objectManager->approveForm($this->formId, $this->userId2, 'decline');
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId));
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId2));
+         $this->objectManager->approveForm($this->formId, $this->userId2, 'approve');
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId));
+        $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
+        $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId2));
+
+    }
+
 }
 

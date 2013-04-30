@@ -17,8 +17,8 @@ class AuthController extends Zend_Controller_Action {
         $this->session = new Zend_Session_Namespace('Auth');
         $this->auth = new Application_Model_Auth($this->session->domainId);
         $this->redirector = $this->_helper->getHelper('Redirector');
-        $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini','production');
-     }
+        $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', 'production');
+    }
 
     public function authAction() {
         $params = $this->getRequest()->getPost();
@@ -35,10 +35,10 @@ class AuthController extends Zend_Controller_Action {
                     $this->session->domainId = $user->domainId;
                     $objectsManager = new Application_Model_ObjectsManager($user->domainId);
                     $this->session->role = $objectsManager->getUserGroupRole($user);
-                    $this->redirector->gotoSimple('index', 'objects');
                 }
             }
         }
+        $this->redirector->gotoSimple('index', 'index');
     }
 
     public function logoffAction() {

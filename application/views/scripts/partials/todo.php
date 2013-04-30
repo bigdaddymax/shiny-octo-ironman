@@ -3,13 +3,14 @@
 TODO 
 
 <ol>
+    <li>Do not allow users from admin group to get access to forms/approvals</li>
     <li><strike>Access list</strike>Done.</li>
 <li><strike>User authorization and authentification (module, controller)</strike></li>
 <li>Navigation</li>
-<li>Approval scenario, rules (module, controller).</li>
+<li><strike>Approval scenario, rules (module, controller).</strike></li>
 <li><strike>Forms input.</strike>DONE</li>
-<li>Forms listing output</li>
-<li>Form opening</li>
+<li><strike>Forms listing output</strike></li>
+<li><strike>Form opening</strike></li>
 <li> Forms comment.</li>
 <li> Approval.</li>
 <li> Emailing.</li>

@@ -51,6 +51,8 @@ class DomainTest extends TestCase {
         $domain = new Application_Model_Domain($domainArray);
         $this->assertFalse($domain->isValid());
         $domain->domainName = 'eName';
+        $this->assertFalse($domain->isValid());
+        $domain->hash = md5(time());
         $this->assertTrue($domain->isValid());
         $this->assertEquals('eName', $domain->domainName);
     }

@@ -1,3 +1,44 @@
+<script>
+    
+    $(function(){
+        $("#approve").button()
+        .click(function(){
+            $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'approve'), null, true); ?>", {'formId': <?php echo $this->form['form']->formId; ?>});
+        });
+        
+        $("#decline").button()
+        .click(function(){
+            $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'decline'), null, true); ?>", {'formId': <?php echo $this->form['form']->formId; ?>});
+        });
+        
+        $("#publish").button()
+        .click(function(){
+            $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'publish-form'), null, true); ?>",
+            {formId: <?php echo $this->form['form']->formId; ?>},
+            function(data){
+                if (1 == data.error){
+                    alert(data.message);
+                } else {
+                    window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'index'), null, true); ?>";
+                }
+            });
+        });
+        
+        $("#edit").button().click(function(){
+            window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'edit-form', 'formId'=>$this->form['form']->formId), null, true); ?>";
+        });
+    });
+    
+</script> 
+<table>
+    <?php
+    if (isset($this->approved)) {
+        foreach ($this->approved as $approver) {
+            echo '<tr><td>' . $approver['userName'] . '</td><td>' . $approver['decision'] . '</td></tr>';
+        }
+    }
+    ?>
+</table>
 <table>
     <tr><td><?php echo $this->form['form']->formName; ?></td></tr>
     <tr><td><?php echo $this->form['form']->date; ?></td></tr>
@@ -6,15 +47,20 @@
     <tr><td><?php echo $this->form['owner']->userName; ?></td></tr>
 </table>
 <table>
-    <?php 
-        foreach($this->form['items'] as $item){
-            echo '<tr><td>'.$item->itemName.'</td><td>'.$item->value.'</td><td>' . $item->element->elementName . ' </td></tr>' .PHP_EOL;
-        }
+    <?php
+    foreach ($this->form['items'] as $item) {
+        echo '<tr><td>' . $item->itemName . '</td><td>' . $item->value . '</td><td>' . $item->element->elementName . ' </td></tr>' . PHP_EOL;
+    }
     ?>
-    <tr><td>Total</td><td><?php echo $this->form['total'];?></td><td></td></tr>
+    <tr><td><?php echo $this->translate('total');?></td><td><?php echo $this->form['total']; ?></td><td></td></tr>
 </table>
 <?php
-Zend_Debug::dump($this->showApproval);
-if ($this->showApproval){
-    echo '<button id="approve" name="approve">Approve</button>';
+if ($this->showApproval && $this->form['form']->public) {
+    echo '<button id="approve" name="approve">' . $this->translate('approve') . '</button>';
+    echo '<button id="decline" name="decline">' . $this->translate('decline') . '</button>';
+}
+
+if (!$this->form['form']->public) {
+    echo '<button id="publish">' . $this->translate('publish') . '</button>';
+    echo '<button id="edit">' . $this->translate('edit form') . '</button>';
 }

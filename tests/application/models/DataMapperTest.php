@@ -80,4 +80,10 @@ class DataMapperTest extends TestCase {
     $userIdGot = $this->dataMapper->checkObjectExistance($user, true);
     $this->assertEquals($userId, $userIdGot);
     }
+    
+    public function testPrepareFilter(){
+        $dataMapper = new Application_Model_DataMapper(1);
+        $filter = $dataMapper->prepareFilter(array(0=>array('column'=>'nodeId', 'operand'=>44)));
+        $this->assertEquals($filter, ' WHERE domainId = 1 AND nodeId = 44 ');
+    }
 }

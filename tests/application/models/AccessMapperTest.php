@@ -34,7 +34,6 @@ class AccessMapperTest extends TestCase {
          * Lets clear all tables before we start
          */
         $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', 'production');
-        $this->object = new Application_Model_AccessMapper($this->userId, 1);
         $this->dataMapper = new Application_Model_DataMapper(1);
         $this->dataMapper->dbLink->delete('item');
         $this->dataMapper->dbLink->delete('form');
@@ -152,15 +151,15 @@ class AccessMapperTest extends TestCase {
     }
 
     public function testGetAllowedObjectIds() {
-        $this->object->reinit($this->userId, 1);
+        $this->object = new Application_Model_AccessMapper($this->userId, 1);
         $allowedObjects = $this->object->getAllowedObjectIds();
-        $testObjects = array('approve' => array($this->nodeId, $this->nodeId1, $this->nodeId2, $this->nodeId5));
+        $testObjects = array('approve' => array($this->nodeId));
         $this->assertEquals($allowedObjects, $testObjects);
     }
 
     public function testResourcesAccess() {
         $this->dataMapper = new Application_Model_DataMapper(1);
-        $this->object->reinit($this->userId, 1);
+        $this->object = new Application_Model_AccessMapper($this->userId, 1);
         $login1 = $this->dataMapper->getObject($this->userId, 'Application_Model_User');
         $login2 = $this->dataMapper->getObject($this->userId1, 'Application_Model_User');
         $this->assertTrue($login1 instanceof Application_Model_User);
@@ -207,12 +206,15 @@ class AccessMapperTest extends TestCase {
         $node = $this->dataMapper->getObject($this->nodeId4, 'Application_Model_Node');
         //       $this->assertFalse($node);
         $this->assertEquals($node->nodeId, $this->nodeId4);
-        $credentials1 = array('approve' => array($this->nodeId, $this->nodeId1, $this->nodeId2, $this->nodeId5));
-        $credentials2 = array('read' => array($this->nodeId, $this->nodeId1, $this->nodeId2, $this->nodeId5), 'write' => array($this->nodeId1, $this->nodeId2, $this->nodeId3));
+        $credentials1 = array('approve' => array($this->nodeId));
+        $credentials2 = array('read' => array($this->nodeId), 'write' => array($this->nodeId1, $this->nodeId3));
         $this->assertEquals($credentials1, $privilege->getAllowedObjectIds());
         $privilege->reinit($login2->userId,1);
 //        Zend_Debug::dump($privilege->getAllowedOrgobjectIds());
         $this->assertEquals($credentials2, $privilege->getAllowedObjectIds());
+        $filterArray = $this->dataMapper->createAccessFilterArray($login2->userId);
+        $filter = $this->dataMapper->prepareFilter($filterArray);
+        $this->assertEquals($filter, ' WHERE domainId = 1  AND nodeId IN (' . $this->nodeId . ') ');
     }
 
 }

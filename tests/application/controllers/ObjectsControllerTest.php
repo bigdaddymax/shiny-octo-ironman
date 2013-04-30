@@ -22,26 +22,19 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('node');
         $this->dataMapper->dbLink->delete('domain_owner');
         $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('domain_owner');
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('domain');
-        $userArray = array('userName'=>'testName', 'login'=>'login', 'email'=>'test@domain', 'password'=>'test_pwd');
-        $params = array('controller'=>'index', 'action'=>'new-user');
-        $this->request->setMethod('post');
-        $this->request->setPost($userArray);
-        $this->dispatch($this->url($this->urlizeOptions($params)));
-        $this->assertController('index');
-        $this->assertAction('new-user');
-        // Add new domain
-        $domainArray = array('domainName'=>'Domain Name');
+        $inputArray = array('userName'=>'testName', 'email'=>'test@domain', 'password'=>'test_pwd', 'companyName'=>'New node name');
         $params = array('controller'=>'index', 'action'=>'new-domain');
         $this->request->setMethod('post');
-        $this->request->setPost($domainArray);
+        $this->request->setPost($inputArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
-        $session = new Zend_Session_Namespace('Auth');
-        $this->dataMapper = new Application_Model_DataMapper($session->domainId);
-
+        $this->assertController('index');
+        $this->assertAction('new-domain');
         $this->resetRequest();
         $this->resetResponse();
+
     }
 
     public function tearDown() {
@@ -53,6 +46,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('privilege');
         $this->dataMapper->dbLink->delete('resource');
         $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('domain_owner');
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('position');
         $this->dataMapper->dbLink->delete('node');
@@ -61,14 +55,15 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testIndexAction() {
-        $user = array('login' => 'login', 'password' => 'test_pwd');
+        $userArray = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
-        $this->request->setPost($user);
+        $this->request->setPost($userArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->resetRequest();
+        $this->resetResponse();
         $session=new Zend_Session_Namespace('Auth');
-        $this->assertEquals($session->login, 'login');
+        $this->assertEquals($session->login, 'test@domain');
         $this->assertEquals($session->role, 'admin');
         $params = array('action' => 'index', 'controller' => 'objects', 'objectType' => 'node');
         $urlParams = $this->urlizeOptions($params);
@@ -80,7 +75,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testAddObject() {
-        $user = array('login' => 'login', 'password' => 'test_pwd');
+        $user = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -109,11 +104,14 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
      * @depends testAddObject
      */
     public function testDeleteObject($element) {
-        $session = new Zend_Session_Namespace('Auth');
-        $session->auth = 1;
-        $session->login = 'admin';
-        $session->domainId = 1;
-        $params1 = array('controller' => 'objects', 'action' => 'delete',
+        $user = array('login' => 'test@domain', 'password' => 'test_pwd');
+        $params = array('controller' => 'auth', 'action' => 'auth');
+        $this->request->setMethod('post');
+        $this->request->setPost($user);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+         $params1 = array('controller' => 'objects', 'action' => 'delete',
             'objectType' => 'element', 'elementId' => $element->elementId);
         $this->dispatch($this->url($this->urlizeOptions($params1)));
         $elements2 = $this->dataMapper->getAllObjects('Application_Model_Element');
@@ -122,7 +120,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     public function testDeleteDependentObject() {
 // Lets save basic node
-        $user = array('login' => 'login', 'password' => 'test_pwd');
+        $user = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -139,7 +137,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $dataMapper = new Application_Model_DataMapper($session->domainId);
         $nodes = $dataMapper->getAllObjects('Application_Model_Node');
         $nodeId = $nodes[0]->nodeId;
-        $this->assertEquals(1, count($nodes));
+        $this->assertEquals(2, count($nodes));
 // Lets create dependent node
         $this->resetRequest();
         $this->resetResponse();
@@ -150,7 +148,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setPost($objectArray1);
         $this->dispatch($this->url($this->urlizeOptions($params1)));
         $nodes2 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(2, count($nodes2));
+        $this->assertEquals(3, count($nodes2));
         $this->resetRequest();
         $this->resetResponse();
 
@@ -159,12 +157,12 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
         $this->dispatch($this->url($this->urlizeOptions($params3)));
         $nodes3 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(2, count($nodes3));
+        $this->assertEquals(3, count($nodes3));
     }
 
     public function testDeleteIndependentObject() {
 // Lets save basic node
-        $user = array('login' => 'login', 'password' => 'test_pwd');
+        $user = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -201,7 +199,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //        $this->assertEquals($output2, 'tt');
 
         $nodes2 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(3, count($nodes2));
+        $this->assertEquals(4, count($nodes2));
 
         $params3 = array('controller' => 'objects', 'action' => 'delete',
             'objectType' => 'node', 'nodeId' => $nodeId1);
@@ -211,11 +209,11 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //        $this->assertRedirect();
 
         $nodes3 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(2, count($nodes3));
+        $this->assertEquals(3, count($nodes3));
     }
 
     public function testDeleteIndependentObjectMixed() {
-        $user = array('login' => 'login', 'password' => 'test_pwd');
+        $user = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -245,14 +243,14 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 // Lets create another independent node
         $params2 = array('controller' => 'objects', 'action' => 'add-object');
         $objectArray2 = array('objectType' => 'node', 'nodeName' => 'testAddObjectNode1',
-            'parentNodeId' => 22, 'domainId' => 1);
+            'parentNodeId' => 22, 'domainId' => $session->domainId);
         $this->request->setMethod('post');
         $this->request->setPost($objectArray2);
         $this->dispatch($this->url($this->urlizeOptions($params2)));
 //        $this->assertEquals($output2, 'tt');
 
         $nodes2 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(3, count($nodes2));
+        $this->assertEquals(4, count($nodes2));
 
         $params3 = array('controller' => 'objects', 'action' => 'delete',
             'objectType' => 'node', 'nodeId' => $nodeId);
@@ -260,7 +258,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params3)));
 
         $nodes3 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(3, count($nodes3));
+        $this->assertEquals(4, count($nodes3));
 
         $params4 = array('controller' => 'objects', 'action' => 'delete',
             'objectType' => 'node', 'nodeId' => $nodeId1);
@@ -268,11 +266,11 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params4)));
 
         $nodes4 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(2, count($nodes4));
+        $this->assertEquals(3, count($nodes4));
     }
 
     public function testAddDeleteObjects() {
-        $user = array('login' => 'login', 'password' => 'test_pwd');
+        $user = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -310,7 +308,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //        $this->assertEquals($output2, 'tt');
 
         $nodes2 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(3, count($nodes2));
+        $this->assertEquals(4, count($nodes2));
 
         $params3 = array('controller' => 'objects', 'action' => 'delete',
             'objectType' => 'node', 'nodeId' => $nodeId);
@@ -318,7 +316,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params3)));
 
         $nodes3 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(3, count($nodes3));
+        $this->assertEquals(4, count($nodes3));
 
         $params4 = array('controller' => 'objects', 'action' => 'delete',
             'objectType' => 'node', 'nodeId' => $nodeId1);
@@ -326,12 +324,12 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params4)));
 
         $nodes4 = $dataMapper->getAllObjects('Application_Model_Node');
-        $this->assertEquals(2, count($nodes4));
+        $this->assertEquals(3, count($nodes4));
     }
 
     public function testEditObject() {
         // Lets login as admin
-        $user = array('login' => 'login', 'password' => 'test_pwd');
+        $user = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);

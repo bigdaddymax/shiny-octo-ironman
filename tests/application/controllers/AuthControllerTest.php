@@ -16,6 +16,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario_assignment');
         $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('domain_owner');
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('position');
         $this->dataMapper->dbLink->delete('node');
@@ -43,6 +44,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario_assignment');
         $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('domain_owner');
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('user_group');
         
@@ -74,31 +76,25 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
   
     public function testDefaultAdminAuth() {
 //        rer;
-        $userArray = array('userName'=>'testName', 'login'=>'login', 'email'=>'test@domain', 'password'=>'test_pwd');
-        $params = array('controller'=>'index', 'action'=>'new-user');
-        $this->request->setMethod('post');
-        $this->request->setPost($userArray);
-        $this->dispatch($this->url($this->urlizeOptions($params)));
-        $this->assertController('index');
-        $this->assertAction('new-user');
-        $session = new Zend_Session_Namespace('Auth');
-        $domainArray = array('domainName'=>'Domain Name');
+         $inputArray = array('userName'=>'testName', 'email'=>'test@domain', 'password'=>'test_pwd', 'companyName'=>'New node name');
         $params = array('controller'=>'index', 'action'=>'new-domain');
         $this->request->setMethod('post');
-        $this->request->setPost($domainArray);
+        $this->request->setPost($inputArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
+        $response = $this->getResponse();
+        echo $response->outputBody();
+        $this->assertController('index');
+        $this->assertAction('new-domain');
         $this->resetRequest();
         $this->resetResponse();
-        $user = array('login' => 'login', 'password' => 'test_pwd');
+        $user = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
         $this->dispatch($this->url($this->urlizeOptions($params)));
-        $response = $this->getResponse();
-        echo $response->outputBody();
        $session = new Zend_Session_Namespace('Auth');
        $this->assertEquals($session->userName, 'testName');
-       $this->assertEquals($session->login, 'login');
+       $this->assertEquals($session->login, 'test@domain');
        $this->assertEquals($session->role, 'admin');
     }
 
