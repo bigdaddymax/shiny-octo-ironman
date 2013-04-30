@@ -15,6 +15,7 @@ class Application_Model_Domain {
     private $_domainComment;
     private $_active = true;
     private $_domainId;
+    private $_hash;
 
     public function __construct(array $domainArray = null) {
         if (is_array($domainArray)) {
@@ -55,7 +56,7 @@ class Application_Model_Domain {
      * @return type
      */
     public function isValid() {
-        if (isset($this->_domainName)) {
+        if (isset($this->_domainName) && isset($this->_hash)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;

@@ -1,31 +1,31 @@
 <?php
 
 /**
- * Description of Element
+ * Description of Domain
  *
- * "Element" is a class that represent particular type of entries that could be processed by the system.
- * Examples of elements could be: capex, opex, salary, agreement, particular spending (car service expences, office rent, materials, office supplies etc)
+ * "Domain" is a class that represent particular type of entries that could be processed by the system.
+ * Examples of domains could be: capex, opex, salary, agreement, particular spending (car service expences, office rent, materials, office supplies etc)
  * 
  * @author Max
  */
-class Application_Model_Approval {
+class Application_Model_DomainOwner {
 
     private $_valid = true;
-    private $_approvalId;
+    private $_userId;
     private $_active = true;
     private $_domainId;
 
-    public function __construct(array $approvalArray = null) {
-        foreach ($approvalArray as $property => $value) {
-            if (strpos($property, 'Id')) {
-                $this->{$property} = (int) $value;
-            }elseif ('active' == $property) {
-                $property = (bool) $value;
-            }
-            else {
-                $this->{$property} = $value;
+    public function __construct(array $domainArray = null) {
+        if (is_array($domainArray)) {
+            foreach ($domainArray as $key => $item) {
+                if (strpos($key, 'Id')) {
+                    $this->{$key} = (int) $item;
+                } else {
+                    $this->{$key} = $item;
+                }
             }
         }
+
     }
 
     public function __set($name, $value) {
@@ -49,12 +49,12 @@ class Application_Model_Approval {
     }
 
     /**
-     *  Function that returns status of Element instance. We consider Element as valid if element 
-     *  has correctly set elementName, elementCode
+     *  Function that returns status of Domain instance. We consider Domain as valid if domain 
+     *  has correctly set domainName, domainCode
      * @return type
      */
     public function isValid() {
-        if (isset($this->_domainId)) {
+        if (isset($this->_domainId) && isset($this->_userId)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;
@@ -63,7 +63,7 @@ class Application_Model_Approval {
     }
 
     /**
-     * Returns array of properties of element.
+     * Returns array of properties of domain.
      * @return type
      */
     public function toArray() {

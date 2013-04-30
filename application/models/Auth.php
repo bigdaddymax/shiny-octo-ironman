@@ -5,6 +5,7 @@
  *
  * @author Olenka
  */
+require_once 'BaseDBAbstract.php';
 class Application_Model_Auth extends BaseDBAbstract {
 
     //put your code here

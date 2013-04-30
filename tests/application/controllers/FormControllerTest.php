@@ -25,6 +25,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario_assignment');
         $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('domain_owner');
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('position');
         $this->dataMapper->dbLink->delete('node');
@@ -122,6 +123,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario_assignment');
         $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('domain_owner');
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('position');
         $this->dataMapper->dbLink->delete('node');
@@ -211,6 +213,19 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
             $this->request->setPost($key, $value);
         }
         $this->dispatch($this->url($this->urlizeOptions($params)));
+        $response = $this->getResponse();
+
+        $data = json_decode($response->outputBody());
+        $objectManager = new Application_Model_ObjectsManager(1);
+        $form = $objectManager->getForm($data->formId, $this->userId1);
+        $this->assertEquals($form->active, true);
+        $this->assertEquals($form->public, false);
+        $form->public = 1;
+        $id = $objectManager->saveForm($form, $this->userId1);
+        $form1 = $objectManager->getForm($id, $this->userId1);
+         $this->assertEquals($form->active, true);
+        $this->assertEquals($form->public, true);
+       
 //        $this->assertController('objects');
  //       $response = $this->getResponse();
  //     echo $response->outputBody();

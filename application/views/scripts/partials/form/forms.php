@@ -24,17 +24,29 @@
 
 <div id="add-item" title="Add approval item">
     <form id="item-form">
-        <?php
-        echo '<select id="elementId" name="elementId">';
-        foreach ($this->elements as $element) {
-            echo '<option value="' . $element->elementId . '">' . $element->elementName . '</option>';
-        }
-        echo '</select>';
-        ?>
-        <label for="itemName">Description</label>
-        <input type="text" id="itemName" name="itemName">
-        <label for="value">Value</label>
-        <input type="text" id="value" name="value">
+        <table>
+            <tr><td>
+                    <?php
+                    echo '<select id="elementId" name="elementId">';
+                    foreach ($this->elements as $element) {
+                        echo '<option value="' . $element->elementId . '">' . $element->elementName . '</option>';
+                    }
+                    echo '</select>';
+                    ?>
+                </td></tr>
+            <tr><td>
+                    <label for="itemName">Description</label>
+                </td></tr>
+            <tr><td>
+                    <input type="text" id="itemName" name="itemName">
+                </td></tr>
+            <tr><td>
+                    <label for="value">Value</label>
+                </td></tr>
+            <tr><td>
+                    <input type="text" id="value" name="value">
+                </td></tr>
+        </table>
     </form>
 
 </div>

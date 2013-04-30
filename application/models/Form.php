@@ -17,6 +17,9 @@ class Application_Model_Form {
     private $_date;
     private $_items;
     private $_nodeId;
+    private $_final;
+    private $_decision;
+    private $_public = false;
 
     public function __construct(array $formArray = null) {
         if (isset($formArray['formName'])) {
@@ -27,6 +30,9 @@ class Application_Model_Form {
         }
         if (isset($formArray['active'])) {
             $this->_active = (bool) $formArray['active'];
+        }
+        if (isset($formArray['public'])) {
+            $this->_public = (bool) $formArray['public'];
         }
         if (isset($formArray['userId'])) {
             $this->_userId = (int) $formArray['userId'];
@@ -121,7 +127,11 @@ class Application_Model_Form {
             $this->setItems($value);
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
+            if ('active' == $name || 'public' == $name) {
+                $this->$name1 = (bool) $value;
+            } else {
+                $this->$name1 = $value;
+            }
         } else {
             echo 'Cannot set value. Property ' . $name . ' doesnt exist';
         }
@@ -160,9 +170,13 @@ class Application_Model_Form {
     public function toArray() {
         $output = array();
         foreach ($this as $key => $value) {
-            if ('_valid' != $key) {
+            if (('_valid' != $key) && ('_decsion' != $key) && ('_final' != $key)) {
                 if (isset($value)) {
-                    $output[str_replace('_', '', $key)] = $value;
+                    if ('_active' == $key || '_public' == $key) {
+                        $output[str_replace('_', '', $key)] = (int) $value;
+                    } else {
+                        $output[str_replace('_', '', $key)] = $value;
+                    }
                 }
             }
         }

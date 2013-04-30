@@ -36,6 +36,14 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         }
     }
 
+    public function setDomainId($domainId) {
+        if ($domainId) {
+            $this->domainId = $domainId;
+        } else {
+            throw new InvalidArgumentException('DomainID cannot be NULL');
+        }
+    }
+
     /**
      * Helper function, creates names of properties, tables etc for particular object.
      * 
@@ -120,9 +128,9 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             throw new InvalidArgumentException('Class name is not set.');
         }
         $objectArray = $this->dbLink->fetchRow('SELECT * FROM ' .
-                                                $this->tableName . ' WHERE ' .
-                                                $this->dbLink->quoteinto($this->objectIdName . '=?', $id) . 
-                                                $this->dbLink->quoteinto(' AND domainId = ?', $this->domainId));
+                $this->tableName . ' WHERE ' .
+                $this->dbLink->quoteinto($this->objectIdName . '=?', $id) .
+                $this->dbLink->quoteinto(' AND domainId = ?', $this->domainId));
         if (is_array($objectArray)) {
             $object = new $this->className($objectArray);
             return $object;
@@ -177,14 +185,13 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @return array
      * 
      */
-    public function createAccessFilterArray(){
-        $accessMapper = new Application_Model_AccessMapper();
+    public function createAccessFilterArray($userId) {
+        $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
         $accessibleIds = $accessMapper->getAllowedObjectIds();
-        $accessFilter = array(0=>array('condition'=>'IN', 'operand'=>$accessibleIds['read']));
+        $accessFilter = array(0 => array('condition' => 'IN', 'column'=>'nodeId','operand' => $accessibleIds['read']));
         return $accessFilter;
     }
-    
-    
+
     /**
      * 
      * @param array $filterArray - array(0=>array('condition'=>'AND', 'column'=> 'orgobject', 'comp'=>'=', 'operand'=>234))
@@ -206,7 +213,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             foreach ($filterArray as $key => $filterElement) {
                 if (is_int($key)) {
                     if (!empty($filterElement['condition']) && 'IN' == $filterElement['condition']) {
-                        $inString = 'AND ' . $filterElement['column'] . ' IN (';
+                        $inString = ' AND ' . $filterElement['column'] . ' IN (';
                         if (empty($filterElement['operand']) || !is_array($filterElement['operand'])) {
                             throw new InvalidArgumentException('For IN filter operand should be an array() type');
                         }
@@ -234,9 +241,9 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                                 ' ';
                     }
                 } else {
-                    if ('LIMIT' == (string)$key){
-                echo $key . PHP_EOL;
-                        $limit = ' LIMIT ' . ((int)$filterElement['start']) . ', ' . ((int)$filterElement['number']);
+                    if ('LIMIT' == (string) $key) {
+                        echo $key . PHP_EOL;
+                        $limit = ' LIMIT ' . ((int) $filterElement['start']) . ', ' . ((int) $filterElement['number']);
                     } elseif ('ORDER' == $key) {
                         $order = ' ORDER BY ' . $this->dbLink->quoteinto('?', $filterElement['column']) . ' ' . $filterElement['operand'];
                     }
@@ -282,7 +289,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             throw new InvalidArgumentException('Class name is not set.');
         }
         // Get all tables in our database schema that contain column $this->objectIdName (for example, "positionId" or "userId")
-        $tables = $this->dbLink->fetchCol($this->dbLink->quoteinto('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME = ? AND TABLE_SCHEMA="'.$this->config->database->params->dbname.'supercapex"', $this->objectIdName));
+        $tables = $this->dbLink->fetchCol($this->dbLink->quoteinto('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME = ? AND TABLE_SCHEMA="' . $this->config->database->params->dbname . 'supercapex"', $this->objectIdName));
         $count = null;
         foreach ($tables as $table) {
             if ($table != $this->tableName) {
@@ -350,19 +357,37 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      */
     public function getObjectsCount($class, $filter = null) {
         $this->setClassAndTableName($class);
-        return $this->dbLink->fetchOne("SELECT count($this->objectIdName) FROM $this->tableName");
+        return $this->dbLink->fetchOne($this->dbLink->quoteinto("SELECT count($this->objectIdName) FROM $this->tableName WHERE domainId = ?", $this->domainId));
     }
-    
-    
-    
-    public function getNodesAssigned(){
-      /**
-     * getNodesAssigned() method is a helper method that returns array of scenarios and node names and Ids 
-     *                    to which these scenarios are assigned (if any).
-     * @return type
-     */
-        return $this->dbLink->fetchAll('SELECT s.scenarioId, s.scenarioName, n.nodeId, n.nodeName FROM scenario s LEFT JOIN scenario_assignment a ON s.scenarioId = a.scenarioId LEFT JOIN node n ON n.nodeId = a.nodeId');
-        
+
+    public function getNodesAssigned() {
+        /**
+         * getNodesAssigned() method is a helper method that returns array of scenarios and node names and Ids 
+         *                    to which these scenarios are assigned (if any).
+         * @return type
+         */
+        return $this->dbLink->fetchAll($this->dbLink->quoteinto('SELECT s.scenarioId, s.scenarioName, n.nodeId, n.nodeName
+                                        FROM scenario s 
+                                        LEFT JOIN scenario_assignment a ON s.scenarioId = a.scenarioId 
+                                        LEFT JOIN node n ON n.nodeId = a.nodeId WHERE n.domainId = ?', $this->domainId));
+    }
+
+    public function checkLoginExistance($login) {
+        $user = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM user WHERE login = ?', $login));
+        return (!empty($user));
+    }
+
+    public function getApprovalStatus($formId) {
+        return $this->dbLink->fetchAll($this->dbLink->quoteinto('select 
+                                                ss.userId, ae.decision, ss.formId, ss.userName, ss.login
+                                            from
+                                                (select se.userId, se.orderPos, f.formId, u.userName, u.login from scenario_entry se
+                                            join scenario_assignment sa on se.scenarioId = sa.scenarioId
+                                            join form f on f.nodeId=sa.nodeId 
+                                            join user u on u.userId=se.userId
+                                             ) ss
+                                                    left join
+                                                approval_entry ae ON ss.userId = ae.userId and ss.formId=ae.formId where ss.formId=? ORDER BY ss.orderPos DESC', $formId));
     }
 
 }

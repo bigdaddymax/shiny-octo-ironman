@@ -27,8 +27,8 @@ class ScenarioController extends Zend_Controller_Action {
  * 
  */    
     public function indexAction() {
-        $objectsManager = new Application_Model_ObjectsManager();
-        $dataMapper = new Application_Model_DataMapper();
+        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+        $dataMapper = new Application_Model_DataMapper($this->session->domainId);
         $this->view->scenarios = $objectsManager->getAllScenarios();
         $this->view->users = $dataMapper->getAllObjects('Application_Model_User');
         $this->view->assignments = $objectsManager->getNodesAssigned();
@@ -57,8 +57,7 @@ class ScenarioController extends Zend_Controller_Action {
     public function openScenarioAction() {
         if ($this->_request->isGet()) {
             $scenarioId = $this->getRequest()->getParam('scenarioId');
-            $objectManager = new Application_Model_ObjectsManager();
-            $dataMapper = new Application_Model_DataMapper();
+            $objectManager = new Application_Model_ObjectsManager($this->session->domainId);
             $this->view->assignments = $objectManager->getNodesAssigned();
             $this->view->scenario = $objectManager->getScenario($scenarioId);
         }

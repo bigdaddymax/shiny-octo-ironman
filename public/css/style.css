@@ -75,3 +75,15 @@ li {
     color:#222222; 
     font-weight:normal;
 }
+
+tr.approved td{
+    background-color: green;
+}
+
+tr.declined td{
+    background-color: red;
+}
+
+tr.private td{
+   background-color: grey;
+}
