@@ -23,6 +23,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('domain_owner');
         $this->dataMapper->dbLink->delete('user_group');
         $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('contragent');
         $this->dataMapper->dbLink->delete('domain');
         $this->dataMapper->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
 
@@ -53,6 +54,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('domain_owner');
         $this->dataMapper->dbLink->delete('user_group');
         $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('contragent');
         $this->dataMapper->dbLink->delete('domain');
         $this->dataMapper->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
     }

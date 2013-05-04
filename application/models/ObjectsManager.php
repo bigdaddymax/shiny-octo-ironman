@@ -143,6 +143,7 @@ class Application_Model_ObjectsManager extends BaseDBAbstract {
             $form['form'] = $this->getForm($formId, $userId);
             $form['owner'] = $this->dataMapper->getObject($form['form']->userId, 'Application_Model_User');
             $form['node'] = $this->dataMapper->getObject($form['form']->nodeId, 'Application_Model_Node');
+            $form['contragent']  = $this->dataMapper->getObject($form['form']->contragentId, 'Application_Model_Contragent');
             if (-1 != $form['node']->parentNode) {
                 $form['parentNode'] = $this->dataMapper->getObject($form['node']->parentNodeId, 'Application_Model_Node');
             }

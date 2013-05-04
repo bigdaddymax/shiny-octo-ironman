@@ -84,9 +84,11 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     public function saveObject($object) {
         $this->setClassAndTableName($object);
         if ($object->isValid()) {
-            if ($this->checkObjectExistance($object)) {
+            $objectId = $this->checkObjectExistance($object);
+            if ($objectId) {
                 // Object exists, so we will update it
                 $objectArray = $object->toArray();
+                $object->{$this->objectIdName} = $objectId;
                 // Cleaning columns before updating database
                 unset($objectArray[$this->objectIdName]);
                 $objectArray['active'] = (int) $objectArray['active'];

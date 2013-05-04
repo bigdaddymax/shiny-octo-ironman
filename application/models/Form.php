@@ -20,6 +20,7 @@ class Application_Model_Form {
     private $_final;
     private $_decision;
     private $_public = false;
+    private $_contragentId;
 
     public function __construct(array $formArray = null) {
         if (isset($formArray['formName'])) {
@@ -45,6 +46,9 @@ class Application_Model_Form {
         }
         if (isset($formArray['formId'])) {
             $this->_formId = (int) $formArray['formId'];
+        }
+        if (isset($formArray['contragentId'])) {
+            $this->_contragentId = (int) $formArray['contragentId'];
         }
         // Items are set from normal array
         if (isset($formArray['items'])) {
@@ -153,7 +157,7 @@ class Application_Model_Form {
      */
     public function isValid() {
         $this->_valid = true;
-        if (isset($this->_formName) && isset($this->_domainId) && isset($this->_userId) && isset($this->_nodeId) && isset($this->_items)) {
+        if (isset($this->_formName) && isset($this->_domainId) && isset($this->_contragentId) && isset($this->_userId) && isset($this->_nodeId) && isset($this->_items)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;

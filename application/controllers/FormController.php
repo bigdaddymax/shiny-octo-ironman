@@ -56,6 +56,9 @@ class FormController extends Zend_Controller_Action {
         $params = $this->getRequest()->getPost();
         $params['userId'] = $this->session->userId;
         $params['domainId'] = $this->session->domainId;
+        $contragent = new Application_Model_Contragent(array('contragentName' => $this->_request->getParam('contragentName'), 'domainId' => $this->session->domainId));
+        $dataMapper = new Application_Model_DataMapper($this->session->domainid);
+        $params['contragentId'] = $dataMapper->saveObject($contragent);
         $form = new Application_Model_Form($params);
         if ($form->isValid()) {
             $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
@@ -105,6 +108,7 @@ class FormController extends Zend_Controller_Action {
         }
         $this->redirector->gotoSimple('index', 'form');
     }
+
 }
 
 ?>

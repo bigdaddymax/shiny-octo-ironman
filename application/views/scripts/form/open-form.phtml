@@ -49,10 +49,10 @@
 <table>
     <?php
     foreach ($this->form['items'] as $item) {
-        echo '<tr><td>' . $item->itemName . '</td><td>' . $item->value . '</td><td>' . $item->element->elementName . ' </td></tr>' . PHP_EOL;
+        echo '<tr><td>' . $item->itemName . '</td><td>' . sprintf("%01.2f", $item->value) . '</td><td>' . $item->element->elementName . ' </td></tr>' . PHP_EOL;
     }
     ?>
-    <tr><td><?php echo $this->translate('total');?></td><td><?php echo $this->form['total']; ?></td><td></td></tr>
+    <tr><td><?php echo $this->translate('total');?></td><td><?php echo sprintf("%01.2f",$this->form['total']); ?></td><td></td></tr>
 </table>
 <?php
 if ($this->showApproval && $this->form['form']->public) {
