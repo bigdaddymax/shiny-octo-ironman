@@ -1,0 +1,40 @@
+<div id="add-object-form" title="Add new node">
+    <form id="object-form">
+        <table>
+            <tr>
+                <td><label for="nodeName">Node Name</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" name="_nodeName" /></td>
+            </tr>
+            <?php
+            if (!empty($this->subobjects['nodes']) && is_array($this->subobjects['nodes'])) {
+                echo '<tr>';
+                echo '<td>';
+                echo '<select  id="parentNodeId" name="_parentNodeId">';
+                echo '<option value="-1">No parent</option>';
+                foreach ($this->subobjects['nodes'] as $node) {
+                    echo '<option " value="' .
+                    $node->nodeId . '">' .
+                    $node->nodeName .
+                    '</option>';
+                }
+                echo '</select>';
+                echo '</td>';
+                echo '</tr>';
+            } else {
+                echo '<input type="hidden" id="parentNodeId" name="_parentNodeId" value="-1">';
+            }
+            ?>
+            <tr>
+                <td><input type="hidden" id="objectType" name="objectType" value="node"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<button id="add-object-btn">Add node</button>
+
+<div id="main">
+    <?php echo $this->partial('partials/object-lists/node-list.phtml', array('nodes' => $this->objects)); ?>
+</div>

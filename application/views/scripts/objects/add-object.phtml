@@ -1,0 +1,13 @@
+<?php
+
+switch ($this->objectType) {
+    case 'node': echo $this->partial('partials/object-lists/node-list.phtml', array('nodes'=>$this->objects));
+        break;
+    case 'element': echo $this->partial('partials/object-lists/element-list.phtml', array('elements'=>$this->objects));
+        break;
+    case 'position': echo $this->partial('partials/object-lists/position-list.phtml', array('positions'=>$this->objects));
+        break;
+    case 'user': echo $this->partial('partials/object-lists/user-list.phtml', array('users'=>$this->objects));
+        break;
+    default : echo $this->partial('partials/object-lists/node-list.phtml', array('levels'=>$this->objects));
+}

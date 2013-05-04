@@ -1,0 +1,19 @@
+<table>
+<?php
+if (is_array($this->nodes)){
+    foreach ($this->nodes as $node) {
+        echo '<tr><td><a href="'.$this->url(array('controller'=>'objects',
+                                                  'action'=>'delete',
+                                                  'objectType'=>'node',
+                                                  'nodeId'=>$node->nodeId), null, true).
+             '">x</a></td><td><a href="' . $this->url(array('controller'=>'objects',
+                                                            'action'=>'open-object',
+                                                            'objectType'=>'node',
+                                                            'nodeId'=>$node->nodeId)).
+             '">'.$node->nodeName .
+             '</a></td><td>' . $node->parentNodeId .
+             '</td></tr>';
+    }
+}
+?>
+</table>

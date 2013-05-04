@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <nav>
+        <home>
+            <label>Home</label>
+            <controller>index</controller>
+            <action>index</action>
+            <resource>home</resource>
+            <className>Home</className>
+        </home>
+        <form>
+            <label>Forms</label>
+            <controller>form</controller>
+            <action>index</action>
+            <resource>form</resource>
+            <className>Form</className>
+        </form>
+        <admin>
+            <label>Administration</label>
+            <title>Administration</title>
+            <controller>objects</controller>
+            <action>index</action>
+            <resource>admin</resource>
+            <pages>
+                <levels>
+                    <label>Nodes</label>
+                    <title>Nodes administration</title>
+                    <controller>objects</controller>
+                    <action>index</action>
+                    <params>
+                        <objectType>node</objectType>
+                    </params>
+                    <resource>node</resource>
+                    <subgroup>subadmin</subgroup>
+                    <className>Node</className>
+                </levels>
+                <positions>
+                    <label>Positions</label>
+                    <title>Positions administration</title>
+                    <controller>objects</controller>
+                    <action>index</action>
+                    <params>
+                        <objectType>position</objectType>
+                    </params>
+                    <resource>position</resource>
+                    <className>Position</className>
+                    <subgroup>subadmin</subgroup>
+                </positions>
+                <elements>
+                    <label>Elements</label>
+                    <title>Elements administration</title>
+                    <controller>objects</controller>
+                    <action>index</action>
+                    <params>
+                        <objectType>element</objectType>
+                    </params>
+                    <resource>element</resource>
+                    <className>Element</className>
+                    <subgroup>subadmin</subgroup>
+                </elements>
+                <users>
+                    <label>Users</label>
+                    <title>Users administration</title>
+                    <controller>objects</controller>
+                    <action>index</action>
+                    <params>
+                        <objectType>user</objectType>
+                    </params>
+                    <subgroup>subadmin</subgroup>
+                    <resource>user</resource>
+                    <className>User</className>
+                </users>
+                <scenario>
+                    <label>Scenario</label>
+                    <title>Scenario</title>
+                    <controller>scenario</controller>
+                    <action>index</action>
+                    <subgroup>subadmin</subgroup>
+                    <resource>scenario</resource>
+                    <className>Scenario</className>
+                </scenario>
+            </pages>
+        </admin>
+        
+    </nav>
+</config>
