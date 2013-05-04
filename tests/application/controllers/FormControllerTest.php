@@ -12,6 +12,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     private $elementId1;
     private $elementId2;
     private $resourceId3;
+    private $contragentId;
 
     public function setUp() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
@@ -29,6 +30,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('position');
         $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('contragent');
         /*  Lets prepare some staff: node, node, position, user, access control 
          *    We have: 
          *    1. One node with ID nodeId
@@ -53,6 +55,14 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $nodeArray2 = array('nodeName' => 'Third bject', 'parentNodeId' => $this->nodeId3, 'domainId' => 1);
         $node2 = new Application_Model_Node($nodeArray2);
         $this->nodeId2 = $this->dataMapper->saveObject($node2);
+
+// CONTRAGENT
+        $contragentArray = array('contragentName' => 'cName', 'domainId' => 1);
+        $contragent = new Application_Model_Contragent($contragentArray);
+        $this->assertTrue($contragent->isValid());
+        $this->contragentId = $this->dataMapper->saveObject($contragent);
+        $this->assertTrue($contragent instanceof Application_Model_Contragent);
+        $this->assertTrue(is_int($this->contragentId));
 
 // ELEMENTS
         $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
@@ -127,6 +137,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('position');
         $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('contragent');
     }
 
     public function testIndexAction() {
@@ -161,10 +172,10 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertEquals($session->domainId, 1);
         $this->assertEquals($session->auth, 1);
         $accessMapper = new Application_Model_AccessMapper($session->userId, 1);
- //       $this->assertTrue($this->accessMapper->isAllowed($session->login, 'node', 'write', $this->nodeId1));
+        //       $this->assertTrue($this->accessMapper->isAllowed($session->login, 'node', 'write', $this->nodeId1));
         $itemArray1 = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'elementId' => $this->elementId1, 'active' => true);
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId2, 'active' => true);
-        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId2, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true);
+        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId2, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true, 'contragentName' =>'contr name');
         $params = array('controller' => 'form', 'action' => 'add-form');
         $this->request->setMethod('post');
         $this->request->setPost($formArray1);
@@ -180,7 +191,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $form = $objectManager->getForm($forms[0]->formId, $this->userId1);
         $this->assertEquals($form->formName, $forms[0]->formName);
         $this->assertEquals($form->formName, 'fName1');
-       $items = $form->items;
+        $items = $form->items;
         $itemArray3 = $items[0]->toArray();
         unset($itemArray3['itemId']);
         unset($itemArray3['formId']);
@@ -202,7 +213,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1);
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' =>'cntr name');
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -223,15 +234,15 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $form->public = 1;
         $id = $objectManager->saveForm($form, $this->userId1);
         $form1 = $objectManager->getForm($id, $this->userId1);
-         $this->assertEquals($form->active, true);
+        $this->assertEquals($form->active, true);
         $this->assertEquals($form->public, true);
-       
+
 //        $this->assertController('objects');
- //       $response = $this->getResponse();
- //     echo $response->outputBody();
+        //       $response = $this->getResponse();
+        //     echo $response->outputBody();
 //        Zend_Debug::dump($this->request->getPost());
- //$accessMapper = new Application_Model_AccessMapper($this->userId1, 1);
- //Zend_Debug::dump($accessMapper->getAllowedObjectIds());
+        //$accessMapper = new Application_Model_AccessMapper($this->userId1, 1);
+        //Zend_Debug::dump($accessMapper->getAllowedObjectIds());
         $objectManager = new Application_Model_ObjectsManager(1);
         $forms = $objectManager->getAllForms();
 //        $this->assertEquals('rr', $response->outputBody());
