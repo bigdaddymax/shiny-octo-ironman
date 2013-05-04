@@ -8,18 +8,26 @@ class Capex_Plugins_AuthPlugin extends Zend_Controller_Plugin_Abstract {
 
     public function preDispatch(Zend_Controller_Request_Abstract $request) {
         // Access to Index page, Errors and Authentification is granted to all
+        $this->session = new Zend_Session_Namespace('Auth');
         $controller = $request->getControllerName();
         if ('index' == $controller || 'auth' == $controller || 'error' == $controller) {
+            return;
+        }
+
+        // Somebody tries to access restricted pages but session variable is not set
+        if (!$this->session->userName) {
+            $request->setControllerName('index');
+            $request->setActionName('index');
             return;
         }
         // Prepare variables
         $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini');
         $nav = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
         $this->navigation = new Zend_Navigation($nav);
-        $this->session = new Zend_Session_Namespace('Auth');
         $resource = $this->getResource($request);
-        $accessMapper = new Application_Model_AccessMapper($this->session->userId);
-        if ($accessMapper->isAllowed($this->session->login, $resource) && $resource) {
+
+        $accessMapper = new Application_Model_AccessMapper($this->session->userId, $this->session->domainId);
+        if ($accessMapper->isAllowed($resource) && $resource) {
             return;
         }
         $request->setControllerName('index');

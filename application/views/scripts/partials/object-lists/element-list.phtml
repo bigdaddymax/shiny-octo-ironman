@@ -1,0 +1,16 @@
+<table>
+<?php
+if (is_array($this->elements)){
+    foreach ($this->elements as $element) {
+        echo '<tr><td><a href="'.
+                $this->url(array('controller'=>'objects',
+                                                    'action'=>'delete',
+                                                    'elementId'=>$element->elementId)).
+                '">x</a></td><td>'.$element->elementName .
+                '</td><td>' . $element->elementCode .
+                '</td><td>' . $element->elementComment .
+                '</td></tr>';
+    }
+}
+?>
+</table>

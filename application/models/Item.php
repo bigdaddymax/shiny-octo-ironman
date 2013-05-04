@@ -17,6 +17,7 @@ class Application_Model_Item {
     private $_formId;
     private $_active = true;
     private $_domainId;
+    private $_element;
 
     public function __construct(array $itemArray = null) {
         if (isset($itemArray['itemName'])) {

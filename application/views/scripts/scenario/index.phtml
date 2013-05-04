@@ -1,0 +1,71 @@
+<script>
+
+    $(function(){
+        var addUrl;
+        addUrl = "<?php echo $this->url(array('controller' => 'scenario', 'action' => 'add-scenario')); ?>";
+        $('#new-scenario-form').dialog({
+            autoOpen: false,
+            modal:    true,
+            buttons:  {
+                'Save' : function(){
+                    $.post(addUrl, $("#scenario-data").serialize())
+                    .done(function(data){
+                 //       $("#main").html(data);
+                        $("#add-scenario").dialog("close");
+                        location.reload();
+                    });
+                    //                        $(this).dialog("close");
+                },
+                'Cancel' : function(){
+                    $(this).dialog("close");
+                }
+            }
+        });
+        
+        $("#new-entry-form").dialog({
+            autoOpen: false,
+            modal:    true,
+            buttons: {
+                'Add' :function(){
+                    var counter  = $("#orderPos").val();
+                    // Need to fix this aproach to AJAX later
+                    <?php 
+// +++++++++++++++++++++ FIXME FIXME FIXME ++++++++++++++++++++++++++++++++++++++++++++++++++++                    
+                        echo 'var users = new Array();' . PHP_EOL;
+                        foreach($this->users as $user){
+                            echo "users[$user->userId] = '$user->userName';" . PHP_EOL;
+                        }
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                        
+                    ?>
+                    counter++;
+                    $("#orderPos").val(counter);
+                    $("#scenario-tbl").after('<tr id="r_'+counter+'"><td>x</td><td>'+users[$("#userId").val()]+
+                        '<input type="hidden" name="orderPos_'+$("#userId").val()+'" value="'+counter+'"></td></tr>');
+                    $(this).dialog("close");
+                },
+                'Cancel': function(){
+                    $(this).dialog("close");
+                }
+            }
+        });
+             
+        $("#add-scenario-btn").button()
+        .click(function(){
+            $("#new-scenario-form").dialog("open");
+            $("#add-entry-btn").button().click(
+                function(){
+                    $("#new-entry-form").dialog("open");
+                });
+        });
+    });
+    
+    function openScenario(scenarioId){
+    var url = '<?php echo $this->url(array('controller'=>'scenario', 'action'=>'open-scenario'), null, true);?>' + '/scenarioId/' + scenarioId.slice(scenarioId.indexOf('_')+1);
+        location = url;
+    }
+</script>
+<div id="main"></div>
+<?php
+
+echo $this->partial('partials/scenario/list.phtml', array('scenarios'=>$this->scenarios, 'assignments'=>$this->assignments));
+echo $this->partial('partials/scenario/form.phtml', array( 'users'=>$this->users));

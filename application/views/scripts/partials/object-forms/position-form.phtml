@@ -1,0 +1,42 @@
+<div id="add-object-form" title="Add new position">
+    <form id="object-form">
+        <table>
+            <tr>
+                <td><label for="objectName">Position Name</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="positionName" name="_positionName" /></td>
+            </tr>
+
+            <?php
+            if (isset($this->subobjects['nodes'])) {
+                echo '<tr>' . PHP_EOL;
+                echo '<td>' . PHP_EOL;
+                echo "<label for='nodeId'>Select node</label>" . PHP_EOL;
+                echo '</td>' . PHP_EOL;
+                echo '</tr>' . PHP_EOL;
+                echo '<tr>' . PHP_EOL;
+                echo '<td>' . PHP_EOL;
+                echo '<select id="nodeId" name="nodeId">' . PHP_EOL;
+                foreach ($this->subobjects['nodes'] as $node) {
+                    echo "<option value='$node->nodeId'>$node->nodeName</option>" . PHP_EOL;
+                }
+                echo "</select>" . PHP_EOL;
+            }
+            ?>
+            <tr>
+
+                <td><input type="hidden" id="domainId" name="_domainId" value="1"></td>
+            </tr>
+            <tr>
+                <td><input type="hidden" id="objectType" name="objectType" value="position"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<button id="add-object-btn">Add position</button>
+
+<div id="main">
+    <?php echo $this->partial('partials/object-lists/position-list.phtml', array('positions' => $this->objects)); ?>
+</div>
