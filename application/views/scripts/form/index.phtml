@@ -1,0 +1,17 @@
+<script>
+    $(function(){
+        $("#add-form-btn").button()
+        .click(function(){
+            window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'edit-form'), null, true); ?>";
+        });
+    });
+    
+    function openForm(formId){
+        var url = '<?php echo $this->url(array('controller' => 'form', 'action' => 'open-form'), null, true); ?>' + '/formId/' + formId.slice(formId.indexOf('_')+1);
+        location = url;
+    }
+</script>
+<button id="add-form-btn">Add application</button>
+<?php
+echo $this->partial('partials/form/list.php', array('forms'=>$this->forms));
+

@@ -16,7 +16,11 @@ class Application_Model_Form {
     private $_domainId;
     private $_date;
     private $_items;
-    private $_orgobjectId;
+    private $_nodeId;
+    private $_final;
+    private $_decision;
+    private $_public = false;
+    private $_contragentId;
 
     public function __construct(array $formArray = null) {
         if (isset($formArray['formName'])) {
@@ -28,18 +32,25 @@ class Application_Model_Form {
         if (isset($formArray['active'])) {
             $this->_active = (bool) $formArray['active'];
         }
+        if (isset($formArray['public'])) {
+            $this->_public = (bool) $formArray['public'];
+        }
         if (isset($formArray['userId'])) {
             $this->_userId = (int) $formArray['userId'];
         }
         if (isset($formArray['projectId'])) {
             $this->_projectId = (int) $formArray['projectId'];
         }
-        if (isset($formArray['orgobjectId'])) {
-            $this->_orgobjectId = (int) $formArray['orgobjectId'];
+        if (isset($formArray['nodeId'])) {
+            $this->_nodeId = (int) $formArray['nodeId'];
         }
         if (isset($formArray['formId'])) {
             $this->_formId = (int) $formArray['formId'];
         }
+        if (isset($formArray['contragentId'])) {
+            $this->_contragentId = (int) $formArray['contragentId'];
+        }
+        // Items are set from normal array
         if (isset($formArray['items'])) {
             $this->setItems($formArray['items']);
         }
@@ -48,7 +59,9 @@ class Application_Model_Form {
         } else {
             $this->_date = date('Y-m-d H:i:s');
         }
-
+        // If items were not set from array, we assume that this is HTTP _POST array
+        // Try to decode items from form 'itemName_3 = "ItemName"', 'value_3 = 44.3' etc, 
+        // where '3' is item's number and 'itemName' or 'value' is name of property to be set
         if (!isset($this->items) && is_array($formArray)) {
             $keys = array_keys($formArray);
             foreach ($keys as $key) {
@@ -79,7 +92,7 @@ class Application_Model_Form {
      */
     private function setItems($items) {
         // Collect valid items here
-        $checkedItems = array();
+        $checkedItems = null;
         if (isset($items) && is_array($items)) {
             foreach ($items as $item) {
                 // Item is of Application_Model_Item type
@@ -105,6 +118,8 @@ class Application_Model_Form {
                     throw new InvalidArgumentException('One of items is neither of Application_Model_Item type nor Array().');
                 }
             }
+        } elseif ($items instanceof Application_Model_Item) {
+            $checkedItems[] = $items;
         }
         $this->_items = $checkedItems;
     }
@@ -116,7 +131,11 @@ class Application_Model_Form {
             $this->setItems($value);
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
+            if ('active' == $name || 'public' == $name) {
+                $this->$name1 = (bool) $value;
+            } else {
+                $this->$name1 = $value;
+            }
         } else {
             echo 'Cannot set value. Property ' . $name . ' doesnt exist';
         }
@@ -138,7 +157,7 @@ class Application_Model_Form {
      */
     public function isValid() {
         $this->_valid = true;
-        if (isset($this->_formName) && isset($this->_domainId) && isset($this->_userId) && isset($this->_orgobjectId) && isset($this->_items)) {
+        if (isset($this->_formName) && isset($this->_domainId) && isset($this->_contragentId) && isset($this->_userId) && isset($this->_nodeId) && isset($this->_items)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;
@@ -155,9 +174,13 @@ class Application_Model_Form {
     public function toArray() {
         $output = array();
         foreach ($this as $key => $value) {
-            if ('_valid' != $key) {
+            if (('_valid' != $key) && ('_decsion' != $key) && ('_final' != $key)) {
                 if (isset($value)) {
-                    $output[str_replace('_', '', $key)] = $value;
+                    if ('_active' == $key || '_public' == $key) {
+                        $output[str_replace('_', '', $key)] = (int) $value;
+                    } else {
+                        $output[str_replace('_', '', $key)] = $value;
+                    }
                 }
             }
         }

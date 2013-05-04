@@ -26,13 +26,21 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     private $objectName;
     private $objectIdName;
     public $objectParentIdName;
-    private $session;
+    private $domainId;
 
-    public function __construct($object = null) {
+    public function __construct($domainId, $object = null) {
         parent::__construct();
-        $this->session = new Zend_Session_Namespace('Auth');
+        $this->domainId = $domainId;
         if ($object) {
             $this->setClassAndTableName($object);
+        }
+    }
+
+    public function setDomainId($domainId) {
+        if ($domainId) {
+            $this->domainId = $domainId;
+        } else {
+            throw new InvalidArgumentException('DomainID cannot be NULL');
         }
     }
 
@@ -48,8 +56,19 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         elseif (is_string($object))
             $this->className = $object;
         $this->objectName = strtolower(substr($this->className, strrpos($this->className, '_') + 1));
-        $this->tableName = $this->objectName . 's';
-        $this->objectIdName = $this->objectName . 'Id';
+        if (preg_match_all('/[A-Z]/', substr($this->className, strrpos($this->className, '_') + 1), $matches, PREG_OFFSET_CAPTURE)) {
+            if (2 == count($matches[0])) {
+                $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $matches[0][1][1]) .
+                        '_' .
+                        substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), $matches[0][1][1]);
+            } else {
+                $this->tableName = $this->objectName;
+            }
+        }
+        //       echo $this->tableName . PHP_EOL;
+//        $this->objectIdName = $this->objectName . 'Id';
+
+        $this->objectIdName = lcfirst(substr($this->className, strrpos($this->className, '_') + 1)) . 'Id';
         $this->objectParentIdName = 'parent' . ucwords($this->objectIdName);
     }
 
@@ -65,9 +84,11 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     public function saveObject($object) {
         $this->setClassAndTableName($object);
         if ($object->isValid()) {
-            if ($this->checkObjectExistance($object)) {
+            $objectId = $this->checkObjectExistance($object);
+            if ($objectId) {
                 // Object exists, so we will update it
                 $objectArray = $object->toArray();
+                $object->{$this->objectIdName} = $objectId;
                 // Cleaning columns before updating database
                 unset($objectArray[$this->objectIdName]);
                 $objectArray['active'] = (int) $objectArray['active'];
@@ -83,7 +104,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 unset($objectArray[$this->objectIdName]);
                 $objectArray['active'] = (int) $objectArray['active'];
                 if (isset($objectArray['password'])) {
-                    $auth = new Application_Model_Auth();
+                    $auth = new Application_Model_Auth($this->domainId);
                     $objectArray['password'] = $auth->hashPassword($objectArray['password']);
                 }
                 $this->dbLink->insert($this->tableName, $objectArray);
@@ -108,7 +129,10 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         } elseif (!isset($this->className)) {
             throw new InvalidArgumentException('Class name is not set.');
         }
-        $objectArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $id));
+        $objectArray = $this->dbLink->fetchRow('SELECT * FROM ' .
+                $this->tableName . ' WHERE ' .
+                $this->dbLink->quoteinto($this->objectIdName . '=?', $id) .
+                $this->dbLink->quoteinto(' AND domainId = ?', $this->domainId));
         if (is_array($objectArray)) {
             $object = new $this->className($objectArray);
             return $object;
@@ -140,7 +164,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                     }
                     $filter.=$this->dbLink->quoteinto(" AND $key = ? ", $parameter);
                 }
-//                Zend_Debug::dump($filter);
+//                echo $this->tableName;
+                //             Zend_Debug::dump($filter);
                 $stmt = $this->dbLink->query("SELECT $this->objectIdName FROM $this->tableName " . $filter);
                 $id = $stmt->fetchColumn();
                 return (($id != 0) ? $id : false);
@@ -150,56 +175,84 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $object));
         }
         $row = $stmt->fetchColumn();
-        return (($row != 0) ? true : false);
+        return (($row != 0) ? (int) $row : false);
+    }
+
+    /**
+     * createAccessFilterArray() function creates preformatted array in form that 
+     *                           prepareFilter() method understands to add to all
+     *                           database requests condition to restrict functions
+     *                           access data that current user is not allowed to.
+     *                              
+     * @return array
+     * 
+     */
+    public function createAccessFilterArray($userId) {
+        $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
+        $accessibleIds = $accessMapper->getAllowedObjectIds();
+        $accessFilter = array(0 => array('condition' => 'IN', 'column'=>'nodeId','operand' => $accessibleIds['read']));
+        return $accessFilter;
     }
 
     /**
      * 
      * @param array $filterArray - array(0=>array('condition'=>'AND', 'column'=> 'orgobject', 'comp'=>'=', 'operand'=>234))
      *                              You can omit 'comp' and 'condition' elements, default are '=' and 'AND'
+     *                              Handled conditions = ['AND', 'OR', 'IN']
+     *                              Handled comp = [=, >, <, <>, <=, >=]
+     *                              If you need to order output: array('ORDER'=>array('column'=>'columnOrder', 'operand'=>'ASC'))
+     *                              If you need to limit nmber of results:
+     *                              array('LIMIT'=>array('start'=>startId, 'number'=>numberOfItems))
+     * @param int $domainId         ID of domain that this user is jailed to.
      * @return string
      * @throws InvalidArgumentException
      */
-    private function prepareFilter($filterArray) {
-        $result = '';
+    public function prepareFilter($filterArray) {
+        $result = $this->dbLink->quoteinto(' WHERE domainId = ? ', $this->domainId);
+        $limit = '';
+        $order = '';
         if (is_array($filterArray)) {
-            $result = ' WHERE 1 = 1 ';
-            foreach ($filterArray as $filterElement) {
-                if (!empty($filterElement['condition']) && 'IN' == $filterElement['condition']) {
-                    $inString = 'AND ' . $filterElement['column'] . ' IN (';
-                    if (empty($filterElement['operand']) || !is_array($filterElement['operand'])) {
-                        throw new InvalidArgumentException('For IN filter operand should be an array() type');
+            foreach ($filterArray as $key => $filterElement) {
+                if (is_int($key)) {
+                    if (!empty($filterElement['condition']) && 'IN' == $filterElement['condition']) {
+                        $inString = ' AND ' . $filterElement['column'] . ' IN (';
+                        if (empty($filterElement['operand']) || !is_array($filterElement['operand'])) {
+                            throw new InvalidArgumentException('For IN filter operand should be an array() type');
+                        }
+                        foreach ($filterElement['operand'] as $element) {
+                            $inString .= $this->dbLink->quoteinto('?', $element) . ',';
+                        }
+                        $inString = rtrim($inString, ',');
+                        $inString .= ') ';
+                        $result .= $inString;
+                    } else {
+                        if (empty($filterElement['comp'])) {
+                            $comp = '=';
+                        } else {
+                            $comp = $filterElement['comp'];
+                        }
+                        if (empty($filterElement['condition'])) {
+                            $condition = 'AND';
+                        } else {
+                            $condition = $filterElement['condition'];
+                        }
+                        $result .= $condition .
+                                ' ' . $filterElement['column'] . ' ' .
+                                $comp . ' ' .
+                                $this->dbLink->quoteinto('?', $filterElement['operand']) .
+                                ' ';
                     }
-                    foreach ($filterElement['operand'] as $element) {
-                        $inString .= $this->dbLink->quoteinto('?', $element) . ',';
-                    }
-                    $inString = rtrim($inString, ',');
-                    $inString .= ') ';
-                    $result .= $inString;
                 } else {
-                    if (empty($filterElement['comp'])) {
-                        $comp = '=';
-                    } else {
-                        $comp = $filterElement['comp'];
+                    if ('LIMIT' == (string) $key) {
+                        echo $key . PHP_EOL;
+                        $limit = ' LIMIT ' . ((int) $filterElement['start']) . ', ' . ((int) $filterElement['number']);
+                    } elseif ('ORDER' == $key) {
+                        $order = ' ORDER BY ' . $this->dbLink->quoteinto('?', $filterElement['column']) . ' ' . $filterElement['operand'];
                     }
-                    if (empty($filterElement['condition'])) {
-                        $condition = 'AND';
-                    } else {
-                        $condition = $filterElement['condition'];
-                    }
-                    $result .= $condition .
-                            ' ' . $filterElement['column'] . ' ' .
-                            $comp . ' ' .
-                            $this->dbLink->quoteinto('?', $filterElement['operand']) .
-                            ' ';
                 }
             }
-            // Append Domain condition. Every company/customer should be "jailed" in its domain space
-            $result .= ' AND domainId = ' .$this->session->domainId;
-        } else {
-            $result = ' WHERE domainId = '.$this->session->domainId;
         }
-        return $result;
+        return $result . $limit . $order;
     }
 
     /**
@@ -238,11 +291,13 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             throw new InvalidArgumentException('Class name is not set.');
         }
         // Get all tables in our database schema that contain column $this->objectIdName (for example, "positionId" or "userId")
-        $tables = $this->dbLink->fetchCol($this->dbLink->quoteinto('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME = ? AND TABLE_SCHEMA="supercapex"', $this->objectIdName));
+        $tables = $this->dbLink->fetchCol($this->dbLink->quoteinto('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME = ? AND TABLE_SCHEMA="' . $this->config->database->params->dbname . 'supercapex"', $this->objectIdName));
         $count = null;
         foreach ($tables as $table) {
             if ($table != $this->tableName) {
-                $count = $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $table . ' WHERE ' . $this->objectIdName . ' = ? LIMIT 0,1', $id));
+                $query = $this->dbLink->quoteinto("SELECT $this->objectIdName FROM $table  WHERE  $this->objectIdName = ?", $id);
+                $query .= $this->dbLink->quoteinto(" AND domainId = ? LIMIT 0, 1", $this->domainId);
+                $count = $this->dbLink->fetchOne($query);
                 if ($count == $id) {
                     return array('dependentTable' => $table, 'ID' => $id);
                 }
@@ -304,7 +359,37 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      */
     public function getObjectsCount($class, $filter = null) {
         $this->setClassAndTableName($class);
-        return $this->dbLink->fetchOne("SELECT count($this->objectIdName) FROM $this->tableName");
+        return $this->dbLink->fetchOne($this->dbLink->quoteinto("SELECT count($this->objectIdName) FROM $this->tableName WHERE domainId = ?", $this->domainId));
+    }
+
+    public function getNodesAssigned() {
+        /**
+         * getNodesAssigned() method is a helper method that returns array of scenarios and node names and Ids 
+         *                    to which these scenarios are assigned (if any).
+         * @return type
+         */
+        return $this->dbLink->fetchAll($this->dbLink->quoteinto('SELECT s.scenarioId, s.scenarioName, n.nodeId, n.nodeName
+                                        FROM scenario s 
+                                        LEFT JOIN scenario_assignment a ON s.scenarioId = a.scenarioId 
+                                        LEFT JOIN node n ON n.nodeId = a.nodeId WHERE n.domainId = ?', $this->domainId));
+    }
+
+    public function checkLoginExistance($login) {
+        $user = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM user WHERE login = ?', $login));
+        return (!empty($user));
+    }
+
+    public function getApprovalStatus($formId) {
+        return $this->dbLink->fetchAll($this->dbLink->quoteinto('select 
+                                                ss.userId, ae.decision, ss.formId, ss.userName, ss.login
+                                            from
+                                                (select se.userId, se.orderPos, f.formId, u.userName, u.login from scenario_entry se
+                                            join scenario_assignment sa on se.scenarioId = sa.scenarioId
+                                            join form f on f.nodeId=sa.nodeId 
+                                            join user u on u.userId=se.userId
+                                             ) ss
+                                                    left join
+                                                approval_entry ae ON ss.userId = ae.userId and ss.formId=ae.formId where ss.formId=? ORDER BY ss.orderPos DESC', $formId));
     }
 
 }

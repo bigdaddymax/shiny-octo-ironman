@@ -1,0 +1,49 @@
+<div id="add-object-form" title="Add new user">
+    <form id="object-form">
+        <table>
+            <tr>
+                <td><label for="userName">User Name</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="userName" name="_userName" /></td>
+            </tr>
+            <tr>
+                <td><label for="login">User login</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="login" name="_login" /></td>
+            </tr>
+            <tr>
+
+                <td><label for="positionId">Position Id</label></td>
+                <?php
+                if (is_array($this->subobjects['positions']) && !empty($this->subobjects['positions'])) {
+                    echo '<tr>' . PHP_EOL;
+                    echo '<td>' . PHP_EOL;
+                    echo '<select id="positionId" name="_positionId">' . PHP_EOL;
+                    foreach ($this->subobjects['positions'] as $position) {
+                        echo '<option value="' . $position->positionId . '">' . $position->positionName . '</option>' . PHP_EOL;
+                    }
+                    echo '</select>' . PHP_EOL;
+                    echo '</td>' . PHP_EOL;
+                    echo '</tr>' . PHP_EOL;
+                }
+                ?>
+            <tr>
+                <td><label for="password">Password</label></td>
+            </tr>
+            <tr>
+                <td><input type="password" id="password" name="_password" value="ttt"></td>
+            </tr>
+            <tr>
+                <td><input type="hidden" id="objectType" name="objectType" value="user"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<button id="add-object-btn">Add user</button>
+
+<div id="main">
+    <?php echo $this->partial('partials/object-lists/user-list.phtml'); ?>
+</div>

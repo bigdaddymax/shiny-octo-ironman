@@ -1,0 +1,30 @@
+<form id="signup" method="post" action="<?php echo $this->url(array('controller'=>'index', 'action'=>'new-domain'), null, true);?>">
+    <table> 
+        <tr>
+            <td>
+                <label for="userName">User name</label></td>
+            <td>
+                <input type="text" id="userName" name="userName" /></td>
+        </tr>
+        <tr>
+            <td>
+                <label for="email">Email</label></td>
+            <td>
+                <input type="text" id="email" name="email" /></td>
+
+        </tr>
+        <tr>
+            <td>
+                <label for="password">Password</label></td>
+            <td>
+                <input type="password" id="password" name="password" /></td>
+        </tr>
+        <tr>
+            <td>
+                <label for="companyName">Company name</label></td>
+            <td>
+                <input type="text" id="companyName" name="companyName" /></td>
+        </tr>
+    </table>
+    <button id="signup" value="signup">Signup</button>
+</form>
