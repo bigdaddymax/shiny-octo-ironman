@@ -66,12 +66,12 @@ class ContragentTest extends TestCase {
     }
     
     public function testSaveContragent(){
-        $dataMapper = new Application_Model_DataMapper(1);
+        $objectManager = new Application_Model_ObjectsManager(1);
         $contragentArray = array('contragentName' => 'eName', 'contragentId' => 3,'active' => 0, 'domainId' => 1);
         $contragent = new Application_Model_Contragent($contragentArray);
         $this->assertTrue($contragent instanceof Application_Model_Contragent);
         $this->assertTrue($contragent->isValid());
-        $id = $dataMapper->saveObject($contragent);
+        $id = $objectManager->saveObject($contragent);
         $this->assertTrue(is_int($id));
     }
 }

@@ -16,15 +16,14 @@ class FormController extends Zend_Controller_Action {
     }
 
     public function indexAction() {
-        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
         $access = new Application_Model_AccessMapper($this->session->userId, $this->session->domainId);
         $allowedObjects = $access->getAllowedObjectIds();
-        $dataMapper = new Application_Model_DataMapper($this->session->domainId);
-        $forms = $objectsManager->getAllForms($dataMapper->createAccessFilterArray($this->session->userId));
+        $objectManager = new Application_Model_ObjectsManager($this->session->domainId);
+        $forms = $objectManager->getAllForms($objectManager->createAccessFilterArray($this->session->userId));
         ($forms === false) ? $this->view->forms = 'No forms' : $this->view->forms = $forms;
-        $this->view->elements = $dataMapper->getAllObjects('Application_Model_Element');
+        $this->view->elements = $objectManager->getAllObjects('Element');
         if (!empty($allowedObjects['write'])) {
-            $this->view->nodes = $dataMapper->getAllObjects('Application_Model_Node', array(0 => array('column' => 'nodeId',
+            $this->view->nodes = $objectManager->getAllObjects('Node', array(0 => array('column' => 'nodeId',
                     'condition' => 'IN',
                     'operand' => $allowedObjects['write'])));
         }
@@ -32,16 +31,15 @@ class FormController extends Zend_Controller_Action {
     }
 
     public function editFormAction() {
-        if (null != $this->_request->getParam('formId')) {
             $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+        if (null != $this->_request->getParam('formId')) {
             $this->view->form = $objectsManager->prepareFormForOutput($this->_request->getParam('formId'), $this->session->userId);
         }
         $access = new Application_Model_AccessMapper($this->session->userId, $this->session->domainId);
         $allowedObjects = $access->getAllowedObjectIds();
-        $dataMapper = new Application_Model_DataMapper($this->session->domainId);
-        $this->view->elements = $dataMapper->getAllObjects('Application_Model_Element');
+        $this->view->elements = $objectsManager->getAllObjects('Element');
         if (!empty($allowedObjects['write'])) {
-            $this->view->nodes = $dataMapper->getAllObjects('Application_Model_Node', array(0 => array('column' => 'nodeId',
+            $this->view->nodes = $objectsManager->getAllObjects('Node', array(0 => array('column' => 'nodeId',
                     'condition' => 'IN',
                     'operand' => $allowedObjects['write'])));
         }
@@ -57,12 +55,11 @@ class FormController extends Zend_Controller_Action {
         $params['userId'] = $this->session->userId;
         $params['domainId'] = $this->session->domainId;
         $contragent = new Application_Model_Contragent(array('contragentName' => $this->_request->getParam('contragentName'), 'domainId' => $this->session->domainId));
-        $dataMapper = new Application_Model_DataMapper($this->session->domainid);
-        $params['contragentId'] = $dataMapper->saveObject($contragent);
+        $objectManager = new Application_Model_ObjectsManager($this->session->domainid);
+        $params['contragentId'] = $objectManager->saveObject($contragent);
         $form = new Application_Model_Form($params);
         if ($form->isValid()) {
-            $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-            $this->_helper->json(array('error' => 0, 'message' => 'Form created', 'formId' => $objectsManager->saveForm($form, $this->session->userId)), true);
+            $this->_helper->json(array('error' => 0, 'message' => 'Form created', 'formId' => $objectManager->saveForm($form, $this->session->userId)), true);
         } else {
             $this->_helper->json(array('error' => 1, 'message' => 'Form is not valid'), true);
         }
