@@ -2,7 +2,7 @@
 
 class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
-    private $dataMapper;
+    private $objectManager;
     private $object;
     private $userId;
     private $userId1;
@@ -17,18 +17,19 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     public function setUp() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
         $this->objectManager = new Application_Model_ObjectsManager(1);
-        $this->dataMapper = new Application_Model_DataMapper(1);
-        $this->dataMapper->dbLink->delete('item');
-        $this->dataMapper->dbLink->delete('scenario_entry');
-        $this->dataMapper->dbLink->delete('scenario');
-        $this->dataMapper->dbLink->delete('privilege');
-        $this->dataMapper->dbLink->delete('resource');
-        $this->dataMapper->dbLink->delete('user_group');
-        $this->dataMapper->dbLink->delete('scenario_entry');
-        $this->dataMapper->dbLink->delete('scenario');
-        $this->dataMapper->dbLink->delete('user');
-        $this->dataMapper->dbLink->delete('position');
-        $this->dataMapper->dbLink->delete('node');
+//        $this->objectManager = new Application_Model_DataMapper(1);
+        $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('scenario_entry');
+        $this->objectManager->dbLink->delete('scenario');
+        $this->objectManager->dbLink->delete('privilege');
+        $this->objectManager->dbLink->delete('resource');
+        $this->objectManager->dbLink->delete('user_group');
+        $this->objectManager->dbLink->delete('scenario_entry');
+        $this->objectManager->dbLink->delete('scenario');
+        $this->objectManager->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('user');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
         /*  Lets prepare some staff: node, node, position, user, access control 
          *    We have: 
          *    1. One node with ID nodeId
@@ -42,71 +43,71 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //NODES
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
-        $nodeId = $this->dataMapper->saveObject($node);
+        $nodeId = $this->objectManager->saveObject($node);
 
         $nodeArray3 = array('nodeName' => 'First object', 'parentNodeId' => $nodeId, 'domainId' => 1);
         $node3 = new Application_Model_Node($nodeArray3);
-        $nodeId3 = $this->dataMapper->saveObject($node3);
+        $nodeId3 = $this->objectManager->saveObject($node3);
         $nodeArray1 = array('nodeName' => 'Second object', 'parentNodeId' => $nodeId, 'domainId' => 1);
         $node1 = new Application_Model_Node($nodeArray1);
-        $nodeId1 = $this->dataMapper->saveObject($node1);
+        $nodeId1 = $this->objectManager->saveObject($node1);
         $nodeArray2 = array('nodeName' => 'Third bject', 'parentNodeId' => $nodeId3, 'domainId' => 1);
         $node2 = new Application_Model_Node($nodeArray2);
-        $nodeId2 = $this->dataMapper->saveObject($node2);
+        $nodeId2 = $this->objectManager->saveObject($node2);
 
 // ELEMENTS
         $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
         $element = new Application_Model_Element($elementArray);
         $this->assertTrue($element->isValid());
-        $this->elementId1 = $this->dataMapper->saveObject($element);
+        $this->elementId1 = $this->objectManager->saveObject($element);
         $elementArray1 = array('elementName' => 'eName1', 'domainId' => 1, 'elementCode' => 44);
         $element1 = new Application_Model_Element($elementArray1);
         $this->assertTrue($element1->isValid());
-        $this->elementId2 = $this->dataMapper->saveObject($element1);
+        $this->elementId2 = $this->objectManager->saveObject($element1);
 
 
 // POSITIONS        
         $positionArray = array('positionName' => 'First position', 'nodeId' => $nodeId, 'domainId' => 1);
         $position = new Application_Model_Position($positionArray);
-        $positionId = $this->dataMapper->saveObject($position);
+        $positionId = $this->objectManager->saveObject($position);
         $positionArray1 = array('positionName' => 'First position', 'nodeId' => $nodeId1, 'domainId' => 1);
         $position1 = new Application_Model_Position($positionArray1);
-        $positionId1 = $this->dataMapper->saveObject($position1);
+        $positionId1 = $this->objectManager->saveObject($position1);
 
 // USERS        
         $userArray = array('userName' => 'user1', 'domainId' => 1, 'login' => 'user login', 'password' => 'user password', 'positionId' => $positionId);
         $user = new Application_Model_User($userArray);
-        $this->userId = $this->dataMapper->saveObject($user);
+        $this->userId = $this->objectManager->saveObject($user);
         $userArray1 = array('userName' => 'user2', 'domainId' => 1, 'login' => 'user login2', 'password' => 'user password', 'positionId' => $positionId1);
         $user1 = new Application_Model_User($userArray1);
-        $this->userId1 = $this->dataMapper->saveObject($user1);
+        $this->userId1 = $this->objectManager->saveObject($user1);
 
 // RESOURCES
         $resourceArray = array('resourceName' => 'admin', 'domainId' => 1);
         $resource = new Application_Model_Resource($resourceArray);
-        $resourceId = $this->dataMapper->saveObject($resource);
+        $resourceId = $this->objectManager->saveObject($resource);
 
 // PRIVILEGES        
         $privilegeArray = array('objectType' => 'node', 'objectId' => $nodeId, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
         $privilege = new Application_Model_Privilege($privilegeArray);
-        $this->dataMapper->saveObject($privilege);
+        $this->objectManager->saveObject($privilege);
         $privilegeArray1 = array('objectType' => 'node', 'objectId' => $nodeId, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
         $privilege1 = new Application_Model_Privilege($privilegeArray1);
-        $this->dataMapper->saveObject($privilege1);
+        $this->objectManager->saveObject($privilege1);
         $privilegeArray2 = array('objectType' => 'node', 'objectId' => $nodeId1, 'userId' => $this->userId1, 'privilege' => 'write', 'domainId' => 1);
         $privilege2 = new Application_Model_Privilege($privilegeArray2);
-        $this->dataMapper->saveObject($privilege2);
+        $this->objectManager->saveObject($privilege2);
         $privilegeArray3 = array('objectType' => 'resource', 'objectId' => $resourceId, 'userId' => $this->userId, 'privilege' => 'read', 'domainId' => 1);
         $privilege3 = new Application_Model_Privilege($privilegeArray3);
-        $this->dataMapper->saveObject($privilege3);
+        $this->objectManager->saveObject($privilege3);
 
 // USERGROUPS        
         $usergroupArray = array('userId' => $this->userId, 'role' => 'admin', 'domainId' => 1, 'userGroupName' => 'administrators');
         $usergroup = new Application_Model_Usergroup($usergroupArray);
-        $this->dataMapper->saveObject($usergroup);
+        $this->objectManager->saveObject($usergroup);
         $usergroupArray1 = array('userId' => $this->userId1, 'role' => 'manager', 'domainId' => 1, 'userGroupName' => 'managers');
         $usergroup1 = new Application_Model_Usergroup($usergroupArray1);
-        $this->dataMapper->saveObject($usergroup1);
+        $this->objectManager->saveObject($usergroup1);
 
         $this->nodeId = $nodeId;
         $this->nodeId1 = $nodeId;
@@ -116,15 +117,16 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function tearDown() {
-        $this->dataMapper->dbLink->delete('item');
-        $this->dataMapper->dbLink->delete('element');
-        $this->dataMapper->dbLink->delete('user_group');
-        $this->dataMapper->dbLink->delete('privilege');
-        $this->dataMapper->dbLink->delete('scenario_entry');
-        $this->dataMapper->dbLink->delete('scenario');
-        $this->dataMapper->dbLink->delete('user');
-        $this->dataMapper->dbLink->delete('position');
-        $this->dataMapper->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('element');
+        $this->objectManager->dbLink->delete('user_group');
+        $this->objectManager->dbLink->delete('privilege');
+        $this->objectManager->dbLink->delete('scenario_entry');
+        $this->objectManager->dbLink->delete('scenario');
+        $this->objectManager->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('user');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
     }
 
     public function testIndexAction() {
@@ -152,7 +154,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     
     public function testGetScenarioInvalid() {
         $objectsManager = new Application_Model_ObjectsManager(1);
-        $scenario = $objectsManager->getScenario('r');
+        $scenario = $objectsManager->getObject('scenario', 'r');
     }
 
     public function testAddNewScenario() {
@@ -174,10 +176,11 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setPost($scenarioArray1);
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->assertController('scenario');
-        $objectManager = new Application_Model_ObjectsManager(1);
-        $scenarios = $objectManager->getAllScenarios();
+        $this->assertAction('add-scenario');
+        $entries = $this->objectManager->getAllObjects('scenarioEntry', array(0=>array('column'=>'userId', 'operand'=>$this->userId)));
+        $scenarios = $this->objectManager->getAllObjects('scenario');
         $this->assertEquals(count($scenarios), 1);
-        $scenario = $objectManager->getScenario($scenarios[0]->scenarioId);
+        $scenario = $this->objectManager->getObject('scenario',$scenarios[0]->scenarioId);
         $this->assertEquals($scenario->scenarioName, $scenarios[0]->scenarioName);
         $this->assertEquals($scenario->scenarioName, 'eName1');
         $entries = $scenario->entries;
@@ -216,14 +219,17 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //        Zend_Debug::dump($this->request->getPost());
 //        echo $response->outputBody();
         $objectManager = new Application_Model_ObjectsManager(1);
-        $scenarios = $objectManager->getAllScenarios();
+        $scenarios = $objectManager->getAllObjects('scenario');
 //        $this->assertEquals('rr', $response->outputBody());
 //        $this->assertEquals('tt', $scenarios);
-        $scenario = $objectManager->getScenario($scenarios[0]->scenarioId);
+        $scenario = $objectManager->getObject('scenario',$scenarios[0]->scenarioId);
         $this->assertEquals($scenario->scenarioName, $scenarios[0]->scenarioName);
         $this->assertEquals($scenario->scenarioName, 'test');
     }
 
+    /**
+     * @expectedException Exception
+     */
     public function testDeleteScenario() {
         $user = array('login' => 'user login', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
@@ -247,7 +253,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //        $response = $this->getResponse();
 //        echo $response->outputBody();
         $objectManager = new Application_Model_ObjectsManager(1);
-        $scenario = $objectManager->getAllScenarios(array(0 => array('operand' => 'test', 'column' => 'scenarioName')));
+        $scenario = $objectManager->getAllObjects('scenario', array(0 => array('operand' => 'test', 'column' => 'scenarioName')));
         $this->assertTrue(!empty($scenario));
         $this->assertEquals($scenario[0]->scenarioName, 'test');
         $entries = $scenario[0]->entries;
@@ -270,7 +276,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertController('scenario');
         $this->assertAction('delete-scenario');
 
-        $scenarioDeleted = $objectManager->getScenario($scenario[0]->scenarioId);
+        $scenarioDeleted = $objectManager->getObject('scenario',$scenario[0]->scenarioId);
         $this->assertFalse($scenarioDeleted);
     }
 

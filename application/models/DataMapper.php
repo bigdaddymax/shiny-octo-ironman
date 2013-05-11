@@ -21,12 +21,12 @@ require_once APPLICATION_PATH . '/models/BaseDBAbstract.php';
 
 class Application_Model_DataMapper extends BaseDBAbstract {
 
-    public $className;
-    private $tableName;
-    private $objectName;
-    private $objectIdName;
-    public $objectParentIdName;
-    private $domainId;
+    protected $className;
+    protected $tableName;
+    protected $objectName;
+    protected $objectIdName;
+    protected $objectParentIdName;
+    protected $domainId;
 
     public function __construct($domainId, $object = null) {
         parent::__construct();
@@ -36,7 +36,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         }
     }
 
-    public function setDomainId($domainId) {
+    protected function setDomainId($domainId) {
         if ($domainId) {
             $this->domainId = $domainId;
         } else {
@@ -50,19 +50,19 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param class $object
      * @param string $object
      */
-    private function setClassAndTableName($object) {
+    protected function setClassAndTableName($object) {
         if (is_object($object))
             $this->className = get_class($object);
         elseif (is_string($object))
-            $this->className = $object;
-        $this->objectName = strtolower(substr($this->className, strrpos($this->className, '_') + 1));
+            $this->className = 'Application_Model_' . ucfirst($object);
+        $this->objectName = substr($this->className, strrpos($this->className, '_') + 1);
         if (preg_match_all('/[A-Z]/', substr($this->className, strrpos($this->className, '_') + 1), $matches, PREG_OFFSET_CAPTURE)) {
             if (2 == count($matches[0])) {
                 $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $matches[0][1][1]) .
                         '_' .
                         substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), $matches[0][1][1]);
             } else {
-                $this->tableName = $this->objectName;
+                $this->tableName = strtolower($this->objectName);
             }
         }
         //       echo $this->tableName . PHP_EOL;
@@ -81,32 +81,31 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @throws InvalidArgumentException
      * 
      */
-    public function saveObject($object) {
-        $this->setClassAndTableName($object);
+    protected function saveObject($object) {
         if ($object->isValid()) {
-            $objectId = $this->checkObjectExistance($object);
-            if ($objectId) {
+            // Prepare data for inserting to DB
+            $objectArray = $object->toArray();
+
+            unset($objectArray[$this->objectIdName]);
+            $objectArray['active'] = (int) $objectArray['active'];
+            if ('scenario' == strtolower($this->objectName)) {
+                unset($objectArray['entries']);
+            }
+            if ('form' == strtolower($this->objectName)) {
+                unset($objectArray['items']);
+            }
+
+            // For User we have to treat password property
+            if (isset($objectArray['password'])) {
+                $auth = new Application_Model_Auth();
+                $objectArray['password'] = $auth->hashPassword($objectArray['password']);
+            }
+
+            if ($object->{$this->objectIdName}) {
                 // Object exists, so we will update it
-                $objectArray = $object->toArray();
-                $object->{$this->objectIdName} = $objectId;
-                // Cleaning columns before updating database
-                unset($objectArray[$this->objectIdName]);
-                $objectArray['active'] = (int) $objectArray['active'];
-                if (isset($objectArray['password'])) {
-                    $auth = new Application_Model_Auth();
-                    $objectArray['password'] = $auth->hashPassword($objectArray['password']);
-                }
                 $this->dbLink->update($this->tableName, $objectArray, array($this->objectIdName . ' = ?' => $object->{$this->objectIdName}));
             } else {
                 // Object doesnt exist, so we are creating new
-                $objectArray = $object->toArray();
-                // Cleaning columns before inserting data in database
-                unset($objectArray[$this->objectIdName]);
-                $objectArray['active'] = (int) $objectArray['active'];
-                if (isset($objectArray['password'])) {
-                    $auth = new Application_Model_Auth($this->domainId);
-                    $objectArray['password'] = $auth->hashPassword($objectArray['password']);
-                }
                 $this->dbLink->insert($this->tableName, $objectArray);
                 $object->{$this->objectIdName} = (int) $this->dbLink->lastInsertId();
             }
@@ -123,12 +122,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @return object of type $this->className
      * @throws InvalidArgumentException
      */
-    public function getObject($id, $class = null) {
-        if (isset($class)) {
-            $this->setClassAndTableName($class);
-        } elseif (!isset($this->className)) {
-            throw new InvalidArgumentException('Class name is not set.');
-        }
+    protected function _getObject($id) {
+
         $objectArray = $this->dbLink->fetchRow('SELECT * FROM ' .
                 $this->tableName . ' WHERE ' .
                 $this->dbLink->quoteinto($this->objectIdName . '=?', $id) .
@@ -136,8 +131,9 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         if (is_array($objectArray)) {
             $object = new $this->className($objectArray);
             return $object;
-        } else
-            return false;
+        } else {
+            throw new Exception("Cannot find $this->objectName in table '$this->tableName' whith ID=$id and domainId=$this->domainId", 500);
+        }
     }
 
     /**
@@ -159,7 +155,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 $filter = ' WHERE 1=1 ';
                 $parameters = $object->toArray();
                 foreach ($parameters as $key => $parameter) {
-                    if ($parameter === null) {
+                    if ($parameter === null || is_array($parameter)) {
                         continue;
                     }
                     $filter.=$this->dbLink->quoteinto(" AND $key = ? ", $parameter);
@@ -187,10 +183,10 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @return array
      * 
      */
-    public function createAccessFilterArray($userId) {
+    protected function createAccessFilterArray($userId) {
         $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
         $accessibleIds = $accessMapper->getAllowedObjectIds();
-        $accessFilter = array(0 => array('condition' => 'IN', 'column'=>'nodeId','operand' => $accessibleIds['read']));
+        $accessFilter = array(0 => array('condition' => 'IN', 'column' => 'nodeId', 'operand' => $accessibleIds['read']));
         return $accessFilter;
     }
 
@@ -207,7 +203,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @return string
      * @throws InvalidArgumentException
      */
-    public function prepareFilter($filterArray) {
+    protected function prepareFilter($filterArray) {
         $result = $this->dbLink->quoteinto(' WHERE domainId = ? ', $this->domainId);
         $limit = '';
         $order = '';
@@ -263,7 +259,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @return array className
      * @throws Exception
      */
-    public function getAllObjects($class = null, $filter = null) {
+    protected function getAllObjects($class = null, $filter = null) {
         if (isset($class)) {
             $this->setClassAndTableName($class);
         } elseif (!isset($this->className)) {
@@ -284,7 +280,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param object $class
      * @return boolean Returns true is other objects are dependent on this object with $id, false otherwise
      */
-    public function checkObjectDependencies($id, $class = null) {
+    protected function checkObjectDependencies($class, $id) {
         if (isset($class)) {
             $this->setClassAndTableName($class);
         } elseif (!isset($this->className)) {
@@ -306,7 +302,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         // Now check in the same table for entries in ID and ParentId columns. For example,
         // levelId == parentLevelId
         // First check if parentObjectId exists
-        $object = $this->getObject($id, $this->className);
+        $object = $this->getObject($this->objectName, $id);
         if (false !== $object) {
             $objectArray = $object->toArray();
             if ($object->isValid()) {
@@ -332,13 +328,13 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @throws InvalidArgumentException
      * @throws Exception
      */
-    public function deleteObject($id, $class = null) {
+    protected function deleteObject($class, $id) {
         if (isset($class)) {
             $this->setClassAndTableName($class);
         } elseif (!isset($this->className)) {
             throw new InvalidArgumentException('Class name is not set.');
         }
-        $dependentTable = $this->checkObjectDependencies($id, $this->className);
+        $dependentTable = $this->checkObjectDependencies($this->objectName, $id);
         if ($dependentTable === false) {
             $this->dbLink->delete($this->tableName, array($this->objectIdName . '=?' => $id));
             return true;
@@ -357,12 +353,12 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param type $filter
      * @return type
      */
-    public function getObjectsCount($class, $filter = null) {
+    protected function getObjectsCount($class, $filter = null) {
         $this->setClassAndTableName($class);
         return $this->dbLink->fetchOne($this->dbLink->quoteinto("SELECT count($this->objectIdName) FROM $this->tableName WHERE domainId = ?", $this->domainId));
     }
 
-    public function getNodesAssigned() {
+    protected function getNodesAssigned() {
         /**
          * getNodesAssigned() method is a helper method that returns array of scenarios and node names and Ids 
          *                    to which these scenarios are assigned (if any).
@@ -390,6 +386,65 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                                              ) ss
                                                     left join
                                                 approval_entry ae ON ss.userId = ae.userId and ss.formId=ae.formId where ss.formId=? ORDER BY ss.orderPos DESC', $formId));
+    }
+
+    protected function getScenario($scenarioId) {
+        $scenarioId = (int) $scenarioId;
+        if (empty($scenarioId)) {
+            throw new InvalidArgumentException('Invalid argumment. $scenarioId should be integer');
+        }
+        $this->setClassAndTableName('scenario');
+        $scenario = $this->_getObject($scenarioId);
+        $entries = $this->getAllObjects('scenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $scenarioId)));
+        $scenario->entries = $entries;
+        if ($scenario->isValid()) {
+            return $scenario;
+        } else {
+            throw new Exception('Something wrong, cannot create valid instance of Application_Model_Scenario');
+        }
+    }
+
+    protected function getAllScenarios($filter = null) {
+        $result = array();
+        $scenarios = $this->dbLink->fetchAll('SELECT * FROM scenario ' . $this->prepareFilter($filter));
+        foreach ($scenarios as $scenario) {
+            $entries = $this->getAllObjects('ScenarioEntry', array(0 => array('column' => 'scenarioId',
+                    'operand' => $scenario['scenarioId'])));
+            $scenario['entries'] = $entries;
+            $scenario = new Application_Model_Scenario($scenario);
+            $result[] = $scenario;
+        }
+        return $result;
+    }
+
+    /**
+     * Return array of objects if there are any, false otherwise
+     * @todo FILTER Functionality Use filter to limit forms in selection
+     * @param type $filter
+     */
+    public function getAllForms($filter = null) {
+        $formArray = $this->dbLink->fetchAll('SELECT * FROM form ' . $this->prepareFilter($filter));
+        if (!empty($formArray) && is_array($formArray)) {
+            foreach ($formArray as $form) {
+                $form['items'] = $this->getAllObjects('Item', array(0 => array('column' => 'formId',
+                        'operand' => $form['formId'])));
+                $f = new Application_Model_Form($form);
+                $decisions = $this->getApprovalStatus($form['formId']);
+                if (!empty($decisions)) {
+                    $f->final = (null === $decisions[0]['decision']) ? false : true;
+                    $dec = array_reverse($decisions);
+                    foreach ($dec as $decision) {
+                        if (!empty($decision['decision'])) {
+                            $f->decision = $decision['decision'];
+                        }
+                    }
+                }
+                $forms[] = $f;
+            }
+            return $forms;
+        } else {
+            return false;
+        }
     }
 
 }

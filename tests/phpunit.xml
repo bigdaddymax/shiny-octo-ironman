@@ -11,6 +11,7 @@
         <blacklist>
             <directory suffix=".php">../../library/Zend</directory>
         </blacklist>
+        
     </filter>
     
         <logging>
