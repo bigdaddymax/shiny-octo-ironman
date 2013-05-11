@@ -15,19 +15,19 @@ class AuthTest extends TestCase {
     //put your code here
 
     private $login;
-    private $dataMapper;
+    private $objectManager;
 
     public function setup() {
-        $this->dataMapper = new Application_Model_DataMapper(1);
+        $this->objectManager = new Application_Model_ObjectsManager(1);
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
-        $nodeId = $this->dataMapper->saveObject($node);
+        $nodeId = $this->objectManager->saveObject($node);
         $positionArray = array('positionName' => 'First position', 'nodeId' => $nodeId, 'domainId' => 1);
         $position = new Application_Model_Position($positionArray);
-        $positionId = $this->dataMapper->saveObject($position);
+        $positionId = $this->objectManager->saveObject($position);
         $userArray = array('userName' => 'user1', 'domainId' => 1, 'login' => 'user login', 'password' => 'user password', 'positionId' => $positionId);
         $user = new Application_Model_User($userArray);
-        $userId = $this->dataMapper->saveObject($user);
+        $userId = $this->objectManager->saveObject($user);
         $this->login = $user->login;
         $this->assertTrue(is_int($userId));
     }

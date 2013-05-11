@@ -28,9 +28,8 @@ class ScenarioController extends Zend_Controller_Action {
  */    
     public function indexAction() {
         $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-        $dataMapper = new Application_Model_DataMapper($this->session->domainId);
-        $this->view->scenarios = $objectsManager->getAllScenarios();
-        $this->view->users = $dataMapper->getAllObjects('Application_Model_User');
+        $this->view->scenarios = $objectsManager->getAllObjects('scenario');
+        $this->view->users = $objectsManager->getAllObjects('User');
         $this->view->assignments = $objectsManager->getNodesAssigned();
     }
 
@@ -46,7 +45,7 @@ class ScenarioController extends Zend_Controller_Action {
         $scenario = new Application_Model_Scenario($params);
         if ($scenario->isValid()) {
             $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-            $this->view->newScenarioId = $objectsManager->SaveScenario($scenario);
+            $this->view->newScenarioId = $objectsManager->saveObject($scenario);
         } else {
             $this->view->error = 'Cannot create form';
             $this->view->scenario = $scenario;
@@ -59,7 +58,7 @@ class ScenarioController extends Zend_Controller_Action {
             $scenarioId = $this->getRequest()->getParam('scenarioId');
             $objectManager = new Application_Model_ObjectsManager($this->session->domainId);
             $this->view->assignments = $objectManager->getNodesAssigned();
-            $this->view->scenario = $objectManager->getScenario($scenarioId);
+            $this->view->scenario = $objectManager->getObject('scenario',$scenarioId);
         }
     }
     

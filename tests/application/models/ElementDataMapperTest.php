@@ -13,7 +13,7 @@ class ElementDataMapperTest extends TestCase {
     private $object;
 
     public function setUp() {
-        $this->object = new Application_Model_DataMapper(1, 'Application_Model_Element');
+        $this->object = new Application_Model_ObjectsManager(1, 'Application_Model_Element');
     }
 
     public function tearDown() {
@@ -54,11 +54,11 @@ class ElementDataMapperTest extends TestCase {
     
     public function testElementGet()
     {
-        $elementArray = array('elementName' => 'eName', 'elementCode' => '55', 'elementId'=>2, 'active'=>true, 'elementComment'=>'test', 'domainId' => 1);
+        $elementArray = array('elementName' => 'eName', 'elementCode' => '55', 'active'=>true, 'elementComment'=>'test', 'domainId' => 1);
         $element = new Application_Model_Element($elementArray);
         $id = $this->object->saveObject($element);
         $this->assertTrue(is_int($id));
-        $element2 = $this->object->getObject($id);
+        $element2 = $this->object->getObject('element', $id);
         $this->assertEquals($id, $element2->elementId);
         $elementArray['elementId'] = $id;
         $elementArray2 = $element2->toArray();
