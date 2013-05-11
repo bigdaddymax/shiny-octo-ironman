@@ -2,11 +2,11 @@
 
 $session = new Zend_Session_Namespace('Auth');
 $pages = $this->container->findAllBy('subgroup', 'subadmin');
-$dataMapper = new Application_Model_DataMapper($session->domainId);
+$objectManager = new Application_Model_ObjectsManager($session->domainId);
 
 if (is_array($pages)) {
     foreach ($pages as $page) {
-        $counts[$page->resource] = $dataMapper->getObjectsCount('Application_Model_' . $page->className);
+        $counts[$page->resource] = $objectManager->getObjectsCount('Application_Model_' . $page->className);
         if ($this->navigation()->menu()->accept($page)) {
             $links[$page->resource] = $this->navigation()->menu()->htmlify($page);
         }

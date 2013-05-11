@@ -25,25 +25,25 @@ class IndexController extends Zend_Controller_Action {
         if ('' == $this->getRequest()->getParam('companyName')) {
             throw new Exception('No company name provided', 500);
         }
-        $dataMapper = new Application_Model_DataMapper(-1);
-        if ($dataMapper->checkLoginExistance($this->getRequest()->getParam('email'))){
+        $objectManager = new Application_Model_ObjectsManager(-1);
+        if ($objectManager->checkLoginExistance($this->getRequest()->getParam('email'))){
             throw new Exception('User with such email is already registered', 500);
         }
         $domain = new Application_Model_Domain(array('domainName' => $this->getRequest()->getParam('companyName') . ' domain', 'hash' => md5(time())));
-        $domainId = $dataMapper->saveObject($domain);
-        $dataMapper->setDomainId($domainId);
+        $domainId = $objectManager->saveObject($domain);
+        $objectManager->setDomainId($domainId);
         $node = new Application_Model_Node(array('nodeName' => $this->getRequest()->getParam('companyName'), 'domainId' => $domainId, 'parentNodeId' => -1));
-        $nodeId = $dataMapper->saveObject($node);
+        $nodeId = $objectManager->saveObject($node);
         $position = new Application_Model_Position(array('positionName' => 'administrator', 'nodeId' => $nodeId, 'domainId' => $domainId));
-        $positionId = $dataMapper->saveObject($position);
+        $positionId = $objectManager->saveObject($position);
         $user = new Application_Model_User(array('userName' => $this->getRequest()->getParam('userName'),
                     'login' => $this->getRequest()->getParam('email'),
                     'password' => $this->getRequest()->getParam('password'),
                     'positionId' => $positionId,
                     'domainId' => $domainId));
-        $userId = $dataMapper->saveObject($user);
+        $userId = $objectManager->saveObject($user);
         $userGroup = new Application_Model_UserGroup(array('userId' => $userId, 'domainId' => $domainId, 'role' => 'admin', 'userGroupName' => 'admin'));
-        $dataMapper->saveObject($userGroup);
+        $objectManager->saveObject($userGroup);
         $this->redirector->gotoSimple('index', 'index');
     }
 
@@ -62,20 +62,20 @@ class IndexController extends Zend_Controller_Action {
 
     public function saveNewDomainAction() {
         $domain = new Application_Model_Domain(array('domainName' => $this->getRequest()->getParam('domainName')));
-        $domainId = $dataMapper->saveObject($domain);
+        $domainId = $objectManager->saveObject($domain);
         $user = new Application_Model_User(array('userName' => $session->newUser['userName'],
                     'login' => $session->newUser['login'],
                     'password' => $session->newUser['password'],
                     'domainId' => $domainId,
                     'positionId' => -1));
-        $userId = $dataMapper->saveObject($user);
+        $userId = $objectManager->saveObject($user);
         $userGroup = new Application_Model_UserGroup(array('userId' => $userId,
                     'userGroupName' => 'admin',
                     'role' => 'admin',
                     'domainId' => $domainId));
-        $userGroupId = $dataMapper->saveObject($userGroup);
+        $userGroupId = $objectManager->saveObject($userGroup);
         $domainOwner = new Application_Model_DomainOwner(array('domainId' => $domainId, 'userId' => $userId));
-        $dataMapper->saveObject($domainOwner);
+        $objectManager->saveObject($domainOwner);
     }
 
 }

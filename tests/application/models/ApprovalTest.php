@@ -2,7 +2,6 @@
 
 class ApprovalTest extends TestCase {
 
-    private $dataMapper;
     private $objectManager;
     private $userId;
     private $userId1;
@@ -24,21 +23,20 @@ class ApprovalTest extends TestCase {
         $session = new Zend_Session_Namespace('Auth');
         $session->domainId = 1;
         $this->objectManager = new Application_Model_ObjectsManager(1);
-        $this->dataMapper = new Application_Model_DataMapper(1);
-        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('approval_entry');
 
-        $this->dataMapper->dbLink->delete('item');
-        $this->dataMapper->dbLink->delete('form');
-        $this->dataMapper->dbLink->delete('privilege');
-        $this->dataMapper->dbLink->delete('resource');
-        $this->dataMapper->dbLink->delete('user_group');
-        $this->dataMapper->dbLink->delete('scenario_entry');
-        $this->dataMapper->dbLink->delete('scenario_assignment');
-        $this->dataMapper->dbLink->delete('scenario');
-        $this->dataMapper->dbLink->delete('user');
-        $this->dataMapper->dbLink->delete('position');
-        $this->dataMapper->dbLink->delete('node');
-        $this->dataMapper->dbLink->delete('contragent');
+        $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('form');
+        $this->objectManager->dbLink->delete('privilege');
+        $this->objectManager->dbLink->delete('resource');
+        $this->objectManager->dbLink->delete('user_group');
+        $this->objectManager->dbLink->delete('scenario_entry');
+        $this->objectManager->dbLink->delete('scenario_assignment');
+        $this->objectManager->dbLink->delete('scenario');
+        $this->objectManager->dbLink->delete('user');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('contragent');
         /*  Lets prepare some staff: node, node, position, user, access control 
          *    We have: 
          *    1. One node with ID nodeId
@@ -52,90 +50,90 @@ class ApprovalTest extends TestCase {
 //NODES
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
-        $this->nodeId = $this->dataMapper->saveObject($node);
+        $this->nodeId = $this->objectManager->saveObject($node);
 
         $nodeArray3 = array('nodeName' => 'First object', 'parentNodeId' => $this->nodeId, 'domainId' => 1);
         $node3 = new Application_Model_Node($nodeArray3);
-        $this->nodeId3 = $this->dataMapper->saveObject($node3);
+        $this->nodeId3 = $this->objectManager->saveObject($node3);
         $nodeArray1 = array('nodeName' => 'Second object', 'parentNodeId' => $this->nodeId, 'domainId' => 1);
         $node1 = new Application_Model_Node($nodeArray1);
-        $this->nodeId1 = $this->dataMapper->saveObject($node1);
+        $this->nodeId1 = $this->objectManager->saveObject($node1);
         $nodeArray2 = array('nodeName' => 'Third bject', 'parentNodeId' => $this->nodeId3, 'domainId' => 1);
         $node2 = new Application_Model_Node($nodeArray2);
-        $this->nodeId2 = $this->dataMapper->saveObject($node2);
+        $this->nodeId2 = $this->objectManager->saveObject($node2);
 
 // CONTRAGENT
         $contragentArray = array('contragentName' => 'cName', 'domainId' => 1);
         $contragent = new Application_Model_Contragent($contragentArray);
         $this->assertTrue($contragent->isValid());
-        $this->contragentId = $this->dataMapper->saveObject($contragent);
+        $this->contragentId = $this->objectManager->saveObject($contragent);
         $this->assertTrue($contragent instanceof Application_Model_Contragent);
         $this->assertTrue(is_int($this->contragentId));
 // ELEMENTS
         $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
         $element = new Application_Model_Element($elementArray);
         $this->assertTrue($element->isValid());
-        $this->elementId1 = $this->dataMapper->saveObject($element);
+        $this->elementId1 = $this->objectManager->saveObject($element);
         $elementArray1 = array('elementName' => 'eName1', 'domainId' => 1, 'elementCode' => 44);
         $element1 = new Application_Model_Element($elementArray1);
         $this->assertTrue($element1->isValid());
-        $this->elementId2 = $this->dataMapper->saveObject($element1);
+        $this->elementId2 = $this->objectManager->saveObject($element1);
 
 
 // POSITIONS        
         $positionArray = array('positionName' => 'First position', 'nodeId' => $this->nodeId, 'domainId' => 1);
         $position = new Application_Model_Position($positionArray);
-        $positionId = $this->dataMapper->saveObject($position);
+        $positionId = $this->objectManager->saveObject($position);
         $positionArray1 = array('positionName' => 'First position', 'nodeId' => $this->nodeId1, 'domainId' => 1);
         $position1 = new Application_Model_Position($positionArray1);
-        $positionId1 = $this->dataMapper->saveObject($position1);
+        $positionId1 = $this->objectManager->saveObject($position1);
 
 // USERS        
         $userArray = array('userName' => 'user1', 'domainId' => 1, 'login' => 'user login', 'password' => 'user password', 'positionId' => $positionId);
         $user = new Application_Model_User($userArray);
-        $this->userId = $this->dataMapper->saveObject($user);
+        $this->userId = $this->objectManager->saveObject($user);
         $userArray1 = array('userName' => 'user2', 'domainId' => 1, 'login' => 'user login2', 'password' => 'user password', 'positionId' => $positionId1);
         $user1 = new Application_Model_User($userArray1);
-        $this->userId1 = $this->dataMapper->saveObject($user1);
+        $this->userId1 = $this->objectManager->saveObject($user1);
         $userArray2 = array('userName' => 'user3', 'domainId' => 1, 'login' => 'user login3', 'password' => 'user password', 'positionId' => $positionId1);
         $user2 = new Application_Model_User($userArray2);
-        $this->userId2 = $this->dataMapper->saveObject($user2);
+        $this->userId2 = $this->objectManager->saveObject($user2);
 
 // RESOURCES
         $resourceArray = array('resourceName' => 'admin', 'domainId' => 1);
         $resource = new Application_Model_Resource($resourceArray);
-        $resourceId = $this->dataMapper->saveObject($resource);
+        $resourceId = $this->objectManager->saveObject($resource);
 
 // PRIVILEGES        
         $privilegeArray = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
         $privilege = new Application_Model_Privilege($privilegeArray);
-        $this->dataMapper->saveObject($privilege);
+        $this->objectManager->saveObject($privilege);
         $privilegeArray1 = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
         $privilege1 = new Application_Model_Privilege($privilegeArray1);
-        $this->dataMapper->saveObject($privilege1);
+        $this->objectManager->saveObject($privilege1);
         $privilegeArray2 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId1, 'privilege' => 'write', 'domainId' => 1);
         $privilege2 = new Application_Model_Privilege($privilegeArray2);
-        $this->dataMapper->saveObject($privilege2);
+        $this->objectManager->saveObject($privilege2);
         $privilegeArray3 = array('objectType' => 'resource', 'objectId' => $resourceId, 'userId' => $this->userId, 'privilege' => 'read', 'domainId' => 1);
         $privilege3 = new Application_Model_Privilege($privilegeArray3);
-        $this->dataMapper->saveObject($privilege3);
+        $this->objectManager->saveObject($privilege3);
         $privilegeArray4 = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId1, 'privilege' => 'approve', 'domainId' => 1);
         $privilege4 = new Application_Model_Privilege($privilegeArray4);
-        $this->dataMapper->saveObject($privilege4);
+        $this->objectManager->saveObject($privilege4);
         $privilegeArray5 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
         $privilege5 = new Application_Model_Privilege($privilegeArray5);
-        $this->dataMapper->saveObject($privilege5);
+        $this->objectManager->saveObject($privilege5);
         $privilegeArray6 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId2, 'privilege' => 'approve', 'domainId' => 1);
         $privilege6 = new Application_Model_Privilege($privilegeArray6);
-        $this->dataMapper->saveObject($privilege6);
+        $this->objectManager->saveObject($privilege6);
 
 // USERGROUPS        
         $usergroupArray = array('userId' => $this->userId, 'role' => 'admin', 'domainId' => 1, 'userGroupName' => 'administrators');
         $usergroup = new Application_Model_Usergroup($usergroupArray);
-        $this->dataMapper->saveObject($usergroup);
+        $this->objectManager->saveObject($usergroup);
         $usergroupArray1 = array('userId' => $this->userId1, 'role' => 'manager', 'domainId' => 1, 'userGroupName' => 'managers');
         $usergroup1 = new Application_Model_Usergroup($usergroupArray1);
-        $this->dataMapper->saveObject($usergroup1);
+        $this->objectManager->saveObject($usergroup1);
 
 // SCENARIO
         $entryArray1 = array('domainId' => 1, 'orderPos' => 1, 'userId' => $this->userId, 'active' => true);
@@ -143,13 +141,13 @@ class ApprovalTest extends TestCase {
         $entryArray3 = array('domainId' => 1, 'orderPos' => 3, 'userId' => $this->userId2, 'active' => true);
         $scenarioArray1 = array('scenarioName' => 'eName1', 'active' => false, 'domainId' => 1, 'entries' => array(0 => $entryArray1, 1 => $entryArray2, 2 => $entryArray3));
         $this->scenario = new Application_Model_Scenario($scenarioArray1);
-        $this->scenarioId = $this->objectManager->saveScenario($this->scenario);
-        $this->scenario = $this->objectManager->getScenario($this->scenarioId);
+        $this->scenarioId = $this->objectManager->saveObject($this->scenario);
+        $this->scenario = $this->objectManager->getObject('scenario', $this->scenarioId);
 
 // Assignment
         $assignmentArray = array('domainId' => 1, 'nodeId' => $this->nodeId1, 'scenarioId' => $this->scenarioId);
         $assignment = new Application_Model_ScenarioAssignment($assignmentArray);
-        $assignmentId = $this->dataMapper->saveObject($assignment);
+        $assignmentId = $this->objectManager->saveObject($assignment);
         $this->assertTrue(is_int($assignmentId));
 
 
@@ -160,25 +158,25 @@ class ApprovalTest extends TestCase {
         $form = new Application_Model_Form($formArray1);
 //        Zend_Debug::dump($form);
         $this->assertTrue($form->isValid());
-        $this->formId = $this->objectManager->saveForm($formArray1, $this->userId1);
+        $this->formId = $this->objectManager->saveForm($form, $this->userId1);
 
         parent::setUp();
     }
 
     public function tearDown() {
-        $this->dataMapper->dbLink->delete('approval_entry');
-        $this->dataMapper->dbLink->delete('item');
-        $this->dataMapper->dbLink->delete('form');
-        $this->dataMapper->dbLink->delete('element');
-        $this->dataMapper->dbLink->delete('user_group');
-        $this->dataMapper->dbLink->delete('privilege');
-        $this->dataMapper->dbLink->delete('scenario_entry');
-        $this->dataMapper->dbLink->delete('scenario_assignment');
-        $this->dataMapper->dbLink->delete('scenario');
-        $this->dataMapper->dbLink->delete('user');
-        $this->dataMapper->dbLink->delete('position');
-        $this->dataMapper->dbLink->delete('node');
-        $this->dataMapper->dbLink->delete('contragent');
+        $this->objectManager->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('form');
+        $this->objectManager->dbLink->delete('element');
+        $this->objectManager->dbLink->delete('user_group');
+        $this->objectManager->dbLink->delete('privilege');
+        $this->objectManager->dbLink->delete('scenario_entry');
+        $this->objectManager->dbLink->delete('scenario_assignment');
+        $this->objectManager->dbLink->delete('scenario');
+        $this->objectManager->dbLink->delete('user');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('contragent');
     }
 
     public function testApprovalEntry() {
@@ -187,7 +185,7 @@ class ApprovalTest extends TestCase {
         $this->assertTrue($entry->isValid());
         $this->assertEquals($entry->userId, $this->userId);
         $this->assertEquals($entry->decision, 'approve');
-        $entryId = $this->dataMapper->saveObject($entry);
+        $entryId = $this->objectManager->saveObject($entry);
         $this->assertTrue(is_int($entryId));
     }
 
@@ -202,7 +200,7 @@ class ApprovalTest extends TestCase {
         $this->assertTrue(is_int($result1));
         $result2 = $this->objectManager->approveForm($this->formId, $this->userId1, 'approve');
         $this->assertTrue(is_int($result2));
-        $approvals = $this->dataMapper->getAllObjects('Application_Model_ApprovalEntry', array(0 => array('column' => 'formId', 'operand' => $this->formId)));
+        $approvals = $this->objectManager->getAllObjects('ApprovalEntry', array(0 => array('column' => 'formId', 'operand' => $this->formId)));
         $this->assertEquals(count($approvals), 2);
         $this->assertTrue(!empty($approvals));
     }

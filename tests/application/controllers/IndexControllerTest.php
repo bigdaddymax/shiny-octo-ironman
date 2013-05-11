@@ -2,31 +2,33 @@
 
 class IndexControllerTest extends Zend_Test_PHPUnit_ControllerTestCase
 {
-private $dataMapper;
+private $objectManager;
     public function setUp()
     {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
-        $this->dataMapper = new Application_Model_DataMapper(-1);
-        $this->dataMapper->dbLink->delete('domain_owner');
-        $this->dataMapper->dbLink->delete('user_group');
-        $this->dataMapper->dbLink->delete('user');
-        $this->dataMapper->dbLink->delete('domain_owner');
-        $this->dataMapper->dbLink->delete('position');
-        $this->dataMapper->dbLink->delete('node');
-        $this->dataMapper->dbLink->delete('domain');
+        $this->objectManager = new Application_Model_ObjectsManager(-1);
+        $this->objectManager->dbLink->delete('domain_owner');
+        $this->objectManager->dbLink->delete('user_group');
+        $this->objectManager->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('user');
+        $this->objectManager->dbLink->delete('domain_owner');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('domain');
         parent::setUp();
     }
     
     public function tearDown(){
-        $this->dataMapper = new Application_Model_DataMapper(-1);
-        $this->dataMapper->dbLink->delete('domain_owner');
-        $this->dataMapper->dbLink->delete('user_group');
-        $this->dataMapper->dbLink->delete('user');
-         $this->dataMapper->dbLink->delete('domain_owner');
-        $this->dataMapper->dbLink->delete('position');
-        $this->dataMapper->dbLink->delete('node');
-       $this->dataMapper->dbLink->delete('domain');
-        $this->dataMapper->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
+        $this->objectManager = new Application_Model_DataMapper(-1);
+        $this->objectManager->dbLink->delete('domain_owner');
+        $this->objectManager->dbLink->delete('user_group');
+        $this->objectManager->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('user');
+         $this->objectManager->dbLink->delete('domain_owner');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
+       $this->objectManager->dbLink->delete('domain');
+        $this->objectManager->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
         
     }
 
@@ -65,11 +67,11 @@ private $dataMapper;
         
         $session = new Zend_Session_Namespace('Auth');
         $this->assertEquals($session->userName, 'testName');;
-        $dataMapper = new Application_Model_DataMapper($session->domainId);
-        $node = $dataMapper->getAllObjects('Application_Model_Node');
-        $user = $dataMapper->getAllObjects('Application_Model_User');
-        $domain = $dataMapper->getAllObjects('Application_Model_Domain');
-        $position = $dataMapper->getAllObjects('Application_Model_Position');
+        $objectManager = new Application_Model_ObjectsManager($session->domainId);
+        $node = $objectManager->getAllObjects('Node');
+        $user = $objectManager->getAllObjects('User');
+        $domain = $objectManager->getAllObjects('Domain');
+        $position = $objectManager->getAllObjects('Position');
 
         $this->assertEquals($position[0]->nodeId, $node[0]->nodeId);
         $this->assertEquals($user[0]->positionId, $position[0]->positionId);

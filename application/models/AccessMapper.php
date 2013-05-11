@@ -26,7 +26,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
 
     public function __construct($userId, $domainId) {
         parent::__construct();
-        $dataMapper = new Application_Model_DataMapper($domainId);
+        $objectManager = new Application_Model_ObjectsManager($domainId);
         $this->acl = new Zend_Acl();
         $this->acl->addResource('admin');
         $this->acl->addResource('node', 'admin');
@@ -56,19 +56,19 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
         $this->acl->allow('admin', 'admin');
 
         if ($userId) {
-            $this->user = $dataMapper->getObject($userId, 'Application_Model_User');
+            $this->user = $objectManager->getObject( 'user', $userId);
         if ((!$this->user) || (!$this->user->isValid())) {
                 // We have session variables set up but for some reason user doesnt exist
                 $session = new Zend_Session_Namespace('Auth');
                 $session->unsetAll();
-                throw new Exception('Trying to initialize Access Mapper with userId = '.$userId);
+                throw new Exception('Trying to initialize Access Mapper with userId = '.$userId .' '.$f);
            }
-            $this->credentials = $dataMapper->getAllObjects('Application_Model_Privilege', array(0 => array('column' => 'userId',
+            $this->credentials = $objectManager->getAllObjects('Privilege', array(0 => array('column' => 'userId',
                     'operand' => $userId)));
 
             // Create new role based on user login
             // Retrieve parent privilege group fo user. If no group, user's base group is 'guest'
-            $userRole = $dataMapper->getAllObjects('Application_Model_UserGroup', array(0 => array('column' => 'userId',
+            $userRole = $objectManager->getAllObjects('userGroup', array(0 => array('column' => 'userId',
                     'operand' => $userId)));
             if (!($userRole[0] instanceof Application_Model_UserGroup)) {
                 $role = 'guest';
@@ -83,7 +83,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
                 foreach ($this->credentials as $credential) {
                     // If user is granted some additional privileges to resources access besides his usergroup lets add them
                     if ('resource' == $credential->objectType) {
-                        $resource = $dataMapper->getObject($credential->objectId, 'Application_Model_Resource');
+                        $resource = $objectManager->getObject('Resource', $credential->objectId);
                         $resourceName = $resource->resourceName;
                     } else {
                         // If user is granted privileges to some actions 
@@ -139,6 +139,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
 
     
     public function getAllowedObjectIds(){
+        $result = false;
         if (!empty($this->credentials)){
             foreach ($this->credentials as $credential){
                 if ('node' == $credential->objectType){
@@ -182,9 +183,9 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
      * @return type
      */
     private function getNodeObjects($nodeId) {
-        $dataMapper = new Application_Model_DataMapper($this->user->domainId);
+        $objectManager = new Application_Model_DataMapper($this->user->domainId);
         $result[] = $nodeId;
-        $nodes = $dataMapper->getAllObjects('Application_Model_Node', array(0 => array('column' => 'parentNodeId',
+        $nodes = $objectManager->getAllObjects('Application_Model_Node', array(0 => array('column' => 'parentNodeId',
                 'operand' => $nodeId)));
         if (!empty($nodes)) {
             foreach ($nodes as $node) {
