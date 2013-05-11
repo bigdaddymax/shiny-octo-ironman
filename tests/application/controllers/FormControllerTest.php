@@ -2,7 +2,7 @@
 
 class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
-    private $dataMapper;
+    private $objectManager;
     private $userId;
     private $userId1;
     private $nodeId;
@@ -17,20 +17,21 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     public function setUp() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
         $this->objectManager = new Application_Model_ObjectsManager(1);
-        $this->dataMapper = new Application_Model_DataMapper(1);
-        $this->dataMapper->dbLink->delete('item');
-        $this->dataMapper->dbLink->delete('form');
-        $this->dataMapper->dbLink->delete('privilege');
-        $this->dataMapper->dbLink->delete('resource');
-        $this->dataMapper->dbLink->delete('user_group');
-        $this->dataMapper->dbLink->delete('scenario_entry');
-        $this->dataMapper->dbLink->delete('scenario_assignment');
-        $this->dataMapper->dbLink->delete('scenario');
-        $this->dataMapper->dbLink->delete('domain_owner');
-        $this->dataMapper->dbLink->delete('user');
-        $this->dataMapper->dbLink->delete('position');
-        $this->dataMapper->dbLink->delete('node');
-        $this->dataMapper->dbLink->delete('contragent');
+//        $this->objectManager = new Application_Model_DataMapper(1);
+        $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('form');
+        $this->objectManager->dbLink->delete('privilege');
+        $this->objectManager->dbLink->delete('resource');
+        $this->objectManager->dbLink->delete('user_group');
+        $this->objectManager->dbLink->delete('scenario_entry');
+        $this->objectManager->dbLink->delete('scenario_assignment');
+        $this->objectManager->dbLink->delete('scenario');
+        $this->objectManager->dbLink->delete('domain_owner');
+        $this->objectManager->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('user');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('contragent');
         /*  Lets prepare some staff: node, node, position, user, access control 
          *    We have: 
          *    1. One node with ID nodeId
@@ -44,23 +45,23 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //NODES
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
-        $this->nodeId = $this->dataMapper->saveObject($node);
+        $this->nodeId = $this->objectManager->saveObject($node);
 
         $nodeArray3 = array('nodeName' => 'First object', 'parentNodeId' => $this->nodeId, 'domainId' => 1);
         $node3 = new Application_Model_Node($nodeArray3);
-        $this->nodeId3 = $this->dataMapper->saveObject($node3);
+        $this->nodeId3 = $this->objectManager->saveObject($node3);
         $nodeArray1 = array('nodeName' => 'Second object', 'parentNodeId' => $this->nodeId, 'domainId' => 1);
         $node1 = new Application_Model_Node($nodeArray1);
-        $this->nodeId1 = $this->dataMapper->saveObject($node1);
+        $this->nodeId1 = $this->objectManager->saveObject($node1);
         $nodeArray2 = array('nodeName' => 'Third bject', 'parentNodeId' => $this->nodeId3, 'domainId' => 1);
         $node2 = new Application_Model_Node($nodeArray2);
-        $this->nodeId2 = $this->dataMapper->saveObject($node2);
+        $this->nodeId2 = $this->objectManager->saveObject($node2);
 
 // CONTRAGENT
         $contragentArray = array('contragentName' => 'cName', 'domainId' => 1);
         $contragent = new Application_Model_Contragent($contragentArray);
         $this->assertTrue($contragent->isValid());
-        $this->contragentId = $this->dataMapper->saveObject($contragent);
+        $this->contragentId = $this->objectManager->saveObject($contragent);
         $this->assertTrue($contragent instanceof Application_Model_Contragent);
         $this->assertTrue(is_int($this->contragentId));
 
@@ -68,76 +69,77 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
         $element = new Application_Model_Element($elementArray);
         $this->assertTrue($element->isValid());
-        $this->elementId1 = $this->dataMapper->saveObject($element);
+        $this->elementId1 = $this->objectManager->saveObject($element);
         $elementArray1 = array('elementName' => 'eName1', 'domainId' => 1, 'elementCode' => 44);
         $element1 = new Application_Model_Element($elementArray1);
         $this->assertTrue($element1->isValid());
-        $this->elementId2 = $this->dataMapper->saveObject($element1);
+        $this->elementId2 = $this->objectManager->saveObject($element1);
 
 
 // POSITIONS        
         $positionArray = array('positionName' => 'First position', 'nodeId' => $this->nodeId, 'domainId' => 1);
         $position = new Application_Model_Position($positionArray);
-        $positionId = $this->dataMapper->saveObject($position);
+        $positionId = $this->objectManager->saveObject($position);
         $positionArray1 = array('positionName' => 'First position', 'nodeId' => $this->nodeId1, 'domainId' => 1);
         $position1 = new Application_Model_Position($positionArray1);
-        $positionId1 = $this->dataMapper->saveObject($position1);
+        $positionId1 = $this->objectManager->saveObject($position1);
 
 // USERS        
         $userArray = array('userName' => 'user1', 'domainId' => 1, 'login' => 'user login', 'password' => 'user password', 'positionId' => $positionId);
         $user = new Application_Model_User($userArray);
-        $this->userId = $this->dataMapper->saveObject($user);
+        $this->userId = $this->objectManager->saveObject($user);
         $userArray1 = array('userName' => 'user2', 'domainId' => 1, 'login' => 'user login2', 'password' => 'user password', 'positionId' => $positionId1);
         $user1 = new Application_Model_User($userArray1);
-        $this->userId1 = $this->dataMapper->saveObject($user1);
+        $this->userId1 = $this->objectManager->saveObject($user1);
 
 // RESOURCES
         $resourceArray = array('resourceName' => 'admin', 'domainId' => 1);
         $resource = new Application_Model_Resource($resourceArray);
-        $resourceId = $this->dataMapper->saveObject($resource);
+        $resourceId = $this->objectManager->saveObject($resource);
 
 // PRIVILEGES        
         $privilegeArray = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
         $privilege = new Application_Model_Privilege($privilegeArray);
-        $this->dataMapper->saveObject($privilege);
+        $this->objectManager->saveObject($privilege);
         $privilegeArray1 = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
         $privilege1 = new Application_Model_Privilege($privilegeArray1);
-        $this->dataMapper->saveObject($privilege1);
+        $this->objectManager->saveObject($privilege1);
         $privilegeArray2 = array('objectType' => 'node', 'objectId' => $this->nodeId2, 'userId' => $this->userId1, 'privilege' => 'write', 'domainId' => 1);
         $privilege2 = new Application_Model_Privilege($privilegeArray2);
-        $this->dataMapper->saveObject($privilege2);
+        $this->objectManager->saveObject($privilege2);
         $privilegeArray3 = array('objectType' => 'resource', 'objectId' => $resourceId, 'userId' => $this->userId, 'privilege' => 'read', 'domainId' => 1);
         $privilege3 = new Application_Model_Privilege($privilegeArray3);
-        $this->dataMapper->saveObject($privilege3);
+        $this->objectManager->saveObject($privilege3);
         $privilegeArray4 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
         $privilege4 = new Application_Model_Privilege($privilegeArray4);
-        $this->dataMapper->saveObject($privilege4);
+        $this->objectManager->saveObject($privilege4);
 
 // USERGROUPS        
         $usergroupArray = array('userId' => $this->userId, 'role' => 'admin', 'domainId' => 1, 'userGroupName' => 'administrators');
         $usergroup = new Application_Model_Usergroup($usergroupArray);
-        $this->dataMapper->saveObject($usergroup);
+        $this->objectManager->saveObject($usergroup);
         $usergroupArray1 = array('userId' => $this->userId1, 'role' => 'manager', 'domainId' => 1, 'userGroupName' => 'managers');
         $usergroup1 = new Application_Model_Usergroup($usergroupArray1);
-        $this->dataMapper->saveObject($usergroup1);
+        $this->objectManager->saveObject($usergroup1);
 
         parent::setUp();
     }
 
     public function tearDown() {
-        $this->dataMapper->dbLink->delete('item');
-        $this->dataMapper->dbLink->delete('form');
-        $this->dataMapper->dbLink->delete('element');
-        $this->dataMapper->dbLink->delete('user_group');
-        $this->dataMapper->dbLink->delete('privilege');
-        $this->dataMapper->dbLink->delete('scenario_entry');
-        $this->dataMapper->dbLink->delete('scenario_assignment');
-        $this->dataMapper->dbLink->delete('scenario');
-        $this->dataMapper->dbLink->delete('domain_owner');
-        $this->dataMapper->dbLink->delete('user');
-        $this->dataMapper->dbLink->delete('position');
-        $this->dataMapper->dbLink->delete('node');
-        $this->dataMapper->dbLink->delete('contragent');
+        $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('form');
+        $this->objectManager->dbLink->delete('element');
+        $this->objectManager->dbLink->delete('user_group');
+        $this->objectManager->dbLink->delete('privilege');
+        $this->objectManager->dbLink->delete('scenario_entry');
+        $this->objectManager->dbLink->delete('scenario_assignment');
+        $this->objectManager->dbLink->delete('scenario');
+        $this->objectManager->dbLink->delete('domain_owner');
+        $this->objectManager->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('user');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('contragent');
     }
 
     public function testIndexAction() {
@@ -146,6 +148,8 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setMethod('post');
         $this->request->setPost($user);
         $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
         $params = array('action' => 'index', 'controller' => 'form');
         $urlParams = $this->urlizeOptions($params);
         $url = $this->url($urlParams);
@@ -250,6 +254,79 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $form = $objectManager->getForm($forms[0]->formId, $this->userId1);
         $this->assertEquals($form->formName, $forms[0]->formName);
         $this->assertEquals($form->formName, 'test');
+    }
+
+    public function testOpenFormAction() {
+        $user = array('login' => 'user login2', 'password' => 'user password');
+        $params = array('controller' => 'auth', 'action' => 'auth');
+        $this->request->setMethod('post');
+        $this->request->setPost($user);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+        
+                $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
+            'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' =>'cntr name');
+        $params = array('controller' => 'form', 'action' => 'add-form');
+//        Zend_Debug::dump($formArray1);
+        $this->request->setMethod('post');
+        foreach ($formArray1 as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+            $this->request->setPost($key, $value);
+        }
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+
+        $forms = $this->objectManager->getAllObjects('form');
+        $formId = $forms[0]->formId;
+        $params = array('action' => 'open-form', 'controller' => 'form', 'formId'=>$formId);
+        $urlParams = $this->urlizeOptions($params);
+        $url = $this->url($urlParams);
+        $this->dispatch($url);
+        // assertions
+        $this->assertController($urlParams['controller']);
+        $this->assertAction($urlParams['action']);
+    }
+    
+    
+        public function testEditFormAction() {
+        $user = array('login' => 'user login2', 'password' => 'user password');
+        $params = array('controller' => 'auth', 'action' => 'auth');
+        $this->request->setMethod('post');
+        $this->request->setPost($user);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+        
+                $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
+            'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' =>'cntr name');
+        $params = array('controller' => 'form', 'action' => 'add-form');
+//        Zend_Debug::dump($formArray1);
+        $this->request->setMethod('post');
+        foreach ($formArray1 as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+            $this->request->setPost($key, $value);
+        }
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+
+        $forms = $this->objectManager->getAllObjects('form');
+        $formId = $forms[0]->formId;
+        $params = array('action' => 'edit-form', 'controller' => 'form', 'formId'=>$formId);
+        $urlParams = $this->urlizeOptions($params);
+        $url = $this->url($urlParams);
+        $this->dispatch($url);
+        // assertions
+        $this->assertController($urlParams['controller']);
+        $this->assertAction($urlParams['action']);
     }
 
 }

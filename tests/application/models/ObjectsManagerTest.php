@@ -18,7 +18,6 @@ class ObjectsManagerTest extends TestCase {
     private $userId;
     private $form;
     private $formId;
-    private $dataMapper;
     private $objectManager;
     private $contragentId;
 
@@ -27,52 +26,52 @@ class ObjectsManagerTest extends TestCase {
         $nodeArray = array('nodeName' => 'lName', 'domainId' => 1, 'parentNodeId' => 0);
         $this->node = new Application_Model_Node($nodeArray);
         $this->assertTrue($this->node->isValid());
-        $this->dataMapper = new Application_Model_DataMapper(1);
-        $this->nodeId = $this->dataMapper->saveObject($this->node);
+        $this->objectManager = new Application_Model_ObjectsManager(1);
+        $this->nodeId = $this->objectManager->saveObject($this->node);
         $nodeArray1 = array('nodeName' => 'oName', 'parentNodeId' => $this->nodeId, 'domainId' => 1);
         $this->node1 = new Application_Model_Node($nodeArray1);
         $this->assertTrue($this->node1->isValid());
-        $this->nodeId1 = $this->dataMapper->saveObject($this->node1);
+        $this->nodeId1 = $this->objectManager->saveObject($this->node1);
         $positionArray = array('positionName' => 'position_omt', 'domainId' => 1, 'positionCode' => 4, 'nodeId' => $this->nodeId);
         $this->position = new Application_Model_Position($positionArray);
         $this->assertTrue($this->position->isValid());
-        $this->positionId = $this->dataMapper->saveObject($this->position);
+        $this->positionId = $this->objectManager->saveObject($this->position);
         $userArray = array('userName' => 'uName_omt', 'nodeId' => $this->nodeId, 'positionId' => $this->positionId, 'domainId' => 1, 'login' => 'login_omt', 'password' => 'rrrr');
         $this->user = new Application_Model_User($userArray);
         $this->assertTrue($this->user->isValid());
-        $this->userId = $this->dataMapper->saveObject($this->user);
+        $this->userId = $this->objectManager->saveObject($this->user);
         $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
         $this->element = new Application_Model_Element($elementArray);
         $this->assertTrue($this->element->isValid());
-        $this->elementId = $this->dataMapper->saveObject($this->element);
+        $this->elementId = $this->objectManager->saveObject($this->element);
         $this->objectManager = new Application_Model_ObjectsManager(1);
         $privilegeArray = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId, 'privilege' => 'write', 'domainId' => 1);
         $privilege = new Application_Model_Privilege($privilegeArray);
-        $this->dataMapper->saveObject($privilege);
+        $this->objectManager->saveObject($privilege);
         $privilegeArray1 = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId, 'privilege' => 'read', 'domainId' => 1);
         $privilege1 = new Application_Model_Privilege($privilegeArray1);
-        $this->dataMapper->saveObject($privilege1);
+        $this->objectManager->saveObject($privilege1);
 // CONTRAGENT
         $contragentArray = array('contragentName'=>'cName', 'domainId'=>1);
         $contragent = new Application_Model_Contragent($contragentArray);
         $this->assertTrue($contragent->isValid());
-        $this->contragentId = $this->dataMapper->saveObject($contragent);
+        $this->contragentId = $this->objectManager->saveObject($contragent);
         $this->assertTrue($contragent instanceof Application_Model_Contragent);
         $this->assertTrue(is_int($this->contragentId));
     }
 
     public function tearDown() {
-        $this->dataMapper->dbLink->delete('item');
-        $this->dataMapper->dbLink->delete('form');
-        $this->dataMapper->dbLink->delete('element');
-        $this->dataMapper->dbLink->delete('scenario_entry');
-        $this->dataMapper->dbLink->delete('scenario');
-        $this->dataMapper->dbLink->delete('user_group');
-        $this->dataMapper->dbLink->delete('privilege');
-        $this->dataMapper->dbLink->delete('user');
-        $this->dataMapper->dbLink->delete('position');
-        $this->dataMapper->dbLink->delete('node');
-        $this->dataMapper->dbLink->delete('contragent');
+        $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('form');
+        $this->objectManager->dbLink->delete('element');
+        $this->objectManager->dbLink->delete('scenario_entry');
+        $this->objectManager->dbLink->delete('scenario');
+        $this->objectManager->dbLink->delete('user_group');
+        $this->objectManager->dbLink->delete('privilege');
+        $this->objectManager->dbLink->delete('user');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('contragent');
     }
 
     public function testFormSaveCorrect() {
@@ -88,7 +87,7 @@ class ObjectsManagerTest extends TestCase {
         unset($formArray2['date']);
         $this->assertEquals($formArray1, $formArray2);
         $this->assertTrue($this->form->isValid());
-        $this->formId = $this->objectManager->saveForm($formArray1,$this->userId);
+        $this->formId = $this->objectManager->saveForm($this->form,$this->userId);
         $this->assertTrue(is_int($this->formId));
         $formArray3 = array('userId' => $this->userId, 'formName' => 'fName2', 'nodeId' => $this->nodeId, 'items' => array(1 => $item1, 2 => $item2), 'domainId' => 1, 'contragentId'=>$this->contragentId);
         $form2 = new Application_Model_Form($formArray3);
@@ -100,7 +99,7 @@ class ObjectsManagerTest extends TestCase {
     
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException Exception
      */
     public function testSaveFormInvalid() {
         $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'domainId' => 1, 'active' => true);
@@ -126,7 +125,7 @@ class ObjectsManagerTest extends TestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException Exception
      */
     public function testSaveFormTotallyInvalid()
     {
@@ -145,7 +144,7 @@ class ObjectsManagerTest extends TestCase {
         $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId);
         $form = new Application_Model_Form($formArray1, $this->userId);
         $this->assertTrue($form->isValid());
-        $formId = $this->objectManager->saveForm($formArray1, $this->userId);
+        $formId = $this->objectManager->saveForm($form, $this->userId);
         $form2 = $this->objectManager->getForm($formId, $this->userId);
 
         
@@ -221,8 +220,8 @@ class ObjectsManagerTest extends TestCase {
         $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId);
         $form = new Application_Model_Form($formArray1);
         $this->assertTrue($form->isValid());
-        $formId = $this->objectManager->saveForm($formArray1, $this->userId);
-        $this->dataMapper->dbLink->update('form', array('formName'=>'', 'domainId'=>1), array('formId'=>$formId));
+        $formId = $this->objectManager->saveForm($form, $this->userId);
+        $this->objectManager->dbLink->update('form', array('formName'=>'', 'domainId'=>1), array('formId'=>$formId));
         $form2 = $this->objectManager->getForm($formId, $this->userId);
     }
             
@@ -237,7 +236,7 @@ class ObjectsManagerTest extends TestCase {
         $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => 1, 'public'=>1, 'contragentId'=>$this->contragentId);
         $form = new Application_Model_Form($formArray1);
         $this->assertTrue($form->isValid());
-        $formId = $this->objectManager->saveForm($formArray1, $this->userId);
+        $formId = $this->objectManager->saveForm($form, $this->userId);
         $form1 = $this->objectManager->getForm($formId, $this->userId);
         $this->assertTrue($form1 instanceof Application_Model_Form);
         $formArray2 = $form1->toArray();
@@ -246,11 +245,17 @@ class ObjectsManagerTest extends TestCase {
         $this->assertEquals($formArray1, $formArray2);
     }
     
-    public function testCheckUserExustance(){
+    public function testCheckUserExistance(){
         $this->assertTrue($this->objectManager->checkLoginExistance('login_omt'));
         $this->assertFalse($this->objectManager->checkLoginExistance('login_non_existing'));
     }
 
+    public function testGetExistingUser(){
+        $user = $this->objectManager->getObject('user', $this->userId);
+        $user->password = 1;
+        $this->user->password = 1;
+        $this->assertEquals($user, $this->user);
+    }
 }
 
 ?>
