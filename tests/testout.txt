@@ -1,0 +1,52 @@
+PHPUnit 3.7.10 by Sebastian Bergmann.
+
+Configuration read from D:\Program Files\Zend\supercapex\tests\phpunit.xml
+
+....{"error":0,"message":"Form created","formId":1643}...................[41;37mF[0m..................Cannot set value. Property commentName doesnt exist........[36;1mS[0m[36;1mS[0m[36;1mS[0m[36;1mS[0m[36;1mS[0m[36;1mS[0m....Cannot set value. Property ele doesnt exist...  63 / 149 ( 42%)
+............................................................... 126 / 149 ( 84%)
+.......................
+
+Time: 02:51, Memory: 38.00Mb
+
+There was 1 failure:
+
+1) Warning
+No tests found in class "TestCase".
+
+
+There were 6 skipped tests:
+
+1) DataMapperTest::testCheckDeleteObjectNoClass
+Cannot test protected method.
+
+D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
+
+2) DataMapperTest::testCheckObjectDependenciesNoClass
+Cannot test protected method.
+
+D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
+
+3) DataMapperTest::testCheckGetAllObjectsNoClass
+Cannot test protected method.
+
+D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
+
+4) DataMapperTest::testCheckObjectExistance
+Cannot test protected method.
+
+D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
+
+5) DataMapperTest::testPrepareFilter
+Cannot test protected method.
+
+D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
+
+6) DataMapperTest::testSaveExisting
+Cannot test protected method.
+
+D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
+
+[37;41m[2KFAILURES!
+[0m[37;41m[2KTests: 149, Assertions: 674, Failures: 1, Skipped: 6.
+[0m[2K
+Generating code coverage report in HTML format ... done

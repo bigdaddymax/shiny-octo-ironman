@@ -256,6 +256,7 @@ class ObjectsManagerTest extends TestCase {
         $this->user->password = 1;
         $this->assertEquals($user, $this->user);
     }
+    
 }
 
 ?>

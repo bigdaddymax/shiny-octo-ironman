@@ -1,0 +1,20 @@
+<?php
+if ($this->scenarios){
+    echo '<table>' . PHP_EOL;
+    foreach ($this->scenarios as $scenario){
+        if (isset($this->assignments[$scenario->scenarioId][0]['nodeId'])){
+            $assigned = 'assigned';
+        } else {
+            $assigned = 'not assigned';
+        }
+        echo '<tr><td><a href="' .
+                $this->url(array('controller'=>'scenario', 'action'=>'delete-scenario', 'scenarioId'=>$scenario->scenarioId)) . 
+                '">x</a></td><td><a href="'.
+                $this->url(array('controller'=>'scenario', 'action'=>'open-scenario', 'scenarioId'=>$scenario->scenarioId)).
+                '">' . $scenario->scenarioName .
+                '</td><td>'.$assigned.'</td></tr>' . PHP_EOL;
+    }
+    echo '</table>' . PHP_EOL;
+} else {
+    echo 'No scenarios to display';
+}
