@@ -1,0 +1,33 @@
+<div id="new-scenario-form">
+    <form id="scenario-data">
+    <table>
+        <tr id="scenario-tbl">
+           <td><lable for="scenarioName">Scenario name:</td><td><input id="scenarioName" name="scenarioName"></td>
+        </tr>
+    </table>
+    </form>
+    <input type="hidden" id="orderPos" value="0">
+    <button id="add-entry-btn">Add new user</button>
+</div>
+<button id="add-scenario-btn">Add scenario</button>
+<div id="new-entry-form">
+    <table>
+        <tr>
+            <td><label for="userId">Select user</label></td>
+        </tr>
+        <tr>
+            <td>
+                <?php if ($this->users){
+                    echo "<select id='userId' name='userId'>";
+                    foreach($this->users as $user){
+                        echo "<option value='$user->userId'>$user->userName</option>";
+                    }
+                    echo "</select>";
+                } else {
+                    echo 'No users';
+                }
+?>
+            </td>
+        </tr>
+    </table>
+</div>
