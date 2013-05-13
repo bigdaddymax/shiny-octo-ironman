@@ -1,0 +1,169 @@
+<script>
+
+    function deleteItem(itemId){
+        item = '#item_'+itemId;
+        $(item).remove();
+        inputItem = '#itemName_'+itemId;
+        $(inputItem).remove();
+        inputValue = '#value_'+itemId;
+        $(inputValue).remove();
+        element = '#elementId_'+itemId;
+        $(element).remove();
+    }
+    $(function(){
+        $("#add-item-btn").button().click(
+        function(){
+            $("#add-item").dialog("open");
+        });
+
+        $("#add-form-btn").button().click(
+        function(){
+            $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'add-form'), null, true); ?>",
+            $("#app-form").serialize()+'&'+$("#items").serialize(),
+            function(data){
+                if (1 == data.error){
+                    alert(data.message);
+                } else {
+                    window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'preview-form'), null, true); ?>/formId/"+data.formId;
+                }
+            })
+        });
+
+
+        $("#add-item").dialog({
+            autoOpen: false,
+            modal:    true,
+            buttons: {
+                'Add' :function(){
+                    var counter  = $("#counter").val();
+                    counter++;
+                    $("#counter").val(counter);
+                    $("#items-table").after('<tr id="item_'+counter+'"><td><a href="#" onClick=deleteItem('+counter+')>x</a></td><td>'+$("#itemName").val()+'</td><td>'+Number($("#value").val()).toFixed(2)+'</td></tr>');
+                    $("#counter").after('<input type="hidden" id="itemName_'+counter+'" name="itemName_'+counter+'" value="'+$("#itemName").val()+'">');
+                    $("#counter").after('<input type="hidden" id="value_'+counter+'" name="value_'+counter+'" value="'+$("#value").val()+'">');
+                    $("#counter").after('<input type="hidden" id="elementId_'+counter+'" name="elementId_'+counter+'" value="'+$("#elementId").val()+'">');
+                    $(this).dialog("close");
+                },
+                'Cancel': function(){
+                    $(this).dialog("close");
+                }
+            }
+            
+        });
+        
+//        $("#contragentName").autocomplete({
+//            source: function(request, reponse){
+//                $.ajax({
+//                    url: "<?php echo $this->url(array('controller'=>'form', 'action'=>'get-autocomlete'), null, true);?>",
+//                    data:{},
+//                    dataType: "jsonp",
+//                    success: function(data){
+//                        
+//                    }
+//                    });
+ //               }
+//        });
+        
+    });
+
+</script>
+
+<div id="add-form">
+    <form id="app-form">
+        <table>
+            <tr><td>
+                    <label for="formName"><?php echo $this->translate('form name'); ?></label>
+                </td></tr>
+            <tr><td>
+                    <input type="text" id="formName" name="formName" value="<?php
+                        echo (isset($this->form['form'])) ? $this->form['form']->formName : '';
+                     ?>"/>
+                </td></tr>
+            <tr><td>
+                    <label for="contragentName"><?php echo $this->translate('contragent name'); ?></label>
+                </td></tr>
+            <tr><td>
+                    <input type="text" id="contragentName" name="contragentName" value="<?php
+                        echo (isset($this->form['contragent'])) ? $this->form['contragent']->contragentName : '';
+                     ?>"/>
+                </td></tr>
+            <tr><td>
+                    <?php
+                    echo '<select id="nodeId" name="nodeId">';
+                    foreach ($this->nodes as $node) {
+                        $selected = '';
+                        if (isset($this->form['form'])) {
+                            if ($node->nodeId == $this->form['form']->nodeId) {
+                                $selected = 'selected';
+                            }
+                        }
+                        echo '<option value="' . $node->nodeId . '" ' . $selected . ' >' . $node->nodeName . '</option>';
+                    }
+                    echo '</select>';
+                    ?>
+                </td></tr>
+            <tr><td>
+                    <table width="100%">
+                        <tr id="items-table">
+                            <td></td>
+                            <td>Item</td>
+                            <td>Value</td>
+                        </tr>
+                        <?php
+                        if (isset($this->form['form'])) {
+                            foreach ($this->form['form']->items as $item) {
+                                echo '<tr id="item_' . $item->itemId . '"><td><a href="#" onClick=deleteItem(' . $item->itemId . ')>x</a></td><td>' .
+                                $item->itemName . '</td><td>' . sprintf("%01.2f", $item->value) . '</td></tr>';
+                            }
+                        }
+                        ?>
+                    </table>
+                </td></tr>
+        </table>
+    </form>
+    <button id="add-item-btn"><? echo $this->translate('add item'); ?></button>
+</div>
+
+<div id="add-item" title="Add approval item">
+    <form id="item-form">
+        <table>
+            <tr><td>
+                    <?php
+                    echo '<select id="elementId" name="elementId">';
+                    foreach ($this->elements as $element) {
+                        echo '<option value="' . $element->elementId . '">' . $element->elementName . '</option>';
+                    }
+                    echo '</select>';
+                    ?>
+                </td></tr>
+            <tr><td>
+                    <label for="itemName">Description</label>
+                </td></tr>
+            <tr><td>
+                    <input type="text" id="itemName" name="itemName">
+                </td></tr>
+            <tr><td>
+                    <label for="value">Value</label>
+                </td></tr>
+            <tr><td>
+                    <input type="text" id="value" name="value">
+                </td></tr>
+        </table>
+    </form>
+
+</div>
+
+<button id="add-form-btn"><?php echo $this->translate('save form'); ?></button>
+
+<form id="items">
+    <input type="hidden" id="counter" value="0">
+    <?php
+    if (isset($this->form['form'])) {
+        foreach ($this->form['form']->items as $item) {
+            echo '<input type="hidden" id="itemName_' . $item->itemId . '" name="itemName_' . $item->itemId . '" value="'.$item->itemName.'">' . PHP_EOL;
+            echo '<input type="hidden" id="value_' . $item->itemId . '" name="value_' . $item->itemId . '" value="'.$item->value.'">' . PHP_EOL;
+            echo '<input type="hidden" id="elementId_' . $item->itemId . '" name="elementId_' . $item->itemId . '" value="'.$item->elementId.'">' . PHP_EOL;
+        }
+    }
+    ?>
+</form>

@@ -1,0 +1,64 @@
+<script>
+    $(document).ajaxError(function(event, jqxhr, settings, exception){
+        $("#result-message").html(jqxhr.status);
+    });
+
+    $(document).ajaxSuccess(function(event, jqxhr, settings){
+        $("#result-message").html(jqxhr.status);
+    });
+
+    $(function(){
+        $("#update-node-btn").button().click(function(){
+                $.post('<?php echo $this->url(array('controller'=>'objects', 'action'=>'edit-object'), null, true);?>',
+                        $("#node-form").serialize()); 
+               
+        })
+    });
+    
+</script>
+<div id="result-message"></div>
+<form id="node-form">
+<table>
+    <tr>
+        <td>Node name:</td><td><input type="text" id="_nodeName" name="_nodeName" value="<?php echo $this->objects['node']->nodeName;?>"></td>
+    </tr>
+    <tr>
+        <td>Parent node:</td><td><?php 
+            if ($this->objects['nodes']){
+                echo '<select id="_parentnodeId" name="_parentNodeId">' . PHP_EOL;
+                echo '<option value="-1">No parent</option>' . PHP_EOL;
+                $selected = '';
+                foreach ($this->objects['nodes'] as $node){
+                    // Exclude from the list current node - we don't want node to parent to itself
+                    if($node->nodeId != $this->objects['node']->nodeId){
+                        // If node has parent we make this option selected
+                        $selected = ($node->nodeId == $this->objects['node']->parentNodeId)? 'selected':'';
+                        echo "<option value='$node->nodeId' $selected>$node->nodeName</option>" . PHP_EOL;
+                    }
+                }
+                echo '</select>' . PHP_EOL;
+            }        
+        ?></td>
+    </tr>
+    <tr>
+        <td>Scenario:</td><td><?php 
+            $selected = '';
+            if($this->objects['scenarios']){
+                echo '<select id="_scenarioId" name="_scenarioId">' . PHP_EOL;
+                echo '<option value="-1">No scenario</option>' . PHP_EOL;
+                foreach($this->objects['scenarios'] as $scenario){
+                    if (!empty($this->objects['assignment'])){
+                        $selected = ($scenario->scenarioId == $this->objects['assignment']->scenarioId)? 'selected':'';
+                    }
+                    echo "<option value='$scenario->scenarioId' $selected >$scenario->scenarioName</option>" . PHP_EOL;
+                }
+                echo '</select>' . PHP_EOL;
+            }
+        ?></td>
+    </tr>
+</table>
+    <input type="hidden" id="nodeId" name="nodeId" value="<?php echo $this->objects['node']->nodeId;?>">
+    <input type="hidden" id="objectType" name="objectType" value="node">
+</form>
+<button id="update-node-btn">Update</button>
+<?php

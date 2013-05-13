@@ -1,0 +1,39 @@
+<script>
+    $(function(){
+        $("#publish").button()
+        .click(function(){
+            $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'publish-form'), null, true); ?>",
+            {formId: <?php echo $this->form['form']->formId; ?>},
+            function(data){
+                if (1 == data.error){
+                    alert(data.message);
+                } else {
+                    window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'index'), null, true); ?>";
+                }
+            });
+        });
+        
+        $("#edit").button().click(function(){
+            window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'edit-form', 'formId' => $this->form['form']->formId), null, true); ?>";
+        });
+
+    });
+</script>
+<a href="<?php echo $this->url(array('controller' => 'form', 'action' => 'index')); ?>">To main page</a>
+<table>
+    <tr><td><?php if (!empty($this->form['parentNode']->nodeName)) echo $this->form['parentNode']->nodeName; ?></td></tr>
+    <tr><td><?php echo $this->form['node']->nodeName; ?></td></tr>
+    <tr><td><h1><?php echo $this->form['form']->formName; ?></h1></td></tr>
+    <tr><td><?php echo $this->form['form']->date; ?></td></tr>
+    <tr><td><?php echo $this->form['owner']->userName; ?></td></tr>
+</table>
+<table>
+    <?php
+    foreach ($this->form['items'] as $item) {
+        echo '<tr><td>' . $item->itemName . '</td><td>' . sprintf("%01.2f", $item->value) . '</td><td>' . $item->element->elementName . ' </td></tr>' . PHP_EOL;
+    }
+    ?>
+    <tr><td>Total</td><td><?php echo sprintf("%01.2f", $this->form['total']); ?></td><td></td></tr>
+</table>
+<input type="hidden" id="formId" name="formId" value="<?php echo $this->form['form']->formId ?>">
+<button id="publish"><?php echo $this->translate('publish');?></button><button id="edit"><?php echo $this->translate('edit form'); ?></button>
