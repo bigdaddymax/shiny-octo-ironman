@@ -370,14 +370,21 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                                         LEFT JOIN node n ON n.nodeId = a.nodeId WHERE n.domainId = ?', $this->domainId));
     }
 
-    public function checkLoginExistance($login) {
+    protected function checkLoginExistance($login) {
         $user = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM user WHERE login = ?', $login));
         return (!empty($user));
     }
 
-    public function getApprovalStatus($formId) {
+    
+    /**
+     * getApprovalStatus() - returns array of users that are in queue to approve with status (empty/approved/declined)
+     * @param type $formId
+     * @return array 
+     */
+    
+    protected function getApprovalStatus($formId) {
         return $this->dbLink->fetchAll($this->dbLink->quoteinto('select 
-                                                ss.userId, ae.decision, ss.formId, ss.userName, ss.login
+                                                ss.userId, ae.decision, ss.formId, ss.userName, ss.login, ss.orderPos
                                             from
                                                 (select se.userId, se.orderPos, f.formId, u.userName, u.login from scenario_entry se
                                             join scenario_assignment sa on se.scenarioId = sa.scenarioId
