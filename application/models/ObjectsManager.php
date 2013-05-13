@@ -21,14 +21,93 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
 //        $this->dataMapper = new Application_Model_DataMapper($this->domainId);
     }
 
+    /**
+     *  getObject() method - retrieve object from DB and initialize it
+     *  throws Exception if object with specified ID is not found
+     * @param string $objectName Name of the Object class - 'node', 'scenario', 'element' etc
+     * @param object $objectId
+     * @return object Particular initialized object
+     */
     public function getObject($objectName, $objectId) {
         $this->setClassAndTableName($objectName);
         switch ($this->tableName) {
             case 'scenario': return $this->getScenario($objectId);
                 break;
-            case 'form': break;
+            case 'form':
             default : return parent::_getObject($objectId);
         }
+    }
+
+    /**
+     * 
+     * @param string $objectName
+     * @param array() $filter
+     * @return array of objects
+     */
+    public function getAllObjects($objectName = null, $filter = null) {
+        parent::setClassAndTableName($objectName);
+        switch ($objectName) {
+            case 'scenario': return parent::getAllScenarios($filter);
+                break;
+            case 'form': return parent::getAllForms($filter);
+                break;
+            default : return parent::getAllObjects($objectName, $filter);
+        }
+    }
+
+    /**
+     * saveObject() - unified method for saving new and/or modified objects to database
+     *                from the web input.
+     *                Main tasks - parse JSON or Array() or Object representation of the input data
+     *                and performing appropriate manipulation with object(s)
+     * $inputData - array() or JSON string or Object  of parameters passed from the web. Every array should contain 
+     *              objectType item that actualy describes what kind of object we are dealing with.
+     */
+    public function saveObject($inputData) {
+        if (!is_array($inputData) && !is_object($inputData) && !is_object(json_decode($inputData))) {
+            throw new InvalidArgumentException('Input data should be array or JSON or Object for saveObject method');
+        }
+
+        // Convert input data into object
+        if (is_object($inputData)) {
+            $this->setClassAndTableName($inputData);
+            $object = $inputData;
+        } elseif (is_array($inputData)) {
+            $this->setClassAndTableName($inputData['objectType']);
+            $object = new $this->className($inputData);
+        } elseif (is_object(json_decode($inputData))) {
+            $inputData = json_decode($inputData);
+            $this->setClassAndTableName($inputData->objectType);
+            $object = new $this->className($inputData);
+        }
+
+        // Do we deal with existing object?
+        if (!$object->{$this->objectIdName}) {
+            $object->{$this->objectIdName} = $this->checkObjectExistance($object);
+        }
+        // Cleaning columns before updating database
+        // Form and Scenario are special case - they contain 
+        // a property that is array of other simple objects.
+        // So we have to treat these arrays separately later
+        if ('scenario' == strtolower($this->objectName)) {
+            $entries = $object->entries;
+        }
+        if ('form' == strtolower($this->objectName)) {
+            $entries = $object->items;
+        }
+
+        // Save main object
+        $mainObjectId = parent::saveObject($object);
+        $mainObjectIdName = $this->objectIdName;
+        // Save objects that are included in main object
+        if (isset($entries)) {
+            $this->setClassAndTableName($entries[0]);
+            foreach ($entries as $entry) {
+                $entry->{$mainObjectIdName} = $mainObjectId;
+                parent::saveObject($entry);
+            }
+        }
+        return $mainObjectId;
     }
 
     /**
@@ -156,11 +235,11 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     public function prepareFormForOutput($formId, $userId) {
         if (!empty($formId)) {
             $form['form'] = $this->getForm($formId, $userId);
-            $form['owner'] = $this->getObject( 'User', $form['form']->userId);
+            $form['owner'] = $this->getObject('User', $form['form']->userId);
             $form['node'] = $this->getObject('Node', $form['form']->nodeId);
             $form['contragent'] = $this->getObject('Contragent', $form['form']->contragentId);
             if (-1 != $form['node']->parentNodeId) {
-                $form['parentNode'] = $this->getObject( 'Node', $form['node']->parentNodeId);
+                $form['parentNode'] = $this->getObject('Node', $form['node']->parentNodeId);
             }
             $form['total'] = 0;
             foreach ($form['form']->items as $item) {
@@ -235,9 +314,10 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     }
 
     /**
-     * privilegesTable2HTML() - forms HTNL code for further output.
-     * 
-     * @param type $privilegesTable
+     * recursiveHTMLFormer() - iterator for getPrivilegesTable() 
+     * @param type $node
+     * @param type $userId
+     * @return string
      */
     public function recursiveHTMLFormer($node, $userId) {
         $result = '';
@@ -276,74 +356,14 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         return $result;
     }
 
-    /**
-     * saveObject() - unified method for saving new and/or modified objects to database
-     *                from the web input.
-     *                Main tasks - parse JSON or Array() or Object representation of the input data
-     *                and performing appropriate manipulation with object(s)
-     * $inputData - array() or JSON string or Object  of parameters passed from the web. Every array should contain 
-     *              objectType item that actualy describes what kind of object we are dealing with.
-     */
-    public function saveObject($inputData) {
-        if (!is_array($inputData) && !is_object($inputData) && !is_object(json_decode($inputData))) {
-            throw new InvalidArgumentException('Input data should be array or JSON or Object for saveObject method');
-        }
-
-        // Convert input data into object
-        if (is_object($inputData)) {
-            $this->setClassAndTableName($inputData);
-            $object = $inputData;
-        } elseif (is_array($inputData)) {
-            $this->setClassAndTableName($inputData['objectType']);
-            $object = new $this->className($inputData);
-        } elseif (is_object(json_decode($inputData))) {
-            $inputData = json_decode($inputData);
-            $this->setClassAndTableName($inputData->objectType);
-            $object = new $this->className($inputData);
-        }
-
-        // Do we deal with existing object?
-        if (!$object->{$this->objectIdName}) {
-            $object->{$this->objectIdName} = $this->checkObjectExistance($object);
-        }
-        // Cleaning columns before updating database
-        // Form and Scenario are special case - they contain 
-        // a property that is array of other simple objects.
-        // So we have to treat these arrays separately later
-        if ('scenario' == strtolower($this->objectName)) {
-            $entries = $object->entries;
-        }
-        if ('form' == strtolower($this->objectName)) {
-            $entries = $object->items;
-        }
-
-        // Save main object
-        $mainObjectId = parent::saveObject($object);
-        $mainObjectIdName = $this->objectIdName;
-        // Save objects that are included in main object
-        if (isset($entries)) {
-            $this->setClassAndTableName($entries[0]);
-            foreach ($entries as $entry) {
-                $entry->{$mainObjectIdName} = $mainObjectId;
-                parent::saveObject($entry);
-            }
-        }
-        return $mainObjectId;
-    }
-
     public function deleteScenario($scenarioId) {
-//        if (!$this->dataMapper->checkObjectDependencies($scenarioId, 'Application_Model_Scenario')) {
         $entries = $this->getAllObjects('ScenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $scenarioId)));
-//            exit;
         if (is_array($entries)) {
             foreach ($entries as $entry) {
                 $this->dbLink->delete('scenario_entry', $this->dbLink->quoteinto('scenarioEntryId =?', $entry->scenarioEntryId));
             }
         }
         $this->dbLink->delete('scenario', $this->dbLink->quoteinto('scenarioId =?', $scenarioId));
-        //      } else {
-        //        return false;
-        //  }
     }
 
     public function isApprovalAllowed($formId, $userId) {
@@ -478,27 +498,31 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         return $entryId;
     }
 
+    public function getEmailingList($formId) {
+        $form = $this->getObject('form', $formId);
+        $approvalList = array_reverse($this->getApprovalStatus($formId));
+        $owner = $this->getObject('user', $form->userId);
+        $email['owner'] = $owner->login;
+        foreach ($approvalList as $entry) {
+            if ('decline' == $entry['decision']) {
+                break;
+            }
+            if (null == $entry['decision']) {
+                $newlist[] = $this->getObject('user', $entry['userId']);
+                break;
+            }
+        }
+        if (is_array($newlist)) {
+            foreach ($newlist as $item) {
+                $email['approval'] = $item->login;
+            }
+        }
+        return $email;
+    }
+
     public function setDomainId($domainId) {
         parent::setDomainId($domainId);
     }
-
-    public function getAllObjects($class = null, $filter = null) {
-        parent::setClassAndTableName($class);
-        switch ($class) {
-            case 'scenario': return parent::getAllScenarios($filter);
-                break;
-            case 'form': return parent::getAllForms($filter);
-                break;
-            default : return parent::getAllObjects($class, $filter);
-        }
-    }
-
-//    public function checkLoginExistance($login) {
-//        return $this->checkLoginExistance($login);
-//    }
-//    public function getApprovalStatus($formId) {
-//        return $this->dataMapper->getApprovalStatus($formId);
-//    }
 
     public function checkObjectDependencies($class, $id) {
         return parent::checkObjectDependencies($class, $id);
@@ -515,6 +539,15 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     public function createAccessFilterArray($userId) {
         return parent::createAccessFilterArray($userId);
     }
+
+    public function checkLoginExistance($login) {
+        return parent::checkLoginExistance($login);
+    }
+
+    public function getApprovalStatus($formId) {
+        return parent::getApprovalStatus($formId);
+    }
+
 }
 
 ?>

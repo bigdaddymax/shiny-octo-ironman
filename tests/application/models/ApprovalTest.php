@@ -247,5 +247,16 @@ class ApprovalTest extends TestCase {
         $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId2));
     }
 
+    public function testEmailListGeneration() {
+        $emails = $this->objectManager->getEmailingList($this->formId);
+        $this->assertEquals($emails, array('owner'=>'user login2', 'approval'=>'user login'));
+        $appr = $this->objectManager->approveForm($this->formId, $this->userId, 'approve');
+        $emails1 = $this->objectManager->getEmailingList($this->formId);
+        $this->assertEquals($emails1, array('owner'=>'user login2', 'approval'=>'user login2'));
+        $appr = $this->objectManager->approveForm($this->formId, $this->userId1, 'approve');
+        $emails2 = $this->objectManager->getEmailingList($this->formId);
+        $this->assertEquals($emails2, array('owner'=>'user login2', 'approval'=>'user login3'));
+    }
+
 }
 
