@@ -19,6 +19,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager = new Application_Model_ObjectsManager(1);
 //        $this->objectManager = new Application_Model_DataMapper(1);
         $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('comment');
         $this->objectManager->dbLink->delete('form');
         $this->objectManager->dbLink->delete('privilege');
         $this->objectManager->dbLink->delete('resource');
@@ -127,6 +128,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     public function tearDown() {
         $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('comment');
         $this->objectManager->dbLink->delete('form');
         $this->objectManager->dbLink->delete('element');
         $this->objectManager->dbLink->delete('user_group');
@@ -179,7 +181,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         //       $this->assertTrue($this->accessMapper->isAllowed($session->login, 'node', 'write', $this->nodeId1));
         $itemArray1 = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'elementId' => $this->elementId1, 'active' => true);
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId2, 'active' => true);
-        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId2, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true, 'contragentName' =>'contr name');
+        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId2, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true, 'contragentName' => 'contr name');
         $params = array('controller' => 'form', 'action' => 'add-form');
         $this->request->setMethod('post');
         $this->request->setPost($formArray1);
@@ -217,7 +219,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' =>'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -229,18 +231,19 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         }
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $response = $this->getResponse();
-
         $data = json_decode($response->outputBody());
         $objectManager = new Application_Model_ObjectsManager(1);
         $form = $objectManager->getForm($data->formId, $this->userId1);
         $this->assertEquals($form->active, true);
         $this->assertEquals($form->public, false);
         $form->public = 1;
-        $id = $objectManager->saveForm($form, $this->userId1);
+        $id = $objectManager->saveObject($form);
         $form1 = $objectManager->getForm($id, $this->userId1);
         $this->assertEquals($form->active, true);
         $this->assertEquals($form->public, true);
-
+        $item1 = new Application_Model_Item(array('itemName' => 'test', 'elementId' => $this->elementId1, 'value' => 1, 'domainId' => 1, 'formId' => $id, 'itemId'=>$form->items[1]->itemId));
+        $item2 = new Application_Model_Item(array('itemName' => 'we', 'elementId' => $this->elementId2, 'value' => 3, 'domainId' => 1, 'formId' => $id, 'itemId'=>$form->items[0]->itemId));
+        $this->assertEquals($form->items, array(0 => $item2, 1 => $item1));
 //        $this->assertController('objects');
         //       $response = $this->getResponse();
         //     echo $response->outputBody();
@@ -256,6 +259,60 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertEquals($form->formName, 'test');
     }
 
+    public function testAddAndPublish() {
+        $user = array('login' => 'user login2', 'password' => 'user password');
+        $params = array('controller' => 'auth', 'action' => 'auth');
+        $this->request->setMethod('post');
+        $this->request->setPost($user);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $session = new Zend_Session_Namespace('Auth');
+        $this->assertEquals($session->userId, $this->userId1);
+        $this->resetRequest();
+        $this->resetResponse();
+
+        // Add form via web
+        $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
+            'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
+        $params = array('controller' => 'form', 'action' => 'add-form');
+        $this->request->setMethod('post');
+        foreach ($formArray1 as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+            $this->request->setPost($key, $value);
+        }
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $response = $this->getResponse();
+        $data = json_decode($response->outputBody());
+        $objectManager = new Application_Model_ObjectsManager(1);
+        $form = $objectManager->getForm($data->formId, $this->userId1);
+        $this->assertEquals($form->active, true);
+        $this->assertEquals($form->public, false);
+        $this->resetRequest();
+        $this->resetResponse();
+
+// Publish form
+        $params = array('controller' => 'form', 'action' => 'publish-form', 'formId' => $data->formId);
+//        Zend_Debug::dump($formArray1);
+        $this->request->setMethod('post');
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->assertController('form');
+        $this->assertAction('publish-form');
+
+        $form1 = $objectManager->getForm($data->formId, $this->userId1);
+        $this->assertEquals($form1->active, true);
+        $this->assertEquals($form1->public, true);
+        $item1 = new Application_Model_Item(array('itemName' => 'test', 'elementId' => $this->elementId2, 'value' => 1, 'domainId' => 1, 'formId' => $id));
+        $item2 = new Application_Model_Item(array('itemName' => 'we', 'elementId' => $this->elementId1, 'value' => 3, 'domainId' => 1, 'formId' => $id));
+        $this->assertEquals($form1->items, array(0 => $item1, 1 => $item2));
+        $objectManager = new Application_Model_ObjectsManager(1);
+        $forms = $objectManager->getAllForms();
+        $form = $objectManager->getForm($forms[0]->formId, $this->userId1);
+        $this->assertEquals($form->formName, $forms[0]->formName);
+        $this->assertEquals($form->formName, 'test');
+    }
+
     public function testOpenFormAction() {
         $user = array('login' => 'user login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
@@ -264,10 +321,10 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->resetRequest();
         $this->resetResponse();
-        
-                $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
+
+        $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' =>'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -283,17 +340,16 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
         $forms = $this->objectManager->getAllObjects('form');
         $formId = $forms[0]->formId;
-        $params = array('action' => 'open-form', 'controller' => 'form', 'formId'=>$formId);
+        $params = array('action' => 'open-form', 'controller' => 'form', 'formId' => $formId);
         $urlParams = $this->urlizeOptions($params);
         $url = $this->url($urlParams);
         $this->dispatch($url);
-        // assertions
+// assertions
         $this->assertController($urlParams['controller']);
         $this->assertAction($urlParams['action']);
     }
-    
-    
-        public function testEditFormAction() {
+
+    public function testEditFormAction() {
         $user = array('login' => 'user login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
@@ -301,10 +357,10 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->resetRequest();
         $this->resetResponse();
-        
-                $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
+
+        $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' =>'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -320,18 +376,56 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
         $forms = $this->objectManager->getAllObjects('form');
         $formId = $forms[0]->formId;
-        $params = array('action' => 'edit-form', 'controller' => 'form', 'formId'=>$formId);
+        $params = array('action' => 'edit-form', 'controller' => 'form', 'formId' => $formId);
         $urlParams = $this->urlizeOptions($params);
         $url = $this->url($urlParams);
         $this->dispatch($url);
-        // assertions
+// assertions
         $this->assertController($urlParams['controller']);
         $this->assertAction($urlParams['action']);
     }
 
-    
-    public function testCommentForm(){
-        
+    public function testCommentForm() {
+        $user = array('login' => 'user login2', 'password' => 'user password');
+        $params = array('controller' => 'auth', 'action' => 'auth');
+        $this->request->setMethod('post');
+        $this->request->setPost($user);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+
+        $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
+            'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
+        $params = array('controller' => 'form', 'action' => 'add-form');
+//        Zend_Debug::dump($formArray1);
+        $this->request->setMethod('post');
+        foreach ($formArray1 as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+            $this->request->setPost($key, $value);
+        }
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+
+        $forms = $this->objectManager->getAllObjects('form');
+        $formId = $forms[0]->formId;
+
+        $commentArray = array('formId' => $formId, 'comment' => 'bla bla bla bla', 'parentCommentId' => -1, 'userId' => $this->userId, 'active'=>1, 'domainId'=>1);
+        $params = array('controller' => 'form', 'action' => 'add-comment');
+        $this->request->setMethod('post');
+        $this->request->setPost($commentArray);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->assertController('form');
+        $this->assertAction('add-comment');
+        $comments = $this->objectManager->getAllObjects('comment');
+        $comments[0]->date = null;
+        $commentArray['commentId'] = $comments[0]->commentId;
+        $this->assertTrue($comments[0] instanceof Application_Model_Comment);
+        $this->assertEquals($comments[0]->toArray(), $commentArray);
     }
+
 }
 

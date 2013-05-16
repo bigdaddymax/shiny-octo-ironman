@@ -56,13 +56,17 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
         $this->acl->allow('admin', 'admin');
 
         if ($userId) {
-            $this->user = $objectManager->getObject( 'user', $userId);
-        if ((!$this->user) || (!$this->user->isValid())) {
+            try {
+                $this->user = $objectManager->getObject('user', $userId);
+            } catch (Exception $e) {
+                
+            }
+            if ((!$this->user) || (!$this->user->isValid())) {
                 // We have session variables set up but for some reason user doesnt exist
                 $session = new Zend_Session_Namespace('Auth');
                 $session->unsetAll();
-                throw new Exception('Trying to initialize Access Mapper with userId = '.$userId .' '.$f);
-           }
+                throw new Exception('Trying to initialize Access Mapper with userId = ' . $userId . ' ' . $f);
+            }
             $this->credentials = $objectManager->getAllObjects('Privilege', array(0 => array('column' => 'userId',
                     'operand' => $userId)));
 
@@ -92,8 +96,8 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
                             $this->acl->addResource($resourceName);
                         }
                     }
-                        $this->acl->allow($this->user->login, $resourceName, $credential->privilege);
-                    }
+                    $this->acl->allow($this->user->login, $resourceName, $credential->privilege);
+                }
             } else {
                 return;
                 //throw new Exception('No privileges loaded from DB');
@@ -137,19 +141,18 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
         return $this->acl->isAllowed($this->user->login, $resource, $privilege);
     }
 
-    
-    public function getAllowedObjectIds(){
+    public function getAllowedObjectIds() {
         $result = false;
-        if (!empty($this->credentials)){
-            foreach ($this->credentials as $credential){
-                if ('node' == $credential->objectType){
+        if (!empty($this->credentials)) {
+            foreach ($this->credentials as $credential) {
+                if ('node' == $credential->objectType) {
                     $result[$credential->privilege][] = $credential->objectId;
                 }
             }
         }
         return $result;
     }
-    
+
     /**
      * getAllowedObjectsIds() method returns ids of objects of specified class that 
      *                        user can read, write or approve.

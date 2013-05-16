@@ -277,10 +277,11 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         $id = $this->checkObjectExistance($privilege);
         if ($id) {
             // This privilege is already granted
-            return;
+            return array('error'=>0, 'message'=>'This privilege is already granted', 'code'=>200);
         } else {
             // Save new privilege
-            $this->dataMapper->saveObject($privilege);
+            $id = $this->saveObject($privilege);
+            return array('error'=>0, 'message'=>'Privilege granted', 'recordId'=>$id, 'code'=>200);
         }
     }
 
@@ -288,11 +289,11 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         $id = $this->checkObjectExistance($privilege);
         if ($id) {
             // This privilege is already granted
-            $this->deleteObject($id, 'Application_Model_Privilege');
-            return;
+            $this->deleteObject('Privilege', $id);
+            return array('error'=>0, 'message'=>'Privilege revoked', 'code'=>200);
         } else {
             // This privilege doesnt exist already
-            return;
+            return array('error'=>0,  'mesage' =>'Was already deleted', 'code'=>200);
         }
     }
 
