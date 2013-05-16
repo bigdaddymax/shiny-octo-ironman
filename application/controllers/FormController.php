@@ -31,7 +31,7 @@ class FormController extends Zend_Controller_Action {
     }
 
     public function editFormAction() {
-            $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
         if (null != $this->_request->getParam('formId')) {
             $this->view->form = $objectsManager->prepareFormForOutput($this->_request->getParam('formId'), $this->session->userId);
         }
@@ -72,7 +72,17 @@ class FormController extends Zend_Controller_Action {
             $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
             $form = $objectsManager->getForm($this->_request->getParam('formId'), $this->session->userId);
             $form->public = true;
-            $objectsManager->saveForm($form, $this->session->userId);
+            try {
+                $id = $objectsManager->saveObject($form);
+                $this->_helper->json(array('error'=>0,
+                                           'message'=>'Form published successfully',
+                                           'code'=>200,
+                                           'recordId'=>$id));
+            } catch (Exception $e) {
+                $this->_helper->json(array('error'=>1,
+                                           'message'=>$e->getMessage(),
+                                           'code'=>$e->getCode()));
+            }
         }
         $this->redirector->gotoSimple('index', 'form');
     }
@@ -104,6 +114,15 @@ class FormController extends Zend_Controller_Action {
             echo $e->message;
         }
         $this->redirector->gotoSimple('index', 'form');
+    }
+
+    function addCommentAction() {
+        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+        $comment = new Application_Model_Comment($this->_request->getParams());
+        $comment->date = date('Y-m-d H:i');
+        $comment->domainId = $this->session->domainId;
+        ob_flush();
+        $commentId = $objectsManager->saveObject($comment);
     }
 
 }
