@@ -303,9 +303,9 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $form1 = $objectManager->getForm($data->formId, $this->userId1);
         $this->assertEquals($form1->active, true);
         $this->assertEquals($form1->public, true);
-        $item1 = new Application_Model_Item(array('itemName' => 'test', 'elementId' => $this->elementId2, 'value' => 1, 'domainId' => 1, 'formId' => $id));
-        $item2 = new Application_Model_Item(array('itemName' => 'we', 'elementId' => $this->elementId1, 'value' => 3, 'domainId' => 1, 'formId' => $id));
-        $this->assertEquals($form1->items, array(0 => $item1, 1 => $item2));
+        $item1 = new Application_Model_Item(array('itemName' => 'test', 'elementId' => $this->elementId1, 'value' => 1, 'domainId' => 1, 'formId' => $form1->formId, 'itemId'=>$form1->items[1]->itemId));
+        $item2 = new Application_Model_Item(array('itemName' => 'we', 'elementId' => $this->elementId2, 'value' => 3, 'domainId' => 1, 'formId' => $form1->formId, 'itemId'=>$form1->items[0]->itemId));
+        $this->assertEquals($form1->items, array(0 => $item2, 1 => $item1));
         $objectManager = new Application_Model_ObjectsManager(1);
         $forms = $objectManager->getAllForms();
         $form = $objectManager->getForm($forms[0]->formId, $this->userId1);
