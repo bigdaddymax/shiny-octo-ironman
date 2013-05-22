@@ -100,7 +100,6 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 $auth = new Application_Model_Auth();
                 $objectArray['password'] = $auth->hashPassword($objectArray['password']);
             }
-
             if ($object->{$this->objectIdName}) {
                 // Object exists, so we will update it
                 $this->dbLink->update($this->tableName, $objectArray, array($this->objectIdName . ' = ?' => $object->{$this->objectIdName}));
@@ -111,7 +110,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             }
             return $object->{$this->objectIdName};
         } else
-            throw new InvalidArgumentException($this->objectName . ' data are not valid');
+            throw new InvalidArgumentException($this->objectName . ' data are not valid', 417);
     }
 
     /**
@@ -123,7 +122,6 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @throws InvalidArgumentException
      */
     protected function _getObject($id) {
-
         $objectArray = $this->dbLink->fetchRow('SELECT * FROM ' .
                 $this->tableName . ' WHERE ' .
                 $this->dbLink->quoteinto($this->objectIdName . '=?', $id) .
@@ -132,7 +130,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
             $object = new $this->className($objectArray);
             return $object;
         } else {
-            throw new Exception("Cannot find $this->objectName in table '$this->tableName' whith ID=$id and domainId=$this->domainId", 500);
+            throw new InvalidArgumentException("Cannot find $this->objectName in table '$this->tableName' whith ID=$id and domainId=$this->domainId", 417);
         }
     }
 
@@ -375,13 +373,11 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         return (!empty($user));
     }
 
-    
     /**
      * getApprovalStatus() - returns array of users that are in queue to approve with status (empty/approved/declined)
      * @param type $formId
      * @return array 
      */
-    
     protected function getApprovalStatus($formId) {
         return $this->dbLink->fetchAll($this->dbLink->quoteinto('select 
                                                 ss.userId, ae.decision, ss.formId, ss.userName, ss.login, ss.orderPos
@@ -452,6 +448,12 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         } else {
             return false;
         }
+    }
+
+    protected function getFormOwner($formId) {
+        $userId = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT userId FROM form WHERE formId = ?', $formId));
+        $this->setClassAndTableName('user');
+        return $this->_getObject($userId);
     }
 
 }

@@ -1,6 +1,4 @@
-PHPUnit 3.7.10 by Sebastian Bergmann.
-
-Configuration read from D:\Program Files\Zend\supercapex\tests\phpunit.xml
+PHPUnit 3.5.15 by Sebastian Bergmann.
 
 
 Starting test 'AuthControllerTest::testUserAuth'.
@@ -10,17 +8,19 @@ Starting test 'AuthControllerTest::testDefaultAdminAuth'.
 Starting test 'FormControllerTest::testIndexAction'.
 .
 Starting test 'FormControllerTest::testAddNewForm'.
-.{"error":0,"message":"Form created","formId":131}
+{"error":0,"message":"Form created","formId":617}.
 Starting test 'FormControllerTest::testAddNewFormFromWeb'.
-[41;37mF[0m
+.
 Starting test 'FormControllerTest::testAddAndPublish'.
-[41;37mF[0m
+.
 Starting test 'FormControllerTest::testOpenFormAction'.
 .
 Starting test 'FormControllerTest::testEditFormAction'.
 .
 Starting test 'FormControllerTest::testCommentForm'.
-[41;37mF[0mCannot set value. Property controller doesnt existCannot set value. Property action doesnt existCannot set value. Property module doesnt exist
+Cannot set value. Property controller doesnt existCannot set value. Property action doesnt existCannot set value. Property module doesnt exist.
+Starting test 'FormControllerTest::testApprovalAllowance'.
+.
 Starting test 'IndexControllerTest::testIndexAction'.
 .
 Starting test 'IndexControllerTest::testNewDomainCreation'.
@@ -53,14 +53,6 @@ Starting test 'ScenarioControllerTest::testAddNewScenarioFromWeb'.
 .
 Starting test 'ScenarioControllerTest::testDeleteScenario'.
 .
-Starting test 'Warning'.
-[41;37mF[0m
-Starting test 'PrivilegeDataMapperTest::testPrivilegeDataMapperSaveNew'.
-.
-Starting test 'PrivilegeDataMapperTest::testObjectDataMapperSaveExisting'.
-.
-Starting test 'PrivilegeDataMapperTest::testDeleteDependentObject'.
-.
 Starting test 'AccessMapperTest::testGetAllowedObjectIds'.
 .
 Starting test 'AccessMapperTest::testResourcesAccess'.
@@ -70,6 +62,12 @@ Starting test 'AccessMapperTest::testACLPrivileges'.
 Starting test 'AccessMapperTest::testDefaultLoginPrivileges'.
 .
 Starting test 'AccessMapperTest::testCredentialsRetrieval'.
+.
+Starting test 'PrivilegeDataMapperTest::testPrivilegeDataMapperSaveNew'.
+.
+Starting test 'PrivilegeDataMapperTest::testObjectDataMapperSaveExisting'.
+.
+Starting test 'PrivilegeDataMapperTest::testDeleteDependentObject'.
 .
 Starting test 'ApprovalTest::testApprovalEntry'.
 .
@@ -83,19 +81,15 @@ Starting test 'ApprovalTest::testEmailListGeneration'.
 .
 Starting test 'AuthTest::testCheckPassword'.
 .
-Starting test 'CommentTest::testCommentGetterSetter'.
-.
 Starting test 'CommentTest::testCommentConstructException'.
 .
 Starting test 'CommentTest::testCommentConstructCorrect'.
 .
 Starting test 'CommentTest::testCommentValidation'.
-.Cannot set value. Property commentName doesnt exist
+Cannot set value. Property commentName doesnt exist.
 Starting test 'CommentTest::testCommentToArray'.
 .
 Starting test 'CommentTest::testSaveComment'.
-.
-Starting test 'ContragentTest::testContragentGetterSetter'.
 .
 Starting test 'ContragentTest::testContragentConstructException'.
 .
@@ -108,39 +102,35 @@ Starting test 'ContragentTest::testContragentToArray'.
 Starting test 'ContragentTest::testSaveContragent'.
 .
 Starting test 'DataMapperTest::testCheckDeleteObjectNoClass'.
-[36;1mS[0m
+S
 Starting test 'DataMapperTest::testCheckObjectDependenciesNoClass'.
-[36;1mS[0m
+S
 Starting test 'DataMapperTest::testCheckGetAllObjectsNoClass'.
-[36;1mS[0m
+S
 Starting test 'DataMapperTest::testCheckObjectExistance'.
-[36;1mS[0m
+S
 Starting test 'DataMapperTest::testPrepareFilter'.
-[36;1mS[0m
+S
 Starting test 'DataMapperTest::testSaveExisting'.
-[36;1mS[0m
-Starting test 'DomainTest::testDomainGetterSetter'.
-.
+S
 Starting test 'DomainTest::testDomainConstructException'.
 .
 Starting test 'DomainTest::testDomainConstructCorrect'.
 .
 Starting test 'DomainTest::testDomainValidation'.
-.Cannot set value. Property ele doesnt exist
+Cannot set value. Property ele doesnt exist.
 Starting test 'DomainTest::testDomainToArray'.
-.  63 / 151 ( 41%)
-
+.
 Starting test 'ElementDataMapperTest::testConstructor'.
 .
 Starting test 'ElementDataMapperTest::testElementCheckExistance'.
 .
 Starting test 'ElementDataMapperTest::testElementSave'.
-.
+.  63 / 151 ( 41%)
+
 Starting test 'ElementDataMapperTest::testElementGet'.
 .
 Starting test 'ElementDataMapperTest::testValidateElement'.
-.
-Starting test 'ElementTest::testElementGetterSetter'.
 .
 Starting test 'ElementTest::testElementConstructException'.
 .
@@ -149,8 +139,6 @@ Starting test 'ElementTest::testElementConstructCorrect'.
 Starting test 'ElementTest::testElementValidation'.
 .
 Starting test 'ElementTest::testElementToArray'.
-.
-Starting test 'FormTest::testFormGetterSetter'.
 .
 Starting test 'FormTest::testFormConstructException'.
 .
@@ -166,7 +154,27 @@ Starting test 'FormTest::testFormItemInvalidAssignment'.
 .
 Starting test 'FormTest::testFormToArray'.
 .
-Starting test 'ItemTest::testItemGetterSetter'.
+Starting test 'GettersSettersTest::testNodeGetterAndSetter'.
+.
+Starting test 'GettersSettersTest::testPositionGetterSetter'.
+.
+Starting test 'GettersSettersTest::testElementGetterSetter'.
+.
+Starting test 'GettersSettersTest::testUserGetterAndSetter'.
+.
+Starting test 'GettersSettersTest::testPrivilegeGetterAndSetter'.
+.
+Starting test 'GettersSettersTest::testDomainGetterSetter'.
+.
+Starting test 'GettersSettersTest::testContragentGetterSetter'.
+.
+Starting test 'GettersSettersTest::testScenarioGetterSetter'.
+.
+Starting test 'GettersSettersTest::testFormGetterSetter'.
+.
+Starting test 'GettersSettersTest::testItemGetterSetter'.
+.
+Starting test 'GettersSettersTest::testCommentGetterSetter'.
 .
 Starting test 'ItemTest::testItemConstructException'.
 .
@@ -197,8 +205,6 @@ Starting test 'NodeDataMapperTest::testDeleteIndependentNode'.
 Starting test 'NodeDataMapperTest::testDeleteDependentNode'.
 .
 Starting test 'NodeTest::testNodeConstructor'.
-.
-Starting test 'NodeTest::testNodeGetterAndSetter'.
 .
 Starting test 'NodeTest::testNodeValidatior'.
 .
@@ -242,26 +248,20 @@ Starting test 'PositionDataMapperTest::testNonexistingPositionGet'.
 .
 Starting test 'PositionDataMapperTest::testGetAllPositions'.
 .
-Starting test 'PositionTest::testPositionGetterSetter'.
-.
 Starting test 'PositionTest::testPositionConstructException'.
 .
 Starting test 'PositionTest::testPositionConstructCorrect'.
 .
 Starting test 'PositionTest::testPositionValidation'.
-.
+. 126 / 151 ( 83%)
+
 Starting test 'PositionTest::testPositionToArray'.
 .
 Starting test 'PrivilegeTest::testPrivilegeConstructor'.
 .
-Starting test 'PrivilegeTest::testPrivilegeGetterAndSetter'.
-. 126 / 151 ( 83%)
-
 Starting test 'PrivilegeTest::testprivilegeToArray'.
 .
 Starting test 'PrivilegeTest::testObjectValidation'.
-.
-Starting test 'ScenarioTest::testScenarioGetterSetter'.
 .
 Starting test 'ScenarioTest::testScenarioConstructException'.
 .
@@ -301,109 +301,39 @@ Starting test 'UserDataMapperTest::testGetInvalidArguments'.
 .
 Starting test 'UserTest::testUserConstructor'.
 .
-Starting test 'UserTest::testUserGetterAndSetter'.
-.
 Starting test 'UserTest::testUserToArray'.
 .
 Starting test 'UserTest::testObjectValidation'.
 .
 
-Time: 03:07, Memory: 38.75Mb
+Time: 02:21, Memory: 45.00Mb
 
-There were 4 failures:
-
-1) FormControllerTest::testAddNewFormFromWeb
-Failed asserting that two arrays are equal.
---- Expected
-+++ Actual
-@@ @@
- Array (
-     0 => Application_Model_Item Object (
-         '_valid' => true
--        '_itemName' => 'we'
--        '_itemId' => 255
--        '_value' => 3.0
-+        '_itemName' => 'test'
-+        '_itemId' => null
-+        '_value' => 1.0
-
-@@ @@
-         '_valid' => true
--        '_itemName' => 'test'
--        '_itemId' => 256
--        '_value' => 1.0
-+        '_itemName' => 'we'
-+        '_itemId' => null
-+        '_value' => 3.0
-         '_elementId' => 401
-         '_formId' => 132
-         '_active' => true
-         '_domainId' => 1
-         '_element' => null
-     )
- )
-
-D:\Program Files\Zend\supercapex\tests\application\controllers\FormControllerTest.php:246
-
-2) FormControllerTest::testAddAndPublish
-Failed asserting that true matches expected false.
-
-D:\Program Files\Zend\supercapex\tests\application\controllers\FormControllerTest.php:305
-
-3) FormControllerTest::testCommentForm
-Failed asserting that two arrays are equal.
---- Expected
-+++ Actual
-@@ @@
- Array (
--    'commentId' => 9
-     'comment' => 'bla bla bla bla'
-     'parentCommentId' => -1
-     'active' => 1
-     'domainId' => 1
-     'formId' => 136
-     'userId' => 780
- )
-
-D:\Program Files\Zend\supercapex\tests\application\controllers\FormControllerTest.php:426
-
-4) Warning
-No tests found in class "TestCase".
-
-
-There were 6 skipped tests:
-
-1) DataMapperTest::testCheckDeleteObjectNoClass
-Cannot test protected method.
-
-D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
-
-2) DataMapperTest::testCheckObjectDependenciesNoClass
-Cannot test protected method.
-
-D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
-
-3) DataMapperTest::testCheckGetAllObjectsNoClass
-Cannot test protected method.
-
-D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
-
-4) DataMapperTest::testCheckObjectExistance
-Cannot test protected method.
-
-D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
-
-5) DataMapperTest::testPrepareFilter
-Cannot test protected method.
-
-D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
-
-6) DataMapperTest::testSaveExisting
-Cannot test protected method.
-
-D:\Program Files\Zend\supercapex\tests\application\models\DataMapperTest.php:11
-
-[37;41m[2KFAILURES!
-[0m[37;41m[2KTests: 151, Assertions: 693, Failures: 4, Skipped: 6.
+[30;43m[2KOK, but incomplete or skipped tests!
+[0m[30;43m[2KTests: 151, Assertions: 705, Skipped: 6.
 [0m[2K
-Generating code coverage report in HTML format ... done
+Generating code coverage report, this may take a moment.
+Fatal error: Allowed memory size of 134217728 bytes exhausted (tried to allocate 2097152 bytes) in C:\pear\pear\PHP\Token\Stream.php on line 207
+
+Call Stack:
+    0.0004     325984   1. {main}() C:\pear\phpunit:0
+    0.2573     693240   2. PHPUnit_TextUI_Command::main() C:\pear\phpunit:49
+    0.2573     693592   3. PHPUnit_TextUI_Command->run() C:\pear\pear\PHPUnit\TextUI\Command.php:129
+    0.9503    9701360   4. PHPUnit_TextUI_TestRunner->doRun() C:\pear\pear\PHPUnit\TextUI\Command.php:188
+  141.0580   47198296   5. PHP_CodeCoverage_Report_HTML->process() C:\pear\pear\PHPUnit\TextUI\TestRunner.php:363
+  142.9065  111959176   6. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:135
+  143.1199  113839656   7. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:222
+  143.1200  113841232   8. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:222
+  143.1200  113842784   9. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:222
+  143.1201  113844352  10. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:222
+  143.1201  113846032  11. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:222
+  147.4697  130943000  12. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:222
+  147.4698  130944560  13. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:222
+  147.6475  132127424  14. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:222
+  147.6990  132449384  15. PHP_CodeCoverage_Report_HTML->addItems() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:222
+  147.6990  132449688  16. PHP_CodeCoverage_Report_HTML_Node_Directory->addFile() C:\pear\pear\PHP\CodeCoverage\Report\HTML.php:214
+  147.6990  132451024  17. PHP_CodeCoverage_Report_HTML_Node_File->__construct() C:\pear\pear\PHP\CodeCoverage\Report\HTML\Node\Directory.php:156
+  147.7065  132468264  18. PHP_CodeCoverage_Util::getLinesToBeIgnored() C:\pear\pear\PHP\CodeCoverage\Report\HTML\Node\File.php:169
+  147.7065  132468592  19. PHP_Token_Stream_CachingFactory::get() C:\pear\pear\PHP\CodeCoverage\Util.php:271
+  147.7065  132469288  20. PHP_Token_Stream->__construct() C:\pear\pear\PHP\Token\Stream\CachingFactory.php:69
+  147.7073  132470792  21. PHP_Token_Stream->scan() C:\pear\pear\PHP\Token\Stream.php:149
+

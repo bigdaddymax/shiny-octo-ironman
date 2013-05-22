@@ -3,6 +3,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
     <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+    <script src="js/scripts.js"></script>
     <link type="text/css" rel="stylesheet" href="http://supercapex.localhost/css/style.css" /> 
     <script>
         window.onload = function(){
@@ -45,33 +46,7 @@
     </script>    
 
 </head>
-<?php
-$session = new Zend_Session_Namespace('Auth');
-if (1 == $session->auth) {
-    echo '<a href="#" id="signoff-link">'.$this->translate('logout').'</a>';
-    $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
-    $navigationConfig = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
-    $container = new Zend_Navigation($navigationConfig);
-    $this->navigation($container);
-    $this->navigation()->setAcl($acl->acl);
-    $this->navigation()->setRole($session->login);
-} else {
-    echo '<a href="#" id="signin-link">'.$this->translate('login').'</a>';
-}
-
-// +++++++++++ FIX ME ++++++++++++++++++ FIX ME ++++++++++++++++++++++++ FIX ME
-if ('admin' == $session->role) {
-    $this->navigation()->menu()->setPartial('partials/navigation/adminmenu.phtml');
-    echo $this->navigation()->menu()->render();
-}
-if ($session->auth) {
-    $this->navigation()->menu()->setPartial('partials/navigation/mainmenu.phtml');
-    echo $this->navigation()->menu()->render();
-}
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-?>
-<hr>
-
+<!-- JQuery template for SIGNIN FORM -->
 <div id="signin">
     <form id="signin-form">
         <table>
@@ -91,6 +66,49 @@ if ($session->auth) {
     </form>
 </div>
 
-<?php
-echo $this->layout()->content;
-echo $this->partial('partials/todo.php');
+<!-- END OF SIGNIN FORM -->
+<div id="container">
+    <div id="header">
+        <div id="logo">
+            BBB
+        </div>
+        <div id="top_menu">
+            <?php
+            $session = new Zend_Session_Namespace('Auth');
+            if (1 == $session->auth) {
+                echo '<a href="#" id="signoff-link">' . $this->translate('logout') . '</a>';
+                $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
+                $navigationConfig = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
+                $container = new Zend_Navigation($navigationConfig);
+                $this->navigation($container);
+                $this->navigation()->setAcl($acl->acl);
+                $this->navigation()->setRole($session->login);
+            } else {
+                echo '<a href="#" id="signin-link">' . $this->translate('login') . '</a>';
+            }
+
+// +++++++++++ FIX ME ++++++++++++++++++ FIX ME ++++++++++++++++++++++++ FIX ME
+            if ('admin' == $session->role) {
+                $this->navigation()->menu()->setPartial('partials/navigation/adminmenu.phtml');
+                echo $this->navigation()->menu()->render();
+            }
+            if ($session->auth) {
+                $this->navigation()->menu()->setPartial('partials/navigation/mainmenu.phtml');
+                echo $this->navigation()->menu()->render();
+            }
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            ?>
+        </div>
+        <!--  Fixing float collapse  -->
+        <div style="clear: both;"></div>
+    </div>
+    <div id="main_content">
+        <?php
+        echo $this->layout()->content;
+        ?>
+    </div>
+
+    <div id="footer">
+
+    </div>
+</div>

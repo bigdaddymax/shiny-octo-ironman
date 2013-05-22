@@ -10,22 +10,20 @@ class Application_Model_Contragent {
     private $_valid = true;
     private $_contragentName;
     private $_contragentId;
-    private $_active = true;
+    private $_active = 1;
     private $_domainId;
 
     public function __construct(array $contragentArray = null) {
-        if (isset($contragentArray['contragentName'])) {
-            $this->_contragentName = $contragentArray['contragentName'];
+        if (is_array($contragentArray)) {
+            foreach ($contragentArray as $key => $item) {
+                if (strpos($key, 'Id')) {
+                    $this->{$key} = (int) $item;
+                } else {
+                    $this->{$key} = $item;
+                }
+            }
         }
-        if (isset($contragentArray['domainId'])) {
-            $this->domainId = (int) $contragentArray['domainId'];
-        }
-        if (isset($contragentArray['active'])) {
-            $this->_active = (bool) $contragentArray['active'];
-        }
-        if (isset($contragentArray['contragentId'])) {
-            $this->_contragentId = (int) $contragentArray['contragentId'];
-        }
+
         // Items are set from normal array
     }
 
