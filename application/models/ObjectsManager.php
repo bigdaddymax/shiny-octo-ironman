@@ -28,14 +28,40 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
      * @param object $objectId
      * @return object Particular initialized object
      */
-    public function getObject($objectName, $objectId) {
-        $this->setClassAndTableName($objectName);
-        switch ($this->tableName) {
-            case 'scenario': return $this->getScenario($objectId);
-                break;
-            case 'form':
-            default : return parent::_getObject($objectId);
+    public function getObject($objectName, $objectId, $userId = null) {
+        if (!$objectName) {
+            throw new InvalidArgumentException('Object name is not set.', 417);
         }
+        if (!$objectId) {
+            throw new InvalidArgumentException('Object ID is not set.', 417);
+        }
+        $this->setClassAndTableName($objectName);
+        $object = parent::_getObject($objectId);
+        switch ($this->objectName) {
+            case 'Scenario': $entries = $this->getAllObjects('scenarioEntry', array(0 => array('column' => 'scenarioId',
+                        'operand' => $object->scenarioId)));
+                $object->entries = $entries;
+                if (!$object->isValid()) {
+                    throw new Exception('Couldnt retrive valid scenario with ID = ' . $objectId, 500);
+                }
+                break;
+            case 'Form':
+                if (!$userId) {
+                    throw new InvalidArgumentException('UserId should be provided to access form data', 403);
+                }
+                $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
+                if (!$accessMapper->isAllowed('node', 'read', $object->nodeId) &&
+                        !$accessMapper->isAllowed('node', 'write', $object->nodeId) &&
+                        !$accessMapper->isAllowed('node', 'approve', $object->nodeId)
+                ) {
+                    // No read rights, throw exception
+                    throw new Exception('User has no read access to forms wiht nodeId=' . $object->nodeId, 403);
+                }
+                $entries = $this->getAllObjects('item', array(0 => array('column' => 'formId',
+                        'operand' => $object->formId)));
+                $object->items = $entries;
+        }
+        return $object;
     }
 
     /**
@@ -85,7 +111,6 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         if (!$object->{$this->objectIdName}) {
             $object->{$this->objectIdName} = $this->checkObjectExistance($object);
         }
-        // Cleaning columns before updating database
         // Form and Scenario are special case - they contain 
         // a property that is array of other simple objects.
         // So we have to treat these arrays separately later
@@ -102,139 +127,27 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         // Save objects that are included in main object
         if (isset($entries)) {
             $this->setClassAndTableName($entries[0]);
+            // Delete old included objects first
+            $old = $this->getAllObjects($this->objectName, array(0 => array('column' => $mainObjectIdName,
+                    'operand' => $mainObjectId)));
+            if (!empty($old)) {
+                foreach ($old as $item) {
+                    $this->deleteObject($this->objectName, $item->{$this->objectIdName});
+                }
+            }
             foreach ($entries as $entry) {
                 $entry->{$mainObjectIdName} = $mainObjectId;
+                $entry->{$this->objectIdName} = NULL;
                 parent::saveObject($entry);
             }
         }
         return $mainObjectId;
     }
 
-    /**
-     * 
-     * @param Application_Model_Form $form
-     * @param array() $form
-     * @param int $userId Optional parameter that allows to setup userId that will
-     *            be associated with the Form
-     * @return boolean false if not succesful
-     * @return int FormID if succesfull
-     */
-    public function saveForm($form, $userId) {
-        if (!($form instanceof Application_Model_Form)) {
-            throw new Exception("Form should be instance of Application_Model_Form", 500);
-        }
-        $formId = false;
-        $formData = array();
-        $this->domainId = $form->domainId;
-        $user = $this->getObject('user', $userId);
-        if ($user->domainId != $form->domainId) {
-            throw new Exception("User from domain $user->domainId tries to save form for domainId $form->domainId", 500);
-        }
-        // If input parameter is object we derive array from it.
-        // If input parameter is array we derive object from it.
-        if ($form instanceof Application_Model_Form) {
-            $formData = $form->toArray();
-        } elseif (is_array($form)) {
-            $formData = $form;
-            $form = new Application_Model_Form($formData);
-        } else {
-            throw new InvalidArgumentException('Argument should be array() or instance of Application_Model_Form');
-        }
-        // OK, we have preliminary Form object, lets check if this user has credentials 
-        // to create this form
-        $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
-        if (!$accessMapper->isAllowed('node', 'write', $form->nodeId)) {
-            //If user has no rights throw exception
-            throw new Exception('User has no write access to forms wiht nodeId=' . $form->nodeId);
-        }
-
-        if ($form->isValid()) {
-            // We have to handle Items saving separatly
-            if (!empty($formData['items'])) {
-                // Remove items data from Form array for storing in DB
-                // We process Items and Form separatelly 
-                $items = $formData['items'];
-                unset($formData['items']);
-                $form->items = NULL;
-            }
-            // Type casting before storing data to DB
-            if (isset($formData['active'])) {
-                $formData['active'] = (int) $formData['active'];
-            }
-            $formId = $this->checkObjectExistance($form);
-            if ($formId) {
-                // We will update form data. Dont forget, that we have to update (or add new) items as well.
-                unset($formData['formId']);
-                $this->dbLink->update('form', $formData, array('formId=?' => $formId));
-                $this->dbLink->delete('item', array('formId=?' => $formId));
-            } else {
-                // Creating new form
-                if (!isset($formData['date'])) {
-                    $formData['date'] = date('Y-m-d H:i:s');
-                }
-                $this->dbLink->insert('form', $formData);
-                $formId = (int) $this->dbLink->lastInsertId();
-            }
-            foreach ($items as $item) {
-                if (is_array($item)) {
-                    $item = new Application_Model_Item($item);
-                }
-                $item->formId = $formId;
-                $this->saveObject($item);
-            }
-        } else {
-            throw new InvalidArgumentException('Form data are not valid.');
-        }
-        return $formId;
-    }
-
-    /**
-     * getForm() - returns form searched by ID
-     * @param int $formId 
-     * @param int $userId Optional parameter that allows to setup userId that will
-     *            be associated with the Form
-     * @return Application_Model_Form
-     */
-    public function getForm($formId, $userId) {
-        $user = $this->getObject('User', $userId);
-        $formId = (int) $formId;
-        if (!$formId) {
-            throw new InvalidArgumentException('Incorrect FormIID');
-        }
-
-        // Lets get Form data from the database
-
-        $formArray = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM form WHERE formId=?', $formId));
-        if (!is_array($formArray)) {
-            throw new Exception('Form with ID ' . $formId . ' doesnt exist.');
-        }
-        // Create preliminary form object
-        $form = new Application_Model_Form($formArray);
-        // Lets check if user has credentials to read this Form
-        $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
-        if (!$accessMapper->isAllowed('node', 'read', $form->nodeId) &&
-                !$accessMapper->isAllowed('node', 'write', $form->nodeId) &&
-                !$accessMapper->isAllowed('node', 'approve', $form->nodeId)
-        ) {
-            // No read rights, throw exception
-            throw new Exception('User has no read access to forms wiht nodeId=' . $form->nodeId);
-        }
-        $itemsArray = $this->dbLink->fetchAll($this->dbLink->quoteinto('SELECT * FROM item WHERE formId=?', $formId));
-        $items = array();
-        foreach ($itemsArray as $itemArray) {
-            $items[] = new Application_Model_Item($itemArray);
-        }
-        $form->items = $items;
-        if ($form->isValid) {
-            return $form;
-        } else {
-            throw new Exception('Couldnt build Form instance of data retrived from database.');
-        }
-    }
 
     public function prepareFormForOutput($formId, $userId) {
         if (!empty($formId)) {
-            $form['form'] = $this->getForm($formId, $userId);
+            $form['form'] = $this->getObject('form', $formId, $userId);
             $form['owner'] = $this->getObject('User', $form['form']->userId);
             $form['node'] = $this->getObject('Node', $form['form']->nodeId);
             $form['contragent'] = $this->getObject('Contragent', $form['form']->contragentId);
@@ -277,11 +190,11 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         $id = $this->checkObjectExistance($privilege);
         if ($id) {
             // This privilege is already granted
-            return array('error'=>0, 'message'=>'This privilege is already granted', 'code'=>200);
+            return array('error' => 0, 'message' => 'This privilege is already granted', 'code' => 200);
         } else {
             // Save new privilege
             $id = $this->saveObject($privilege);
-            return array('error'=>0, 'message'=>'Privilege granted', 'recordId'=>$id, 'code'=>200);
+            return array('error' => 0, 'message' => 'Privilege granted', 'recordId' => $id, 'code' => 200);
         }
     }
 
@@ -290,10 +203,10 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         if ($id) {
             // This privilege is already granted
             $this->deleteObject('Privilege', $id);
-            return array('error'=>0, 'message'=>'Privilege revoked', 'code'=>200);
+            return array('error' => 0, 'message' => 'Privilege revoked', 'code' => 200);
         } else {
             // This privilege doesnt exist already
-            return array('error'=>0,  'mesage' =>'Was already deleted', 'code'=>200);
+            return array('error' => 0, 'mesage' => 'Was already deleted', 'code' => 200);
         }
     }
 
@@ -372,7 +285,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         $existingApprovals = $this->getAllObjects('ApprovalEntry', array(0 => array('column' => 'formId',
                 'operand' => $formId)));
         // Get this form
-        $form = $this->getForm($formId, $userId);
+        $form = $this->getObject('form', $formId, $userId);
         if (!$form->isValid()) {
             // The form is not valid, probably wrong formId. No sense to continue
             throw new Exception('Form ' . $formId . ' is not valid, cannot approve');
@@ -445,12 +358,12 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
      */
     public function approveForm($formId, $userId, $decision) {
         $entryId = false;
-        $form = $this->getForm($formId, $userId);
+        $form = $this->getObject('form', $formId, $userId);
         // Lets find what scenarios are assigned to this form (node)
         $assignments = $this->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $form->nodeId)));
         if ($assignments) {
             foreach ($assignments as $assignment) {
-                $scenarios[] = $this->getScenario($assignment->scenarioId);
+                $scenarios[] = $this->getObject('scenario', $assignment->scenarioId);
             }
         } else {
             // No scenarios found, we cannot process approvement for this form
@@ -484,7 +397,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
                 if ((count($existingApprovals) + 1) == $scenarios[0]->getUserOrder($userId)) {
                     $entryId = $this->saveObject($entry);
                 } else {
-                    throw new Exception('It is not user ' . $userId . ' turn to approve the form', 500);
+                    throw new Exception('It is not user ' . $userId . ' turn to approve the form', 403);
                 }
             } else {
                 // No others. Lets see if we are first in the line
@@ -492,17 +405,30 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
                     // Yes, we are.
                     $entryId = $this->saveObject($entry);
                 } else {
-                    throw new Exception('It is not user ' . $userId . ' turn to approve the form', 500);
+                    throw new Exception('It is not user ' . $userId . ' turn to approve the form', 403);
                 }
             }
         }
         return $entryId;
     }
 
+    
+    public function getFormOwner($formId){
+        if (!$formId){
+            throw new InvalidArgumentException('Form ID not provided.', 417);
+        }
+        return parent::getFormOwner($formId);
+    }
+    
+    /**
+     * 
+     * @param int $formId
+     * @return array of string Return array of email which should be notified about 
+     *                         last action with form
+     */
     public function getEmailingList($formId) {
-        $form = $this->getObject('form', $formId);
         $approvalList = array_reverse($this->getApprovalStatus($formId));
-        $owner = $this->getObject('user', $form->userId);
+        $owner = $this->getFormOwner($formId);
         $email['owner'] = $owner->login;
         foreach ($approvalList as $entry) {
             if ('decline' == $entry['decision']) {

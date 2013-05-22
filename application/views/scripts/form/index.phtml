@@ -13,5 +13,21 @@
 </script>
 <button id="add-form-btn">Add application</button>
 <?php
-echo $this->partial('partials/form/list.php', array('forms'=>$this->forms));
-
+if (is_array($this->forms)) {
+    echo '<div id="form-list">';
+    foreach ($this->forms as $form) {
+        $class = '';
+        if ($form->final){
+            if ('approve' == $form->decision){
+            $class = ' class="approved" ';
+            } else {
+                $class = ' class="declined" ';
+            }
+        }
+        if (!$form->public){
+            $class=' class="private"';
+        }
+        echo '<div id="forms-entry" ' .$class. ' onClick="openForm(\'form_'.$form->formId.'\')" >'.$form->formName.'</td><td>'.$form->formId.'</td><td>'.$form->date.'</td></tr>';
+    }
+    echo '</div>';
+}

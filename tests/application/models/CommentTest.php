@@ -9,17 +9,6 @@ require_once TESTS_PATH . '/application/TestCase.php';
 
 class CommentTest extends TestCase {
 
-    public function testCommentGetterSetter() {
-        $comment = new Application_Model_Comment();
-        $comment->text = 'test test test test';
-        $this->expectOutputString('Cant set value. Property commentStatus doesnt exist');
-        $comment->commentStatus = 'status';
-        ob_clean();
-        $test = $comment->commentState;
-        $this->assertEquals('Cannot get value. Property commentState doesnt exist', $test);
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $comment->valid = 1;
-    }
 
     /**
      * @expectedException PHPUnit_Framework_Error

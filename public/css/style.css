@@ -2,8 +2,9 @@
 /* GENERAL SETTINGS */
 /********************/
 body {
-/*    background-color: #AAAAAA;*/
+    /*    background-color: #AAAAAA;*/
     font-size: 16px;
+
 }
 
 #menu {
@@ -21,7 +22,7 @@ body {
 /* EXPANDABLE LIST  */
 /********************/
 #listContainer{
-  margin-top:15px;
+    margin-top:15px;
 }
 
 #expList ul, li {
@@ -37,7 +38,7 @@ body {
 #expList p:hover {
     background-color:#121212;
 }
- li {
+li {
     line-height:140%;
     text-indent:0px;
     background-position: 1px 8px;
@@ -59,7 +60,7 @@ li {
 }
 
 .listControl{
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 .listControl a {
     border: 1px solid #555555;
@@ -85,5 +86,208 @@ tr.declined td{
 }
 
 tr.private td{
-   background-color: grey;
+    background-color: grey;
+}
+
+/*
+    Nice input fields decoration
+*/
+
+.input {
+    display: block;
+    border-radius: 5px;
+}
+.input span {
+    position: absolute;
+    padding: 5px;
+    margin-left: 3px;
+    color: #999;
+    z-index: 1;
+    cursor: text;
+    pointer-events: none;
+}
+.input input, .input textarea, .input select {
+    z-index: 0;
+    padding: 6px;
+    margin: 0;
+    font: inherit;
+}
+/* Hack to remove Safari's extra padding. Remove if you don't care about pixel-perfection. */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .input input, .input textarea, .input select { padding: 4px; }
+}
+
+/*
+    Form output decoration
+*/
+
+#form-data {
+    overflow: hidden;
+    border-right-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-top-style: solid;
+    border-right-width: 1px;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    border-right-color: navy;
+    border-left-color: navy;
+    border-bottom-color: navy;
+    border-top-color: navy;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding-right: 5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    position: relative;
+    width: 25%;
+    left: 10px;
+}
+
+#form-header {
+
+    font-family: Arial,Helvetica,sans-serif;
+    font-style: oblique;
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 18px;
+    text-align: center;
+    position: relative;
+}
+
+#form-details {
+
+    border-right-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-top-style: solid;
+    border-right-width: 1px;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    text-indent: 1px;
+}
+
+#items {
+
+    position: relative;
+}
+
+#item-name {
+    position: relative;
+    float: left;
+    clear: left;
+    width: 50%;
+    padding-left: 10px;
+}
+
+#item-value {
+    float: left;
+    position: relative;
+    text-align: right;
+    width: 15%;
+    padding-left: 10px;
+}
+
+#item-element {
+    float: left;
+    position: relative;
+    padding-left: 10px;
+}
+
+#items-total {
+    float: left;
+    width: 50%;
+    font-style: normal;
+    font-weight: bold;
+    float: left;
+    left: 0px;
+    padding-left: 10px;
+}
+
+#items-total-amount{
+    font-style: normal;
+    font-weight: bold;
+    width: 15%;
+    float: left;
+    text-align: right;
+    padding-left: 10px;
+}
+
+/*
+    Main page decoration
+*/
+
+#container {
+    width: 72%;
+    overflow: hidden
+}
+
+#header {
+
+    border-bottom-style: solid;
+    border-bottom-width: 4px;
+    border-bottom-color: #cc0000;
+    width: 100%;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+
+#logo {
+    float: left;
+    width: 50px;
+}
+
+#top_menu {
+    float: right;
+    width: 40%;
+    text-align: right;
+    padding-left: 10px;
+    padding-right: 30px;
+    vertical-align: middle;
+}
+
+#registration-form {
+    float: right;
+    width: 230px;
+    background-color: #ff6666;
+    text-align: center;
+    margin-right: 60px;
+}
+
+#registration-form label {
+    display: block;
+    margin-top: 20px;
+    margin-left: auto;
+}
+
+#registration-form input {
+    border-radius: 5px;
+    height: 2em;
+    border:none;
+    width: 200px;
+}
+
+#registration-form h1 {
+
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+}
+
+#registration-form button {
+    display: block;
+    margin: 20px auto;
+    border-radius: 5px;
+    border:none;
+    width: 200px;
+    height: 2em;
+    background-color: #cc0033;
+    color: #ffffff;
 }

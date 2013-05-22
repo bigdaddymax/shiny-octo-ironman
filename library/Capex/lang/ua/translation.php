@@ -15,6 +15,8 @@ return array(
     'approve'   =>'Погодити',
     'decline'   =>'Відмовити',
     'total'     =>'Загальна сума',
-    'form name' =>'Назва форми'
+    'form name' =>'Назва форми',
+    'password'  =>'Пароль',
+    'company name'  =>'Назва компанії'
 );
 

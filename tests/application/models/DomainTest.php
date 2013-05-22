@@ -11,21 +11,7 @@ require_once APPLICATION_PATH . '/models/Domain.php';
 
 class DomainTest extends TestCase {
     
-    public function testDomainGetterSetter()
-    {
-        $domain = new Application_Model_Domain();
-        $domain->domainName = 'dName';
-        $this->expectOutputString('Cant set value. Property domainStatus doesnt exist');
-        $domain->domainStatus = 'status';
-        ob_clean();
-//        $domain->state = 'state';
-//        $domain->valid1 =4;
-        $test = $domain->domainState;
-        $this->assertEquals('Cannot get value. Property domainState doesnt exist', $test);
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $domain->valid = 1;
-    }
-    
+     
     /**
      * @expectedException PHPUnit_Framework_Error
      */

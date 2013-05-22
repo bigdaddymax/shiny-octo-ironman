@@ -11,20 +11,6 @@ require_once APPLICATION_PATH . '/models/Element.php';
 
 class ElementTest extends TestCase {
     
-    public function testElementGetterSetter()
-    {
-        $element = new Application_Model_Element();
-        $element->elementName = 'eName';
-        $this->expectOutputString('Cant set value. Property elementStatus doesnt exist');
-        $element->elementStatus = 'status';
-        ob_clean();
-//        $element->state = 'state';
-//        $element->valid1 =4;
-        $test = $element->elementState;
-        $this->assertEquals('Cannot get value. Property elementState doesnt exist', $test);
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $element->valid = 1;
-    }
     
     /**
      * @expectedException PHPUnit_Framework_Error

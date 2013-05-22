@@ -12,14 +12,14 @@ class Application_Model_Form {
     private $_formId;
     private $_userId;
     private $_projectId;
-    private $_active = true;
+    private $_active = 1;
     private $_domainId;
     private $_date;
     private $_items;
     private $_nodeId;
     private $_final;
     private $_decision;
-    private $_public = false;
+    private $_public = 0;
     private $_contragentId;
 
     public function __construct(array $formArray = null) {
@@ -30,10 +30,10 @@ class Application_Model_Form {
             $this->domainId = (int) $formArray['domainId'];
         }
         if (isset($formArray['active'])) {
-            $this->_active = (bool) $formArray['active'];
+            $this->_active = (int) $formArray['active'];
         }
         if (isset($formArray['public'])) {
-            $this->_public = (bool) $formArray['public'];
+            $this->_public = (int) $formArray['public'];
         }
         if (isset($formArray['userId'])) {
             $this->_userId = (int) $formArray['userId'];
@@ -132,7 +132,7 @@ class Application_Model_Form {
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
             if ('active' == $name || 'public' == $name) {
-                $this->$name1 = (bool) $value;
+                $this->$name1 = (int) $value;
             } else {
                 $this->$name1 = $value;
             }
@@ -174,7 +174,7 @@ class Application_Model_Form {
     public function toArray() {
         $output = array();
         foreach ($this as $key => $value) {
-            if (('_valid' != $key) && ('_decsion' != $key) && ('_final' != $key)) {
+            if (('_valid' != $key) && ('_decision' != $key) && ('_final' != $key)) {
                 if (isset($value)) {
                     if ('_active' == $key || '_public' == $key) {
                         $output[str_replace('_', '', $key)] = (int) $value;
