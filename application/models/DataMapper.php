@@ -420,35 +420,6 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         return $result;
     }
 
-    /**
-     * Return array of objects if there are any, false otherwise
-     * @todo FILTER Functionality Use filter to limit forms in selection
-     * @param type $filter
-     */
-    public function getAllForms($filter = null) {
-        $formArray = $this->dbLink->fetchAll('SELECT * FROM form ' . $this->prepareFilter($filter));
-        if (!empty($formArray) && is_array($formArray)) {
-            foreach ($formArray as $form) {
-                $form['items'] = $this->getAllObjects('Item', array(0 => array('column' => 'formId',
-                        'operand' => $form['formId'])));
-                $f = new Application_Model_Form($form);
-                $decisions = $this->getApprovalStatus($form['formId']);
-                if (!empty($decisions)) {
-                    $f->final = (null === $decisions[0]['decision']) ? false : true;
-                    $dec = array_reverse($decisions);
-                    foreach ($dec as $decision) {
-                        if (!empty($decision['decision'])) {
-                            $f->decision = $decision['decision'];
-                        }
-                    }
-                }
-                $forms[] = $f;
-            }
-            return $forms;
-        } else {
-            return false;
-        }
-    }
 
     protected function getFormOwner($formId) {
         $userId = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT userId FROM form WHERE formId = ?', $formId));

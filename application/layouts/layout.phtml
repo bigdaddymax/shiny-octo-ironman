@@ -3,7 +3,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
     <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
-    <script src="js/scripts.js"></script>
+    <script src="<?php echo $this->BaseURL('js/scripts.js'); ?>"></script>
     <link type="text/css" rel="stylesheet" href="http://supercapex.localhost/css/style.css" /> 
     <script>
         window.onload = function(){
@@ -70,7 +70,7 @@
 <div id="container">
     <div id="header">
         <div id="logo">
-            BBB
+            <img src="<?php echo $this->BaseURL('img/CapexOpex1.jpg'); ?>">
         </div>
         <div id="top_menu">
             <?php

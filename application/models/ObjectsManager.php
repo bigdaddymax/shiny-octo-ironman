@@ -75,7 +75,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         switch ($objectName) {
             case 'scenario': return parent::getAllScenarios($filter);
                 break;
-            case 'form': return parent::getAllForms($filter);
+            case 'form': return $this->getAllForms($filter);
                 break;
             default : return parent::getAllObjects($objectName, $filter);
         }
@@ -144,6 +144,48 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         return $mainObjectId;
     }
 
+    
+    /**
+     * Return array of objects if there are any, false otherwise
+     * @todo FILTER Functionality Use filter to limit forms in selection
+     * @param type $filter
+     */
+    public function getAllForms($filter = null) {
+        $formArray = $this->dbLink->fetchAll('SELECT * FROM form ' . $this->prepareFilter($filter));
+        if (!empty($formArray) && is_array($formArray)) {
+            foreach ($formArray as $form) {
+                $form['items'] = $this->getAllObjects('Item', array(0 => array('column' => 'formId',
+                        'operand' => $form['formId'])));
+                $f = new Application_Model_Form($form);
+                $decisions = $this->getApprovalStatus($form['formId']);
+                if (!empty($decisions)) {
+                    $f->final = (null === $decisions[0]['decision']) ? false : true;
+                    $dec = array_reverse($decisions);
+                    foreach ($dec as $decision) {
+                        if (!empty($decision['decision'])) {
+                            $f->decision = $decision['decision'];
+                        }
+                    }
+                }
+                $forms[$f->formId]['form'] = $f;
+                $forms[$f->formId]['owner'] = $this->getFormOwner($f->formId);
+                $forms[$f->formId]['contragent'] = $this->getObject('contragent', $f->contragentId);
+                $forms[$f->formId]['node'] = $this->getObject('node', $f->nodeId);
+                if (-1 <> $forms[$f->formId]['node']->parentNodeId) {
+                    $forms[$f->formId]['parentNode'] = $this->getObject('node', $forms[$f->formId]['node']->parentNodeId);
+                }
+                $forms[$f->formId]['total'] = 0;
+                foreach ($f->items as $item){
+                    $forms[$f->formId]['total'] += $item->value;
+                }
+            }
+            return $forms;
+        } else {
+            return false;
+        }
+    }
+    
+    
 
     public function prepareFormForOutput($formId, $userId) {
         if (!empty($formId)) {
