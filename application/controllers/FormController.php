@@ -93,7 +93,8 @@ class FormController extends Zend_Controller_Action {
             $this->view->form = $objectManager->prepareFormForOutput((int) $this->getRequest()->getParam('formId'), $this->session->userId);
             $this->view->approved = $objectManager->getApprovalStatus((int) $this->getRequest()->getParam('formId'));
             $this->view->showApproval = $objectManager->isApprovalAllowed((int) $this->getRequest()->getParam('formId'), $this->session->userId);
-
+            $this->_helper->layout()->disableLayout();
+//            $this->_helper->viewRenderer->setNoRender(true);
 //            $this->_helper->json(array('form'=>$this->view->form,
 //                                       'approved'=>$this->view->approved,
 //                                       'showApproval'=>$this->view->showApproval));

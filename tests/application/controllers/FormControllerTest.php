@@ -215,8 +215,9 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $objectManager = new Application_Model_ObjectsManager(1);
         $forms = $objectManager->getAllForms();
         $this->assertEquals(count($forms), 1);
-        $form = $objectManager->getObject('form', $forms[0]->formId, $session->userId);
-        $this->assertEquals($form->formName, $forms[0]->formName);
+        $form1 = current($forms);
+        $form = $objectManager->getObject('form', $form1['form']->formId, $session->userId);
+        $this->assertEquals($form->formName, $form1['form']->formName);
         $this->assertEquals($form->formName, 'fName1');
         $items = $form->items;
         $this->assertTrue(is_array($items));
@@ -277,8 +278,9 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $forms = $objectManager->getAllForms();
 //        $this->assertEquals('rr', $response->outputBody());
 //        $this->assertEquals('tt', $forms);
-        $form = $objectManager->getObject('form', $forms[0]->formId, $this->userId1);
-        $this->assertEquals($form->formName, $forms[0]->formName);
+        $form2 = current($forms);
+        $form = $objectManager->getObject('form', $form2['form']->formId, $this->userId1);
+        $this->assertEquals($form->formName, $form2['form']->formName);
         $this->assertEquals($form->formName, 'test');
     }
 
@@ -364,8 +366,9 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertEquals($form1->items, array(0 => $item2, 1 => $item1));
         $objectManager = new Application_Model_ObjectsManager(1);
         $forms = $objectManager->getAllForms();
-        $form = $objectManager->getObject('form', $forms[0]->formId, $this->userId1);
-        $this->assertEquals($form->formName, $forms[0]->formName);
+        $form3 = current($forms);
+        $form = $objectManager->getObject('form', $form3['form']->formId, $this->userId1);
+        $this->assertEquals($form->formName, $form3['form']->formName);
         $this->assertEquals($form->formName, 'test');
     }
 
@@ -439,7 +442,8 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
 
         $forms = $this->objectManager->getAllObjects('form');
-        $formId = $forms[0]->formId;
+        $form4 = current($forms);
+        $formId = $form4['form']->formId;
         $params = array('action' => 'open-form', 'controller' => 'form', 'formId' => $formId);
         $urlParams = $this->urlizeOptions($params);
         $url = $this->url($urlParams);
@@ -475,7 +479,8 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
 
         $forms = $this->objectManager->getAllObjects('form');
-        $formId = $forms[0]->formId;
+        $form5 = current($forms);
+        $formId = $form5['form']->formId;
         $params = array('action' => 'edit-form', 'controller' => 'form', 'formId' => $formId);
         $urlParams = $this->urlizeOptions($params);
         $url = $this->url($urlParams);
@@ -511,7 +516,8 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
 
         $forms = $this->objectManager->getAllObjects('form');
-        $formId = $forms[0]->formId;
+        $form6 = current($forms);
+        $formId = $form6['form']->formId;
 
         $commentArray = array('formId' => $formId, 'comment' => 'bla bla bla bla', 'parentCommentId' => -1, 'userId' => $this->userId, 'active' => 1, 'domainId' => 1);
         $params = array('controller' => 'form', 'action' => 'add-comment');
@@ -553,7 +559,9 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
         // Get created form ID
         $forms = $this->objectManager->getAllObjects('form');
-        $formId = $forms[0]->formId;
+        $form7 = current($forms);
+        
+        $formId = $form7['form']->formId;
 
         // Check preview form action
         $params = array('controller' => 'form', 'action' => 'preview-form', 'formId' => $formId);

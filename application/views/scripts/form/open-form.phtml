@@ -34,11 +34,12 @@
 <div id="form-data">
     <div id="form-header">
         <?php
-        echo $this->form['form']->formName;
+        echo $this->translate('invoice detail') . ' #' . $this->form['form']->formId . PHP_EOL;
         ?>
     </div>
     <div id="form-approvals">
         <?php
+        echo $this->translate('approval status');
         if (isset($this->approved)) {
             foreach ($this->approved as $approver) {
                 echo '<tr><td>' . $approver['userName'] . '</td><td>' . $approver['decision'] . '</td></tr>';
@@ -50,11 +51,13 @@
 
     <div id="form-details">
         <?php
-        echo '<div id = "form-date">' . $this->form['form']->date . '</div>';
+        echo '<div id="form-name">' . $this->form['form']->formName . '</div>' . PHP_EOL;
+
         if (!empty($this->form['parentNode']->nodeName))
-            echo '<div id = "form-node">' . $this->form['parentNode']->nodeName .'</div>';
-        echo '<div id = "form-node">' . $this->form['node']->nodeName . '</div>';
-        echo '<div id = "form-user">' . $this->form['owner']->userName . '</div>';
+            echo '<div id = "form-node">' . $this->translate('company') . ': <b>' . $this->form['parentNode']->nodeName . '</b></div>';
+        echo '<div id = "form-node">' . $this->translate('deptmnt') . ': <b>' . $this->form['node']->nodeName . '</b></div>';
+        echo '<div id = "form-user">' . $this->translate('owner') . ': <b>' . $this->form['owner']->userName . '</b></div>';
+        echo '<div id = "form-date">' . $this->translate('date') . ': <b>' . $this->form['form']->date . '</b></div>';
         ?>
 
     </div>
@@ -64,11 +67,15 @@
     <div id="items">
         <?php
         foreach ($this->form['items'] as $item) {
-            echo '<div id="item-name">' . $item->itemName . '</div><div id="item-value">' . sprintf("%01.2f", $item->value) . '</div><div id = "item-element">' . $item->element->elementName . ' </div>' . PHP_EOL;
+            echo '<div id="item-name">' . $item->itemName . '</div><div id="item-value">' . sprintf("%01.2f", $item->value) . '</div>' . PHP_EOL;
         }
         ?>
         <?php echo '<div id="items-total">' . $this->translate('total') . '</div>'; ?>
-        <?php echo '<div id="items-total-amount">' . sprintf("%01.2f", $this->form['total']) . '</div>'; ?>   </div>
+        <?php echo '<div id="items-total-amount">' . sprintf("%01.2f", $this->form['total']) . '</div>'; ?>
+        <!--  Fixing float collapse  -->
+        <div style="clear: both;"></div>
+
+    </div>
     <div id="attachments">
 
 
@@ -91,38 +98,3 @@
     </div>
 
 </div>
-
-<table>
-    <?php
-    if (isset($this->approved)) {
-        foreach ($this->approved as $approver) {
-            echo '<tr><td>' . $approver['userName'] . '</td><td>' . $approver['decision'] . '</td></tr>';
-        }
-    }
-    ?>
-</table>
-<table>
-    <tr><td><?php echo $this->form['form']->formName; ?></td></tr>
-    <tr><td><?php echo $this->form['form']->date; ?></td></tr>
-    <tr><td><?php if (!empty($this->form['parentNode']->nodeName)) echo $this->form['parentNode']->nodeName; ?></td></tr>
-    <tr><td><?php echo $this->form['node']->nodeName; ?></td></tr>
-    <tr><td><?php echo $this->form['owner']->userName; ?></td></tr>
-</table>
-<table>
-    <?php
-    foreach ($this->form['items'] as $item) {
-        echo '<tr><td>' . $item->itemName . '</td><td>' . sprintf("%01.2f", $item->value) . '</td><td>' . $item->element->elementName . ' </td></tr>' . PHP_EOL;
-    }
-    ?>
-    <tr><td><?php echo $this->translate('total'); ?></td><td><?php echo sprintf("%01.2f", $this->form['total']); ?></td><td></td></tr>
-</table>
-<?php
-if ($this->showApproval && $this->form['form']->public) {
-    echo '<button id="approve" name="approve">' . $this->translate('approve') . '</button>';
-    echo '<button id="decline" name="decline">' . $this->translate('decline') . '</button>';
-}
-
-if (!$this->form['form']->public) {
-    echo '<button id="publish">' . $this->translate('publish') . '</button>';
-    echo '<button id="edit">' . $this->translate('edit form') . '</button>';
-}

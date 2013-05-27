@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>D:/Program Files</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!--[if IE]><script src="excanvas.compressed.js"></script><![endif]-->
+    <script src="RGraph.common.js" ></script>
+    <script src="RGraph.bar.js" ></script>
+    <script src="RGraph.scatter.js" ></script>
+  </head>
+
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr><td class="title">D:/Program Files</td></tr>
+      <tr><td><div align="center"><p><a href="D__Program_Files.html">Back to Code Coverage report</a></p></div></td></tr>
+      <tr><td class="ruler"><img src="glass.png" width="3" height="3" alt=""></td></tr>
+    </table>
+
+    <br />
+
+    <center>
+      <table width="90%" cellpadding="2" cellspacing="1" border="0">
+        <tr>
+          <td valign="top">
+            <h2>Class Coverage Distribution</h2>
+            <canvas id="classCoverageDistribution" width="475" height="200"></canvas>
+            <script>
+            var ccd = new RGraph.Bar('classCoverageDistribution', [0,0,0,0,0,0,2,3,3,3,7,12]);
+            ccd.Set('chart.background.barcolor1', 'white');
+            ccd.Set('chart.background.barcolor2', 'white');
+            ccd.Set('chart.colors', ['blue']);
+            ccd.Set('chart.shadow', true);
+            ccd.Set('chart.shadow.offsetx', 3);
+            ccd.Set('chart.shadow.offsety', 3);
+            ccd.Set('chart.labels', ['0%','0-10%','10-20%','20-30%','30-40%','40-50%','50-60%','60-70%','70-80%','80-90%','90-100%','100%']);
+            ccd.Set('chart.text.size', 5);
+            ccd.Draw();
+            </script>
+          </td>
+
+          <td valign="top">
+            <h2>Class Complexity</h2>
+            <canvas id="classComplexity" width="475" height="200"></canvas>
+            <script>
+            var cc = new RGraph.Scatter('classComplexity', [[100,3,"blue","Bootstrap"],[100,7,"blue","AuthController"],[66.666666666667,10,"blue","ErrorController"],[100,20,"blue","FormController"],[50.877192982456,12,"blue","IndexController"],[70.175438596491,26,"blue","ObjectsController"],[56.25,7,"blue","ScenarioController"],[71.844660194175,28,"blue","Application_Model_AccessMapper"],[89.473684210526,18,"blue","Application_Model_ApprovalEntry"],[83.333333333333,7,"blue","Application_Model_Auth"],[100,1,"blue","BaseDBAbstract"],[100,21,"blue","Application_Model_Comment"],[97.777777777778,23,"blue","Application_Model_Contragent"],[89.099526066351,71,"blue","Application_Model_DataMapper"],[100,16,"blue","Application_Model_Domain"],[100,20,"blue","Application_Model_Element"],[99.099099099099,52,"blue","Application_Model_Form"],[100,22,"blue","Application_Model_Item"],[100,16,"blue","Application_Model_Node"],[77.935943060498,93,"blue","Application_Model_ObjectsManager"],[100,19,"blue","Application_Model_Position"],[100,23,"blue","Application_Model_Privilege"],[90,17,"blue","Application_Model_Resource"],[96.629213483146,39,"blue","Application_Model_Scenario"],[91.304347826087,21,"blue","Application_Model_ScenarioAssignment"],[93.617021276596,20,"blue","Application_Model_ScenarioEntry"],[100,22,"blue","Application_Model_User"],[91.666666666667,21,"blue","Application_Model_UserGroup"],[61.71875,43,"blue","Capex_PasswordHash"],[69.230769230769,14,"blue","Capex_Plugins_AuthPlugin"]]);
+            cc.Set('chart.xmax', 100);
+            cc.Set('chart.background.barcolor1', 'white');
+            cc.Set('chart.background.barcolor2', 'white');
+            cc.Set('chart.tickmarks', 'plus');
+            cc.Set('chart.ticksize', 5);
+            cc.Set('chart.text.size', 5);
+            cc.Set('chart.ylabels', false);
+            cc.Draw();
+            </script>
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">
+            <h2>Top Project Risks</h2>
+            <ul>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_Contragent.php.html#8">Application_Model_Contragent</a> (23)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_ScenarioAssignment.php.html#14">Application_Model_ScenarioAssignment</a> (21)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_UserGroup.php.html#8">Application_Model_UserGroup</a> (21)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_ScenarioEntry.php.html#10">Application_Model_ScenarioEntry</a> (20)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_library_Capex_Plugins_AuthPlugin.php.html#3">Capex_Plugins_AuthPlugin</a> (19)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_ApprovalEntry.php.html#3">Application_Model_ApprovalEntry</a> (18)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_Resource.php.html#11">Application_Model_Resource</a> (17)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ErrorController.php.html#3">ErrorController</a> (13)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#11">ScenarioController</a> (11)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_Auth.php.html#9">Application_Model_Auth</a> (7)</li>
+
+            </ul>
+          </td>
+
+          <td valign="top">
+            <h2>Least Tested Methods</h2>
+            <ul>
+              <li><a href="D:_Program Files_Zend_supercapex_library_Capex_PasswordHash.php.html#149">Capex_PasswordHash::gensalt_extended</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#29">ScenarioController::indexAction</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#56">ScenarioController::openScenarioAction</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_ObjectsManager.php.html#243">Application_Model_ObjectsManager::revokePrivilege</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_AccessMapper.php.html#165">Application_Model_AccessMapper::getAllowedObjectIds1</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_ObjectsManager.php.html#262">Application_Model_ObjectsManager::getPrivilegesTable</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_ObjectsManager.php.html#231">Application_Model_ObjectsManager::grantPrivilege</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#122">ObjectsController::editPrivilegesAction</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_library_Capex_PasswordHash.php.html#167">Capex_PasswordHash::gensalt_blowfish</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_ObjectsManager.php.html#211">Application_Model_ObjectsManager::ChangeUserPassword</a> (0%)</li>
+
+            </ul>
+          </td>
+        </tr>
+      </table>
+    </center>
+
+    <br />
+
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr><td class="ruler"><img src="glass.png" width="3" height="3" alt=""></td></tr>
+      <tr><td class="versionInfo">Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 1.0.2</a> using <a href="http://www.php.net/" target="_top">PHP 5.3.18</a> and PHPUnit 3.5.15 at Fri May 24 20:13:23 BST 2013.</td></tr>
+    </table>
+
+    <br/>
+  </body>
+</html>

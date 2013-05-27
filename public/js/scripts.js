@@ -79,13 +79,22 @@ $(function(){
 
     // set things up as soon as the DOM is ready
     $(function() {
-        $('input').each(function() { toggleLabel.call(this); });
+        $('input').each(function() { 
+                toggleLabel.call(this);
+       });
     });
 
     // do it again to detect Chrome autofill
     $(window).load(function() {
         setTimeout(function() {
-            $('input').each(function() { toggleLabel.call(this); });
+            $('input').each(function() {
+                     toggleLabel.call(this);
+            });
+            $('select').each(function(){
+                if ($(this).val()){
+                    $(this).prev('span').css('visibility', 'hidden');
+                }
+            });
         }, 0);
     });
 });

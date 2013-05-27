@@ -17,6 +17,13 @@ return array(
     'total'     =>'Загальна сума',
     'form name' =>'Назва форми',
     'password'  =>'Пароль',
-    'company name'  =>'Назва компанії'
+    'company name'  =>'Назва компанії',
+    'owner'     =>'Автор',
+    'deptmnt'   =>'Підрозділ',
+    'company'   =>'Компанія',
+    'date'      =>'Дата',
+    'approval status'   => 'Статус погодження',
+    'invoice detail'    => 'Деталі рахунку',
+    'scenario'  => 'Сценарій'
 );
 
