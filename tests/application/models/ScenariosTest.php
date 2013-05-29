@@ -50,19 +50,6 @@ class ScenarioTest extends TestCase {
         parent::tearDown();
     }
 
-    public function testScenarioGetterSetter() {
-        $scenario = new Application_Model_Scenario();
-        $scenario->scenarioName = 'eName';
-        $this->expectOutputString('Cant set value. Property scenarioStatus doesnt exist');
-        $scenario->scenarioStatus = 'status';
-        ob_clean();
-//        $scenario->state = 'state';
-//        $scenario->valid1 =4;
-        $test = $scenario->scenarioState;
-        $this->assertEquals('Cannot get value. Property scenarioState doesnt exist', $test);
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $scenario->valid = 1;
-    }
 
     /**
      * @expectedException PHPUnit_Framework_Error
@@ -168,6 +155,8 @@ class ScenarioTest extends TestCase {
         $scenario = new Application_Model_Scenario($scenarioArray);
         $scenario->scenarioId = $scenarioId;
         $entries = $scenario->entries;
+        $this->assertTrue(is_array($entries));
+        $this->assertTrue($scenarioGot->isValid());
         $entries[0]->scenarioEntryId = $scenarioGot->entries[0]->scenarioEntryId;
         $scenario->entries = $entries;
         $this->assertEquals($scenario, $scenarioGot);
