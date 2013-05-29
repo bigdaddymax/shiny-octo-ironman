@@ -184,6 +184,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertEquals($scenario->scenarioName, $scenarios[0]->scenarioName);
         $this->assertEquals($scenario->scenarioName, 'eName1');
         $entries = $scenario->entries;
+        $this->assertTrue(is_array($entries));
         $entryArray3 = $entries[0]->toArray();
         unset($entryArray3['scenarioEntryId']);
         unset($entryArray3['scenarioId']);

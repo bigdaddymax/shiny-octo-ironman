@@ -31,22 +31,6 @@ class UserTest extends TestCase {
  * 
  * @group user
  */    
-    public function testUserGetterAndSetter()
-    {
-        $userArray = array('parentLevelId' => 3);
-        $user = new Application_Model_User($userArray);
-        $user->userName = 'oName';
-        $this->assertEquals('oName', $user->userName);
-        
-        $this->expectOutputString('Cannot set value. Property ttt doesnt exist');
-        $user->ttt = 'Test';
-        
-        $ttt = $user->ttt;
-        $this->assertEquals('Cannot get value. Property ttt doesnt exist', $ttt);
-        ob_clean();
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $user->valid = 2;
-    }
     
     
 /**

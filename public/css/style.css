@@ -2,8 +2,10 @@
 /* GENERAL SETTINGS */
 /********************/
 body {
-/*    background-color: #AAAAAA;*/
+    /*    background-color: #AAAAAA;*/
     font-size: 16px;
+
+    font-family: Arial,Helvetica,sans-serif;
 }
 
 #menu {
@@ -21,7 +23,7 @@ body {
 /* EXPANDABLE LIST  */
 /********************/
 #listContainer{
-  margin-top:15px;
+    margin-top:15px;
 }
 
 #expList ul, li {
@@ -37,7 +39,7 @@ body {
 #expList p:hover {
     background-color:#121212;
 }
- li {
+li {
     line-height:140%;
     text-indent:0px;
     background-position: 1px 8px;
@@ -59,7 +61,7 @@ li {
 }
 
 .listControl{
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 .listControl a {
     border: 1px solid #555555;
@@ -85,5 +87,386 @@ tr.declined td{
 }
 
 tr.private td{
-   background-color: grey;
+    background-color: grey;
+}
+
+/*
+    Nice input fields decoration
+*/
+
+.input {
+    display: block;
+    border-radius: 5px;
+}
+.input span {
+    position: absolute;
+    padding: 5px;
+    margin-left: 3px;
+    color: #999;
+    z-index: 1;
+    cursor: text;
+    pointer-events: none;
+}
+.input input, .input textarea, .input select {
+    z-index: 0;
+    padding: 6px;
+    margin: 0;
+    font: inherit;
+
+    width: 200px;
+}
+/* Hack to remove Safari's extra padding. Remove if you don't care about pixel-perfection. */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .input input, .input textarea, .input select { padding: 4px; }
+}
+
+/*
+    Invoice form output decoration
+*/
+
+#form-data {
+    overflow: hidden;
+    border-right-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-top-style: solid;
+    border-right-width: 1px;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    border-right-color: #999999;
+    border-left-color: #999999;
+    border-bottom-color: #999999;
+    border-top-color: #999999;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding-right: 5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    position: relative;
+    width: 37%;
+    left: 10px;
+}
+
+#form-header {
+
+    font-family: Arial,Helvetica,sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 18px;
+    text-align: center;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+#form-name {
+
+    font-weight: bold;
+    position: relative;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#form-approvals {
+    text-align: center;
+    border-right-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-top-style: solid;
+    border-right-color: #cccccc;
+    border-left-color: #cccccc;
+    border-bottom-color: #cccccc;
+    border-top-color: #cccccc;
+    border-right-width: 1px;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+}
+
+#form-details {
+    margin-bottom: 10px;
+}
+
+#form-node {
+
+    margin-top: 10px;
+}
+
+#form-user {
+    display: inline-block;
+    margin-top: 10px;
+}
+
+#form-date {
+    display: inline-block;
+
+    left: 20px;
+    position: relative;
+    margin-top: 10px;
+}
+
+#items {
+    position: relative;
+    vertical-align: middle;
+    width: 90%;
+    left: 5%;
+}
+
+#item-name {
+    position: relative;
+    display: inline-block;
+    clear: left;
+    width: 60%;
+    padding-left: 5%;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #cccccc;
+    margin-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+#item-value {
+    display: inline-block;
+    position: relative;
+    text-align: right;
+    width: 20%;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #cccccc;
+    margin-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-right: 10%;
+}
+
+#items-total {
+    float: left;
+    width: 50%;
+    font-style: normal;
+    font-weight: bold;
+    float: left;
+    left: 0px;
+    padding-left: 10px;
+    margin-top: 1em;
+}
+
+#items-total-amount{
+    font-style: normal;
+    font-weight: bold;
+    width: 15%;
+    float: left;
+    text-align: right;
+    padding-left: 10px;
+    margin-top: 1em;
+}
+
+/*
+    Main page decoration
+*/
+
+#container {
+    width: 72%;
+    overflow: hidden
+}
+
+#header {
+    position: relative;
+    border-bottom-style: solid;
+    border-bottom-width: 4px;
+    border-bottom-color: #cc0000;
+    width: 100%;
+
+}
+
+
+#logo {
+    float: left;
+}
+
+#top_menu {
+    float: right;
+    text-align: right;
+    padding-left: 10px;
+    padding-right: 30px;
+
+    position: absolute;
+    right: 0px;
+    top: 50%;
+}
+
+#registration-form {
+    float: right;
+    width: 230px;
+    background-color: #ff6666;
+    text-align: center;
+    margin-right: 60px;
+}
+
+#registration-form label {
+    display: block;
+    margin-top: 20px;
+    margin-left: auto;
+}
+
+#registration-form input {
+    border-radius: 5px;
+    height: 2em;
+    border:none;
+    width: 200px;
+}
+
+#registration-form h1 {
+
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+}
+
+#registration-form button {
+    display: block;
+    margin: 20px auto;
+    border-radius: 5px;
+    border:none;
+    width: 200px;
+    height: 2em;
+    background-color: #cc0033;
+    color: #ffffff;
+}
+
+#forms-list {
+    width: 60%;
+    background-color: #eeeeee;
+    float: left;
+}
+
+#forms-entry {
+    display: block;;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    position: relative;
+    height: 3em;
+}
+
+#forms-decision {
+    display: inline-block;
+}
+
+
+#forms-deptmt {
+    display: inline-block;
+    margin-left: 5px;
+    margin-right: 5px;
+    height: 3em;
+    width: 15%;
+    position: absolute;
+    left: 3%;
+    top: 50%;
+    margin-top: -10px;
+}
+
+#forms-node {
+    width: 100%;
+    font-weight: bold;
+    vertical-align: middle;
+    position: absolute;
+
+    height: 1.5em;
+}
+
+#forms-parentNode {
+    width: 100%;
+    vertical-align: middle;
+    position: absolute;
+
+    height: 1.5em;
+}
+
+
+
+
+#forms-owner {
+    display: inline-block;
+    margin-left: 5px;
+    margin-right: 5px;
+    width: 15%;
+    height: 3em;
+    position: absolute;
+    left: 18%;
+}
+
+
+#forms-contragent {
+    display: inline-block;
+    margin-left: 5px;
+    margin-right: 5px;
+    vertical-align: middle;
+    width: 15%;
+    font-weight: bold;
+    position: absolute;
+    left: 33%;
+}
+
+
+#forms-descr {
+    display: inline-block;
+    margin-left: 5px;
+    margin-right: 5px;
+    width: 40%;
+    vertical-align: middle;
+    font-weight: bold;
+    position: absolute;
+    left: 49%;
+}
+
+#forms-date {
+
+    font-size: 0.7em;
+}
+
+#forms-userName {
+
+    font-weight: bold;
+}
+
+#forms-total {
+    vertical-align: middle;
+    display: inline-block;
+    font-weight: bold;
+    position: absolute;
+    left: 89%;
+    text-align: right;
+    width: 9%;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+
+/*
+    Node Edit design
+*/
+
+#node-form-div {
+
+    position: relative;
+    top: 10px;
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+    left: 10px;
+}
+
+/*
+    Form edit decoration
+*/
+
+#add-form {
+
+    width: 50%;
+    position: relative;
+    top: 10px;
+    left: 10px;
 }

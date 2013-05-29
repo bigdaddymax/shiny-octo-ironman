@@ -9,19 +9,6 @@ require_once TESTS_PATH . '/application/TestCase.php';
 
 class FormTest extends TestCase {
 
-    public function testFormGetterSetter() {
-        $form = new Application_Model_Form();
-        $form->formName = 'eName';
-        $this->expectOutputString('Cant set value. Property formStatus doesnt exist');
-        $form->formStatus = 'status';
-        ob_clean();
-//        $form->state = 'state';
-//        $form->valid1 =4;
-        $test = $form->formState;
-        $this->assertEquals('Cannot get value. Property formState doesnt exist', $test);
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $form->valid = 1;
-    }
 
     /**
      * @expectedException PHPUnit_Framework_Error
@@ -34,7 +21,7 @@ class FormTest extends TestCase {
         $itemArray = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'userId' => 6, 'elementId' => 2, 'formId' => 1);
         $item = new Application_Model_Item($itemArray);
         $this->assertTrue($item->isValid());
-        $formArray = array('formName' => 'eName', 'formId' => 3, 'userId' => 5, 'active' => false, 'domainId' => 5, 'contragentId'=>2, 'items' => array(0 => $item), 'nodeId' => 3,'public'=>1);
+        $formArray = array('formName' => 'eName', 'formId' => 3, 'userId' => 5, 'active' => 0, 'domainId' => 5, 'contragentId'=>2, 'items' => array(0 => $item), 'nodeId' => 3,'public'=>1);
         $form = new Application_Model_Form($formArray);
         $this->assertTrue($form->isValid());
         $formArray1 = $form->toArray();
