@@ -31,7 +31,7 @@ class FormController extends Zend_Controller_Action {
     }
 
     public function editFormAction() {
-            $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
         if (null != $this->_request->getParam('formId')) {
             $this->view->form = $objectsManager->prepareFormForOutput($this->_request->getParam('formId'), $this->session->userId);
         }
@@ -59,7 +59,7 @@ class FormController extends Zend_Controller_Action {
         $params['contragentId'] = $objectManager->saveObject($contragent);
         $form = new Application_Model_Form($params);
         if ($form->isValid()) {
-            $this->_helper->json(array('error' => 0, 'message' => 'Form created', 'formId' => $objectManager->saveForm($form, $this->session->userId)), true);
+            $this->_helper->json(array('error' => 0, 'message' => 'Form created', 'formId' => $objectManager->saveObject($form)), true);
         } else {
             $this->_helper->json(array('error' => 1, 'message' => 'Form is not valid'), true);
         }
@@ -70,9 +70,19 @@ class FormController extends Zend_Controller_Action {
     public function publishFormAction() {
         if (null != $this->_request->getParam('formId')) {
             $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-            $form = $objectsManager->getForm($this->_request->getParam('formId'), $this->session->userId);
-            $form->public = true;
-            $objectsManager->saveForm($form, $this->session->userId);
+            try {
+                $form = $objectsManager->getObject('form', $this->_request->getParam('formId'), $this->session->userId);
+                $form->public = 1;
+                $id = $objectsManager->saveObject($form);
+                $this->_helper->json(array('error' => 0,
+                    'message' => 'Form published successfully',
+                    'code' => 200,
+                    'recordId' => $id));
+            } catch (Exception $e) {
+                $this->_helper->json(array('error' => 1,
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(), 'userId' => $this->session->userId, 'trace' => $e->getTrace()));
+            }
         }
         $this->redirector->gotoSimple('index', 'form');
     }
@@ -83,15 +93,21 @@ class FormController extends Zend_Controller_Action {
             $this->view->form = $objectManager->prepareFormForOutput((int) $this->getRequest()->getParam('formId'), $this->session->userId);
             $this->view->approved = $objectManager->getApprovalStatus((int) $this->getRequest()->getParam('formId'));
             $this->view->showApproval = $objectManager->isApprovalAllowed((int) $this->getRequest()->getParam('formId'), $this->session->userId);
+            $this->_helper->layout()->disableLayout();
+//            $this->_helper->viewRenderer->setNoRender(true);
+//            $this->_helper->json(array('form'=>$this->view->form,
+//                                       'approved'=>$this->view->approved,
+//                                       'showApproval'=>$this->view->showApproval));
         }
     }
 
     public function approveAction() {
         try {
             $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-            $objectsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'approve');
+            $id = $objectsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'approve');
+            $this->_helper->json(array('error' => 0, 'message' => 'Approved successfully', 'code' => 200, 'recordId' => $id));
         } catch (Exception $e) {
-            echo $e->message;
+            $this->_helper->json(array('error' => 1, 'message' => $e->getMessage(), 'code' => $e->getCode()));
         }
         $this->redirector->gotoSimple('index', 'form');
     }
@@ -99,11 +115,20 @@ class FormController extends Zend_Controller_Action {
     public function declineAction() {
         try {
             $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-            $objectsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'decline');
+            $id = $objectsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'decline');
+            $this->_helper->json(array('error' => 0, 'message' => 'Declined successfully', 'code' => 200, 'recordId' => $id));
         } catch (Exception $e) {
-            echo $e->message;
+            $this->_helper->json(array('error' => 1, 'message' => $e->getMessage(), 'code' => $e->getCode()));
         }
         $this->redirector->gotoSimple('index', 'form');
+    }
+
+    function addCommentAction() {
+        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+        $comment = new Application_Model_Comment($this->_request->getParams());
+        $comment->date = date('Y-m-d H:i');
+        $comment->domainId = $this->session->domainId;
+        $commentId = $objectsManager->saveObject($comment);
     }
 
 }

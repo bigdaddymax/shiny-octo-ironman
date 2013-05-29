@@ -9,7 +9,7 @@
     <filter>
         <!-- If Zend Framework is inside your project's library, uncomment this filter -->
         <blacklist>
-            <directory suffix=".php">../../library/Zend</directory>
+            <directory suffix=".php">../library/Zend</directory>
         </blacklist>
         
     </filter>

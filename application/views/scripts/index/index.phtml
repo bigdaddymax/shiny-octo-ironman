@@ -1,30 +1,12 @@
-<form id="signup" method="post" action="<?php echo $this->url(array('controller'=>'index', 'action'=>'new-domain'), null, true);?>">
-    <table> 
-        <tr>
-            <td>
-                <label for="userName">User name</label></td>
-            <td>
-                <input type="text" id="userName" name="userName" /></td>
-        </tr>
-        <tr>
-            <td>
-                <label for="email">Email</label></td>
-            <td>
-                <input type="text" id="email" name="email" /></td>
-
-        </tr>
-        <tr>
-            <td>
-                <label for="password">Password</label></td>
-            <td>
-                <input type="password" id="password" name="password" /></td>
-        </tr>
-        <tr>
-            <td>
-                <label for="companyName">Company name</label></td>
-            <td>
-                <input type="text" id="companyName" name="companyName" /></td>
-        </tr>
-    </table>
-    <button id="signup" value="signup">Signup</button>
-</form>
+<div id="registration-form">
+    <h1>
+        <?php echo $this->translate('Create account'); ?>
+    </h1>
+    <form id="signup" method="post" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'new-domain'), null, true); ?>">
+        <label class="input"><span><?php echo $this->translate('name');?></span><input type="text" id="userName" name="userName" /></label>
+        <label class="input"><span><?php echo $this->translate('email'); ?></span><input type="text" id="email" name="email" /></label>
+        <label class="input"><span><?php echo $this->translate('password'); ?></span><input type="password" id="password" name="password" /></label>
+        <label class="input"><span><?php echo $this->translate('company name'); ?></span><input type="text" id="companyName" name="companyName" /></label>
+        <button id="signup" value="signup"><?php echo $this->translate('signup');?></button>
+    </form>
+</div>

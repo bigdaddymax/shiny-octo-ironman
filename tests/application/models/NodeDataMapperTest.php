@@ -69,7 +69,8 @@ class NodeDataMapperTest extends TestCase {
         $id3 = $this->objectManager->saveObject($node3);
         $this->assertEquals($id3, $id2);
         $node4 = $this->objectManager->getObject('node', $id2);
-        $this->assertEquals($node3, $node4);
+        $this->assertTrue($node4 instanceof Application_Model_Node);
+        $this->assertEquals($node4->toArray(),$node3->toArray());
     }
 
     public function testNodeCheckExistance() {

@@ -9,19 +9,6 @@ require_once TESTS_PATH . '/application/TestCase.php';
 
 class ItemTest extends TestCase {
 
-    public function testItemGetterSetter() {
-        $item = new Application_Model_Item();
-        $item->itemName = 'eName';
-        $this->expectOutputString('Cant set value. Property itemStatus doesnt exist');
-        $item->itemStatus = 'status';
-        ob_clean();
-//        $item->state = 'state';
-//        $item->valid1 =4;
-        $test = $item->itemState;
-        $this->assertEquals('Cannot get value. Property itemState doesnt exist', $test);
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $item->valid = 1;
-    }
 
     /**
      * @expectedException PHPUnit_Framework_Error
