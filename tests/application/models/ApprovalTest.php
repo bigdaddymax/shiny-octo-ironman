@@ -158,7 +158,7 @@ class ApprovalTest extends TestCase {
         $form = new Application_Model_Form($formArray1);
 //        Zend_Debug::dump($form);
         $this->assertTrue($form->isValid());
-        $this->formId = $this->objectManager->saveForm($form, $this->userId1);
+        $this->formId = $this->objectManager->saveObject($form);
 
         parent::setUp();
     }
@@ -246,7 +246,7 @@ class ApprovalTest extends TestCase {
         $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
         $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId2));
     }
-
+    
     public function testEmailListGeneration() {
         $emails = $this->objectManager->getEmailingList($this->formId);
         $this->assertEquals($emails, array('owner'=>'user login2', 'approval'=>'user login'));

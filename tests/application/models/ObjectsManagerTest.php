@@ -87,12 +87,12 @@ class ObjectsManagerTest extends TestCase {
         unset($formArray2['date']);
         $this->assertEquals($formArray1, $formArray2);
         $this->assertTrue($this->form->isValid());
-        $this->formId = $this->objectManager->saveForm($this->form,$this->userId);
+        $this->formId = $this->objectManager->saveObject($this->form);
         $this->assertTrue(is_int($this->formId));
         $formArray3 = array('userId' => $this->userId, 'formName' => 'fName2', 'nodeId' => $this->nodeId, 'items' => array(1 => $item1, 2 => $item2), 'domainId' => 1, 'contragentId'=>$this->contragentId);
         $form2 = new Application_Model_Form($formArray3);
         $this->assertTrue($form2->isValid());
-        $formId = $this->objectManager->saveForm($form2,$this->userId);
+        $formId = $this->objectManager->saveObject($form2);
         $this->assertTrue(is_int($formId));
     }
 
@@ -104,7 +104,7 @@ class ObjectsManagerTest extends TestCase {
     public function testSaveFormInvalid() {
         $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'domainId' => 1, 'active' => true);
         $form = new Application_Model_Form($formArray1);
-        $formId = $this->objectManager->saveForm($formArray1, $this->userId);
+        $formId = $this->objectManager->saveObject($form);
     }
     
     /**
@@ -121,7 +121,7 @@ class ObjectsManagerTest extends TestCase {
         $this->assertFalse($item2->isValid());
         $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true);
         $form = new Application_Model_Form($formArray1);
-        $formId = $this->objectManager->saveForm($formArray1, $this->userId);
+        $formId = $this->objectManager->saveObject($form);
     }
 
     /**
@@ -130,7 +130,7 @@ class ObjectsManagerTest extends TestCase {
     public function testSaveFormTotallyInvalid()
     {
         $formData = 888;
-        $this->objectManager->saveForm($formData, $this->userId);
+        $this->objectManager->saveObject($formData);
     }
 
     public function testSaveFormExisting()
@@ -144,8 +144,8 @@ class ObjectsManagerTest extends TestCase {
         $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId);
         $form = new Application_Model_Form($formArray1, $this->userId);
         $this->assertTrue($form->isValid());
-        $formId = $this->objectManager->saveForm($form, $this->userId);
-        $form2 = $this->objectManager->getForm($formId, $this->userId);
+        $formId = $this->objectManager->saveObject($form);
+        $form2 = $this->objectManager->getObject('form', $formId, $this->userId);
 
         
         
@@ -155,12 +155,12 @@ class ObjectsManagerTest extends TestCase {
         $form2->items = $item3;
 //        Zend_Debug::dump($item3);
        // ++++++++++++++++++++++++ ????????????????????????? $form2 is changing its value for some reason here!!! +++++
-        $formId2 = $this->objectManager->saveForm($form2, $this->userId);
+        $formId2 = $this->objectManager->saveObject($form2);
         $this->assertTrue(is_int($formId2));
         // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         $form2->items = $item3;
         $this->assertEquals($formId, $formId);
-        $form3 = $this->objectManager->getForm($formId2, $this->userId);
+        $form3 = $this->objectManager->getObject('form', $formId2, $this->userId);
         $this->assertEquals($form3, $form2);
         
         $itemArray5 = array('itemName' => 'item5', 'domainId' => 1, 'value' => 222, 'userId' => $this->userId, 'elementId' => $this->elementId, 'formId' => 1);
@@ -172,26 +172,18 @@ class ObjectsManagerTest extends TestCase {
         $formArray5 = array('userId' => $this->userId, 'formName' => 'fName5', 'nodeId' => $this->nodeId, 'items' => array(0 => $item4, 1 => $item5), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId);
         $form5 = new Application_Model_Form($formArray5, $this->userId);
         $this->assertTrue($form5->isValid());
-        $formId5 = $this->objectManager->saveForm($form5, $this->userId);
-        $formsave = $this->objectManager->getForm($formId5,$this->userId);
+        $formId5 = $this->objectManager->saveObject($form5);
+        $formsave = $this->objectManager->getObject('form', $formId5, $this->userId);
         $formsave->public = 1;
-        $formId6 = $this->objectManager->saveForm($formsave, $this->userId);
-        $formtest1 = $this->objectManager->getForm($formId6, $this->userId);
-        $formtest2 = $this->objectManager->getForm($formId2, $this->userId);
+        $formId6 = $this->objectManager->saveObject($formsave);
+        $formtest1 = $this->objectManager->getObject('form', $formId6, $this->userId);
+        $formtest2 = $this->objectManager->getObject('form', $formId2, $this->userId);
         $this->assertNotEquals($formtest1->formName, $formtest2->formname);
         $this->assertEquals($formtest1->formName, 'fName5');
         $this->assertTrue($formtest2->isValid());
         $this->assertEquals($formtest2->formName, 'fName2');
-        $this->assertEquals($formtest1->public, true);
+        $this->assertEquals($formtest1->public, 1);
         $this->assertEquals($formtest2->items, array(0=>$item3));
-    }
-    
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testGetFormInvalidArgument()
-    {
-        $this->objectManager->getForm('test', $this->userId);
     }
     
     /**
@@ -199,14 +191,14 @@ class ObjectsManagerTest extends TestCase {
      */
     public function testGetFormNoArgument()
     {
-        $this->objectManager->getForm('', $this->userId);
+        $this->objectManager->getObject('form', '', $this->userId);
     }
 /**
  * @expectedException Exception
- * @expectedExceptionMessage Form with ID -1 doesnt exist
+ * @expectedExceptionMessage Cannot find Form in table 'form' whith ID=-1 and domainId=1
  */    
     public function testGetFormThatDoesntExist(){
-        $this->objectManager->getForm(-1, $this->userId);
+        $this->objectManager->getObject('form', -1);
     }
     
     
@@ -220,9 +212,9 @@ class ObjectsManagerTest extends TestCase {
         $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId);
         $form = new Application_Model_Form($formArray1);
         $this->assertTrue($form->isValid());
-        $formId = $this->objectManager->saveForm($form, $this->userId);
+        $formId = $this->objectManager->saveObject($form);
         $this->objectManager->dbLink->update('form', array('formName'=>'', 'domainId'=>1), array('formId'=>$formId));
-        $form2 = $this->objectManager->getForm($formId, $this->userId);
+        $form2 = $this->objectManager->getObject('form', $formId, $this->userId);
     }
             
     
@@ -236,8 +228,8 @@ class ObjectsManagerTest extends TestCase {
         $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => 1, 'public'=>1, 'contragentId'=>$this->contragentId);
         $form = new Application_Model_Form($formArray1);
         $this->assertTrue($form->isValid());
-        $formId = $this->objectManager->saveForm($form, $this->userId);
-        $form1 = $this->objectManager->getForm($formId, $this->userId);
+        $formId = $this->objectManager->saveObject($form);
+        $form1 = $this->objectManager->getObject('form', $formId, $this->userId);
         $this->assertTrue($form1 instanceof Application_Model_Form);
         $formArray2 = $form1->toArray();
         unset($formArray2['date']);
@@ -255,6 +247,14 @@ class ObjectsManagerTest extends TestCase {
         $user->password = 1;
         $this->user->password = 1;
         $this->assertEquals($user, $this->user);
+    }
+    
+    
+    /**
+     * expectedException InvalidArgumentException
+     */
+    public function testGetEmailListWrongForm(){
+        $this->objectManager->getEmailingList(-1);
     }
     
 }

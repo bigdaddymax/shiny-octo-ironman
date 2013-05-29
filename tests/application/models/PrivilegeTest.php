@@ -24,23 +24,7 @@ class PrivilegeTest extends TestCase {
         $this->assertEquals($privilege->objectId, 5);
     }
     
-    public function testPrivilegeGetterAndSetter()
-    {
-        $privilegeArray = array('userId' => 3);
-        $privilege = new Application_Model_privilege($privilegeArray);
-        $privilege->objectId = 2;
-        $this->assertEquals(2, $privilege->objectId);
-        
-        $this->expectOutputString('Cannot set value. Property ttt doesnt exist');
-        $privilege->ttt = 'Test';
-        
-        $ttt = $privilege->ttt;
-        $this->assertEquals('Cannot get value. Property ttt doesnt exist', $ttt);
-        ob_clean();
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $privilege->valid = 2;
-    }
-    
+   
     
     public function testprivilegeToArray()
     {

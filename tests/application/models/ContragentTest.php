@@ -9,19 +9,6 @@ require_once TESTS_PATH . '/application/TestCase.php';
 
 class ContragentTest extends TestCase {
 
-    public function testContragentGetterSetter() {
-        $contragent = new Application_Model_Contragent();
-        $contragent->contragentName = 'eName';
-        $this->expectOutputString('Cant set value. Property contragentStatus doesnt exist');
-        $contragent->contragentStatus = 'status';
-        ob_clean();
-//        $contragent->state = 'state';
-//        $contragent->valid1 =4;
-        $test = $contragent->contragentState;
-        $this->assertEquals('Cannot get value. Property contragentState doesnt exist', $test);
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $contragent->valid = 1;
-    }
 
     /**
      * @expectedException PHPUnit_Framework_Error
@@ -31,7 +18,7 @@ class ContragentTest extends TestCase {
     }
 
     public function testContragentConstructCorrect() {
-        $contragentArray = array('contragentName' => 'eName', 'contragentId' => 3, 'active' => false, 'domainId' => 5);
+        $contragentArray = array('contragentName' => 'eName', 'contragentId' => 3, 'active' => 0, 'domainId' => 5);
         $contragent = new Application_Model_Contragent($contragentArray);
         $this->assertTrue($contragent->isValid());
         $contragentArray1 = $contragent->toArray();

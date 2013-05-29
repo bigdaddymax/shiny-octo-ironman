@@ -10,21 +10,6 @@ require_once TESTS_PATH . '/application/TestCase.php';
 
 class PositionTest extends TestCase {
     
-    public function testPositionGetterSetter()
-    {
-        $position = new Application_Model_Position();
-        $position->positionName = 'eName';
-        $this->expectOutputString('Cant set value. Property positionStatus doesnt exist');
-        $position->positionStatus = 'status';
-        ob_clean();
-//        $position->state = 'state';
-//        $position->valid1 =4;
-        $test = $position->positionState;
-        $this->assertEquals('Cannot get value. Property positionState doesnt exist', $test);
-        $this->expectOutputString('Cannot set value for "valid" property');
-        $position->valid = 1;
-    }
-    
     /**
      * @expectedException PHPUnit_Framework_Error
      */
