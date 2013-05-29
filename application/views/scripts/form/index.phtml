@@ -7,11 +7,49 @@
     });
     
     function openForm(formId){
-        var url = '<?php echo $this->url(array('controller' => 'form', 'action' => 'open-form'), null, true); ?>' + '/formId/' + formId.slice(formId.indexOf('_')+1);
-        location = url;
+        $('#form-open').load('<?php echo $this->url(array('controller' => 'form', 'action' => 'open-form'), null, true); ?>' + '/formId/' + formId.slice(formId.indexOf('_')+1));
+        //location = url;
     }
 </script>
-<button id="add-form-btn">Add application</button>
+<div id="forms-list">
 <?php
-echo $this->partial('partials/form/list.php', array('forms'=>$this->forms));
+if (is_array($this->forms)) {
+    foreach ($this->forms as $form) {
+        $class = '';
+        if ($form['form']->final){
+            if ('approve' == $form['form']->decision){
+            $class = ' class="approved" ';
+            } else {
+                $class = ' class="declined" ';
+            }
+        }
+        if (!$form['form']->public){
+            $class=' class="private"';
+        }
+        echo '<div id="forms-entry" ' .$class. ' onClick="openForm(\'form_'.$form['form']->formId.'\')" >'. PHP_EOL .
+                '<div id="forms-decision"></div>' . PHP_EOL .
+                '<div id="forms-deptmt">' . PHP_EOL .
+                    (!empty($form['parentNode'])? '<div id="forms-parentNode">' . $form['parentNode']->nodeName . '</div>':'') . PHP_EOL .
+                    '<div id="forms-node">' . $form['node']->nodeName . '</div>' . PHP_EOL .
+                '</div>'. PHP_EOL .
+                '<div id="forms-owner">' . PHP_EOL .
+                   '<div id="forms-date">' . substr($form['form']->date, 0, strpos($form['form']->date, ' ')) . '</div>' . PHP_EOL .
+                   '<div id="forms-userName">' . $form['owner']->userName . '</div>' . PHP_EOL .
+                '</div>' . PHP_EOL .
+                '<div id="forms-contragent">' . $form['contragent']->contragentName. '</div>' . PHP_EOL .
+                '<div id="forms-descr">' . $form['form']->formName . '</div>' . PHP_EOL .
+                '<div id="forms-total">' . sprintf("%01.2f", $form['total']) . '</div>' . PHP_EOL .
+            '</div>';
 
+    }
+}
+?>
+</div>
+<div id="form-open"></div>
+<div style="clear: both;"></div>
+<button id="add-form-btn">Add application</button>
+
+<div id="test-outer">
+    <div id="test-inner1"></div>
+    <div id="test-inner2"></div>
+</div>

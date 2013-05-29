@@ -19,7 +19,6 @@ class ObjectsController extends Zend_Controller_Action {
     private $objectIdName;
     private $objectName;
     private $subobjects;
-    private $objectsManager;
     private $session;
     private $params;
 
@@ -57,15 +56,15 @@ class ObjectsController extends Zend_Controller_Action {
         $this->objectManager = new Application_Model_ObjectsManager($this->session->domainId);
         $this->redirector = $this->_helper->getHelper('Redirector');
         switch ($this->_request->getParam('objectType')) {
-            case 'node': 
+            case 'node':
                 $this->subobjects = array('nodes' => $this->objectManager->getAllObjects('node'));
                 break;
-            case 'element': 
+            case 'element':
                 break;
             case 'position':
                 $this->subobjects = array('nodes' => $this->objectManager->getAllObjects('Node'));
                 break;
-            case 'user': 
+            case 'user':
                 $this->subobjects = array('positions' => $this->objectManager->getAllObjects('Position'));
                 break;
         }
@@ -97,18 +96,18 @@ class ObjectsController extends Zend_Controller_Action {
             $this->view->subobjects = $this->subobjects;
             $this->_helper->layout()->disableLayout();
         } else {
-      //      Zend_Debug::dump($params);
-        //    Zend_Debug::dump($object);
+            //      Zend_Debug::dump($params);
+            //    Zend_Debug::dump($object);
         }
     }
 
     public function deleteAction() {
         $objectId = (int) $this->_request->getParam($this->objectIdName);
         //try {
-            $this->objectManager->deleteObject($this->objectName, $objectId);
-            $this->redirector->gotoSimple('index', 'objects', null, array('objectType' => $this->objectName));
+        $this->objectManager->deleteObject($this->objectName, $objectId);
+        $this->redirector->gotoSimple('index', 'objects', null, array('objectType' => $this->objectName));
         //} catch (Zend_Exception $e) {
-          //  $this->view->exceptionMessage = 'Got exception while trying to delete ' . $this->objectName . ': ' . $e->getMessage();
+        //  $this->view->exceptionMessage = 'Got exception while trying to delete ' . $this->objectName . ': ' . $e->getMessage();
 //        }
     }
 
@@ -128,11 +127,13 @@ class ObjectsController extends Zend_Controller_Action {
                         'privilege' => $this->_request->getParam('privilege'),
                         'domainId' => $this->session->domainId));
             if ((bool) $this->_request->getParam('state')) {
-                $this->objectsManager->grantPrivilege($privilege);
+                $result = $this->objectManager->grantPrivilege($privilege);
             } else {
-                $this->objectsManager->revokePrivilege($privilege);
+                $result = $this->objectManager->revokePrivilege($privilege);
             }
         }
+
+        $this->_helper->json($result, true);
         exit;
     }
 
@@ -140,31 +141,35 @@ class ObjectsController extends Zend_Controller_Action {
         $objectId = (int) $this->params[$this->objectIdName];
         switch ($this->_request->getParam('objectType')) {
             case 'node':
-                $node = $this->objectManager->getObject($this->_request->getParam('objectType'),$objectId);
+                $node = $this->objectManager->getObject($this->_request->getParam('objectType'), $objectId);
                 $scenarios = $this->objectManager->getAllObjects('scenario');
                 $assignment = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
                 $nodes = $this->objectManager->getAllObjects('Node');
                 $this->view->objects = array('node' => $node,
                     'scenarios' => $scenarios,
-                    'nodes' => $nodes, 'assignment' => ($assignment)?$assignment[0]:NULL);
+                    'nodes' => $nodes, 'assignment' => ($assignment) ? $assignment[0] : NULL);
                 $this->view->partialFile = 'open-node.phtml';
                 break;
             case 'element':
-                $element = $this->objectManager->getObject($this->_request->getParam('objectType'),$objectId);
-                $this->view->objects = array('element'=>$element);
+                $element = $this->objectManager->getObject($this->_request->getParam('objectType'), $objectId);
+                $this->view->objects = array('element' => $element);
                 $this->view->partialFile = 'open-element.phtml';
                 break;
         }
     }
 
-    public function editObjectAction(){
+    public function editObjectAction() {
         $this->objectManager->saveObject($this->params);
-         $objectId = (int) $this->params[$this->objectIdName];
+        $objectId = (int) $this->params[$this->objectIdName];
         switch ($this->objectName) {
             case 'node':
-                $scenarioAssignmentId = $this->objectManager->getAllObjects('ScenarioAssignment', array(0=>array('column'=>'nodeId', 'operand'=>$objectId)));
-                if (-1 == $this->params['scenarioId']){
-                    $this->objectManager->deleteObject('scenarioAssignment', $scenarioAssignmentId[0]->scenarioAssignmentId);
+                $scenarioAssignment = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
+                if ($scenarioAssignment[0] instanceof Application_Model_ScenarioAssignment) {
+                    $this->objectManager->deleteObject('scenarioAssignment', $scenarioAssignment[0]->scenarioAssignmentId);
+                }
+                if (1 < $this->params['scenarioId']) {
+                    $scenarioAssignment = new Application_Model_ScenarioAssignment($this->params);
+                    $scenarioAssignmentId = $this->objectManager->saveObject($scenarioAssignment);
                 }
                 $node = $this->objectManager->getObject($this->objectName, $objectId);
                 $scenarios = $this->objectManager->getAllObjects('scenario');
@@ -172,11 +177,12 @@ class ObjectsController extends Zend_Controller_Action {
                 $nodes = $this->objectManager->getAllObjects('Node');
                 $this->view->objects = array('node' => $node,
                     'scenarios' => $scenarios,
-                    'nodes' => $nodes, 'assignment' => ($assignment)?$assignment[0]:NULL);
+                    'nodes' => $nodes, 'assignment' => ($assignment) ? $assignment[0] : NULL);
                 $this->view->partialFile = 'edit-node.phtml';
                 break;
         }
     }
+
 }
 
 ?>
