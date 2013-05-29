@@ -132,7 +132,7 @@ class ObjectsController extends Zend_Controller_Action {
                 $result = $this->objectManager->revokePrivilege($privilege);
             }
         }
-        
+
         $this->_helper->json($result, true);
         exit;
     }
@@ -163,9 +163,13 @@ class ObjectsController extends Zend_Controller_Action {
         $objectId = (int) $this->params[$this->objectIdName];
         switch ($this->objectName) {
             case 'node':
-                $scenarioAssignmentId = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
-                if (-1 == $this->params['scenarioId']) {
-                    $this->objectManager->deleteObject('scenarioAssignment', $scenarioAssignmentId[0]->scenarioAssignmentId);
+                $scenarioAssignment = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
+                if ($scenarioAssignment[0] instanceof Application_Model_ScenarioAssignment) {
+                    $this->objectManager->deleteObject('scenarioAssignment', $scenarioAssignment[0]->scenarioAssignmentId);
+                }
+                if (1 < $this->params['scenarioId']) {
+                    $scenarioAssignment = new Application_Model_ScenarioAssignment($this->params);
+                    $scenarioAssignmentId = $this->objectManager->saveObject($scenarioAssignment);
                 }
                 $node = $this->objectManager->getObject($this->objectName, $objectId);
                 $scenarios = $this->objectManager->getAllObjects('scenario');

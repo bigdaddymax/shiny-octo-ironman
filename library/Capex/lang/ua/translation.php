@@ -24,6 +24,7 @@ return array(
     'date'      =>'Дата',
     'approval status'   => 'Статус погодження',
     'invoice detail'    => 'Деталі рахунку',
-    'scenario'  => 'Сценарій'
+    'scenario'  => 'Сценарій',
+    'contragent'    =>'Контрагент'
 );
 

@@ -112,7 +112,7 @@ tr.private td{
     padding: 6px;
     margin: 0;
     font: inherit;
-    
+
     width: 200px;
 }
 /* Hack to remove Safari's extra padding. Remove if you don't care about pixel-perfection. */
@@ -164,7 +164,7 @@ tr.private td{
 }
 
 #form-name {
-    
+
     font-weight: bold;
     position: relative;
     margin-top: 10px;
@@ -450,11 +450,23 @@ tr.private td{
 */
 
 #node-form-div {
-    
+
     position: relative;
     top: 10px;
-    
+
     padding-top: 10px;
     padding-bottom: 10px;
+    left: 10px;
+}
+
+/*
+    Form edit decoration
+*/
+
+#add-form {
+
+    width: 50%;
+    position: relative;
+    top: 10px;
     left: 10px;
 }

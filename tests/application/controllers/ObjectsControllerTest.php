@@ -414,8 +414,12 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $assignment = $objectManager->getAllObjects('ScenarioAssignment', array(0=>array('column'=>'nodeId', 'operand'=>$nodeId)));
         $this->assertTrue($assignment[0] instanceof Application_Model_ScenarioAssignment);
         $this->assertEquals($assignment[0]->scenarioId, $scenarioId);
+   
         
-        $formArray1 = array('_nodeName' => 'Modified node name', '_parentNodeId'=>$nodeId1, '_scenarioId'=>-1, '_nodeId'=>$nodeId, 'objectType'=>'node');
+        $this->resetRequest();
+        $this->resetResponse();
+        
+        $formArray1 = array('_nodeName' => 'Modified node name', '_parentNodeId'=>$nodeId1, '_scenarioId'=>55, '_nodeId'=>$nodeId, 'objectType'=>'node');
         $params1 = array('controller'=>'objects', 'action'=>'edit-object');
         $this->request->setMethod('post');
         $this->request->setPost($formArray1);
@@ -423,7 +427,11 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertController('objects');
         $this->assertAction('edit-object');
         $assignment = $objectManager->getAllObjects('ScenarioAssignment', array(0=>array('column'=>'nodeId', 'operand'=>$nodeId)));
-        $this->assertFalse($assignment);
+        $this->assertTrue($assignment[0] instanceof Application_Model_ScenarioAssignment);
+        $editedNode = $objectManager->getObject('node', $nodeId);
+        $this->assertTrue($editedNode instanceof Application_Model_Node);
+        $editedArray = array('_nodeId'=>$nodeId, '_nodeName'=>$editedNode->nodeName, '_parentNodeId'=>$editedNode->parentNodeId, '_scenarioId'=>$assignment[0]->scenarioId, 'objectType'=>'node');
+        $this->assertEquals($formArray1, $editedArray);
         $nodeEdited1 = $objectManager->getObject('Node', $nodeId);
         $this->assertEquals($nodeEdited1->parentNodeId, $nodeId1);
     }
