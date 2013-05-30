@@ -470,3 +470,33 @@ tr.private td{
     top: 10px;
     left: 10px;
 }
+
+/****************************/
+/* Object lists decoration  */
+/****************************/
+
+#objects-list {
+    
+    position: relative;
+    left: 10px;
+    top: 20px;
+    padding-bottom: 5px;
+    overflow: hidden;
+}
+
+#object {
+    position: relative;
+}
+
+#delete-object-icon {
+    float: left;
+        overflow: hidden;
+}
+
+#object-name {
+    float: left;
+}
+
+#parent-object {
+    float: left;
+}
