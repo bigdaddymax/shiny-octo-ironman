@@ -44,9 +44,15 @@ class ObjectsController extends Zend_Controller_Action {
         }
         $this->session = new Zend_Session_Namespace('Auth');
         $params = $this->getRequest()->getParams();
-        if (!empty($params)) {
-            $keys = array_keys($params);
-            $values = array_values($params);
+        foreach ($params as $key => $param) {
+            if (!$param) {
+                $param = -1;
+            }
+            $prms[$key] = $param;
+        }
+        if (!empty($prms)) {
+            $keys = array_keys($prms);
+            $values = array_values($prms);
             //       $keys = array_keys($params);
             array_walk($keys, 'stripUnderscore');
             $this->params = array_combine($keys, $values);
