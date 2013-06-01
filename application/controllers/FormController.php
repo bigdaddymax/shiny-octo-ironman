@@ -9,10 +9,12 @@ class FormController extends Zend_Controller_Action {
 
     private $session;
     private $redirector;
+    private $config;
 
     public function init() {
         $this->session = new Zend_Session_Namespace('Auth');
         $this->redirector = $this->_helper->getHelper('Redirector');
+        $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', APPLICATION_ENV);
     }
 
     public function indexAction() {
@@ -38,6 +40,7 @@ class FormController extends Zend_Controller_Action {
         $access = new Application_Model_AccessMapper($this->session->userId, $this->session->domainId);
         $allowedObjects = $access->getAllowedObjectIds();
         $this->view->elements = $objectsManager->getAllObjects('Element');
+        $this->view->expgroup = $this->config->expences->group->toArray();
         if (!empty($allowedObjects['write'])) {
             $this->view->nodes = $objectsManager->getAllObjects('Node', array(0 => array('column' => 'nodeId',
                     'condition' => 'IN',
@@ -129,6 +132,14 @@ class FormController extends Zend_Controller_Action {
         $comment->date = date('Y-m-d H:i');
         $comment->domainId = $this->session->domainId;
         $commentId = $objectsManager->saveObject($comment);
+    }
+
+    function updateElementsAction() {
+        $expGroup = $this->_request->getParam('expgroup');
+        Zend_Debug::dump($expGroup);
+        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+        $this->view->elements = $objectsManager->getAllObjects('element', array(0 => array('column' => 'expgroup', 'operand' => $expGroup)));
+        $this->_helper->layout()->disableLayout();
     }
 
 }
