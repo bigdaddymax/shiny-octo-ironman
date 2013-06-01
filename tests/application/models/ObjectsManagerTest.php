@@ -40,7 +40,7 @@ class ObjectsManagerTest extends TestCase {
         $this->user = new Application_Model_User($userArray);
         $this->assertTrue($this->user->isValid());
         $this->userId = $this->objectManager->saveObject($this->user);
-        $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
+        $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34, 'expgroup'=>'CAPEX');
         $this->element = new Application_Model_Element($elementArray);
         $this->assertTrue($this->element->isValid());
         $this->elementId = $this->objectManager->saveObject($this->element);

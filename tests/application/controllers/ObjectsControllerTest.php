@@ -89,7 +89,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $session = new Zend_Session_Namespace('Auth');
         $params = array('controller' => 'objects', 'action' => 'add-object');
         $objectArray = array('objectType' => 'element', 'elementName' => 'testAddObject',
-            'elementCode' => 44, 'domainId' => $session->domainId);
+            'elementCode' => 44, 'domainId' => $session->domainId, 'expgroup'=>'CAPEX');
         $this->request->setMethod('post');
         $this->request->setPost($objectArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
@@ -97,8 +97,9 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
         $objectManager = new Application_Model_ObjectsManager($session->domainId);
         $elements = $objectManager->getAllObjects('Element');
-        $element = new Application_Model_Element(array('elementName' => 'testAddObject', 'elementCode' => 44, 'domainId' => $session->domainId));
+        $element = new Application_Model_Element(array('elementName' => 'testAddObject', 'elementCode' => 44, 'domainId' => $session->domainId, 'expgroup'=>'CAPEX'));
         $element->elementId = $elements[0]->elementId;
+
         $this->assertEquals($elements, array(0 => $element));
         return $element;
     }
@@ -114,7 +115,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $session = new Zend_Session_Namespace('Auth');
         $params = array('controller' => 'objects', 'action' => 'add-object');
         $objectArray = array('objectType' => 'element', 'elementName' => 'testbject',
-            'elementCode' => 44, 'domainId' => $session->domainId);
+            'elementCode' => 44, 'domainId' => $session->domainId, 'expgroup'=>'OPEX');
         $this->request->setMethod('post');
         $this->request->setPost($objectArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
@@ -126,7 +127,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetRequest();
         $this->resetResponse();
          $params1 = array('controller' => 'objects', 'action' => 'open-object',
-            'objectType' => 'element', 'elementId' => $elements[0]->elementId);
+            'objectType' => 'element', 'elementId' => $elements[0]->elementId, 'expgroup'=>'OPEX');
         $this->dispatch($this->url($this->urlizeOptions($params1)));
         $response = $this->getResponse();
         $this->assertController($params1['controller']);

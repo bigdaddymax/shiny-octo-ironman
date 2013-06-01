@@ -17,15 +17,13 @@
     
 </script>
 <div id="result-message"></div>
-<div id="node-form-div">
+<div class="panel">
     <form id="node-form">
-        <div><label class="input"><span><?php echo $this->translate('deptmnt'); ?></span><input type="text" id="_nodeName" name="_nodeName" value="<?php echo $this->objects['node']->nodeName; ?>"></label></td></div>
+        <div><input type="text" id="_nodeName" name="_nodeName" value="<?php echo $this->objects['node']->nodeName; ?>" placeholder="<?php echo $this->translate('deptmnt'); ?>"></div>
         <?php
         if ($this->objects['nodes']) {
-            echo '<div class="input">' . PHP_EOL;
-            echo '<span>' . $this->translate('parent node') . '</span>' . PHP_EOL;
             echo '<select id="_parentnodeId" name="_parentNodeId">' . PHP_EOL;
-            echo '<option></option>' . PHP_EOL;
+            echo '<option disabled>' . $this->translate('parent node') . '</option>' . PHP_EOL;
             echo '<option value="-1">No parent</option>' . PHP_EOL;
             $selected = '';
             foreach ($this->objects['nodes'] as $node) {
@@ -37,14 +35,11 @@
                 }
             }
             echo '</select>' . PHP_EOL;
-            echo '</div>' . PHP_EOL;
         }
         $selected = '';
         if ($this->objects['scenarios']) {
-            echo '<div class="input">' . PHP_EOL;
-            echo '<span>' . $this->translate('scenario') . '</span>' . PHP_EOL;
             echo '<select id="_scenarioId" name="_scenarioId">' . PHP_EOL;
-            echo '<option></option>' . PHP_EOL;
+            echo '<option disabled>' . $this->translate('scenario') . '</option>' . PHP_EOL;
             echo '<option value="-1">No scenario</option>' . PHP_EOL;
             foreach ($this->objects['scenarios'] as $scenario) {
                 if (!empty($this->objects['assignment'])) {
@@ -53,7 +48,6 @@
                 echo "<option value='$scenario->scenarioId' $selected >$scenario->scenarioName</option>" . PHP_EOL;
             }
             echo '</select>' . PHP_EOL;
-            echo '</div>' . PHP_EOL;
         }
         ?>
         <input type="hidden" id="_nodeId" name="_nodeId" value="<?php echo $this->objects['node']->nodeId; ?>">

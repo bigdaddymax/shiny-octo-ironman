@@ -15,30 +15,19 @@ class Application_Model_Element {
     private $_elementCode;  // Code can be used for approvals categorisation, analizys and export to external software
     private $_elementComment;
     private $_elementId;
-    private $_active = true;
+    private $_active = 1;
     private $_domainId;
+    private $_expgroup;
 
     public function __construct(array $elementArray = null) {
-        if (isset($elementArray['elementName'])) {
-            $this->_elementName = $elementArray['elementName'];
-        }
-
-        if (isset($elementArray['domainId'])) {
-            $this->domainId = (int) $elementArray['domainId'];
-        }
-        if (isset($elementArray['active'])) {
-            $this->_active = (bool) $elementArray['active'];
-        }
-
-        if (isset($elementArray['elementComment']))
-            $this->_elementComment = $elementArray['elementComment'];
-
-        if (isset($elementArray['elementCode'])) {
-            $this->_elementCode = (int) $elementArray['elementCode'];
-        }
-
-        if (isset($elementArray['elementId'])) {
-            $this->_elementId = (int) $elementArray['elementId'];
+        if (is_array($elementArray)) {
+            foreach ($elementArray as $key => $item) {
+                if (strpos($key, 'Id')) {
+                    $this->{$key} = (int) $item;
+                } else {
+                    $this->{$key} = $item;
+                }
+            }
         }
     }
 
@@ -47,7 +36,11 @@ class Application_Model_Element {
             echo 'Cannot set value for "valid" property';
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
+            if ('active' == $name) {
+                $this->$name1 = (int) $value;
+            } else {
+                $this->$name1 = $value;
+            }
         } else {
             echo 'Cannot set value. Property ' . $name . ' doesnt exist';
         }
@@ -68,7 +61,7 @@ class Application_Model_Element {
      * @return type
      */
     public function isValid() {
-        if (isset($this->_elementCode) && isset($this->_elementName) && isset($this->_domainId)) {
+        if (isset($this->_elementCode) && isset($this->_elementName) && isset($this->_domainId) && isset($this->_expgroup)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;

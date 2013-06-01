@@ -21,6 +21,7 @@ class ObjectsController extends Zend_Controller_Action {
     private $subobjects;
     private $session;
     private $params;
+    private $config;
 
     /**
      * init() performs all preparations needed to complete requested action. Its main task
@@ -42,6 +43,7 @@ class ObjectsController extends Zend_Controller_Action {
             }
 
         }
+        $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', APPLICATION_ENV);
         $this->session = new Zend_Session_Namespace('Auth');
         $params = $this->getRequest()->getParams();
         foreach ($params as $key => $param) {
@@ -66,9 +68,14 @@ class ObjectsController extends Zend_Controller_Action {
                 $this->subobjects = array('nodes' => $this->objectManager->getAllObjects('node'));
                 break;
             case 'element':
+                $this->subobjects = array('expgroup'=>$this->config->expences->group);
                 break;
             case 'position':
-                $this->subobjects = array('nodes' => $this->objectManager->getAllObjects('Node'));
+                $nodes = $this->objectManager->getAllObjects('Node');
+                foreach ($nodes as $node){
+                    $nodeArray['nodes'][$node->nodeId] = $node;
+                }
+                $this->subobjects = $nodeArray;
                 break;
             case 'user':
                 $this->subobjects = array('positions' => $this->objectManager->getAllObjects('Position'));
@@ -160,6 +167,17 @@ class ObjectsController extends Zend_Controller_Action {
                 $element = $this->objectManager->getObject($this->_request->getParam('objectType'), $objectId);
                 $this->view->objects = array('element' => $element);
                 $this->view->partialFile = 'open-element.phtml';
+                break;
+            case 'position':
+                $position = $this->objectManager->getObject('position', $objectId);
+                $nodes = $this->objectManager->getAllObjects('node');
+                if ($nodes){
+                    foreach ($nodes as $node){
+                        $nodesArray[$node->nodeId] = $node;
+                    }
+                }
+                $this->view->objects = array('position'=>$position, 'nodes'=>$nodesArray);
+                $this->view->partialFile = 'open-position.phtml';
                 break;
         }
     }

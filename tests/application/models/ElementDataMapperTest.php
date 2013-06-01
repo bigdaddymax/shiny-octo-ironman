@@ -40,7 +40,7 @@ class ElementDataMapperTest extends TestCase {
     
     public function testElementSave()
     {
-        $elementArray = array('elementName' => 'eName', 'elementCode' => 55, 'active'=>true, 'elementComment'=>'test', 'domainId' =>1);
+        $elementArray = array('elementName' => 'eName', 'elementCode' => 55, 'active'=>true, 'elementComment'=>'test', 'domainId' =>1, 'expgroup'=>'OPEX');
         $element = new Application_Model_Element($elementArray);
         $element->elementId = $this->object->saveObject($element);
         $this->assertTrue(is_int($element->elementId));
@@ -54,7 +54,7 @@ class ElementDataMapperTest extends TestCase {
     
     public function testElementGet()
     {
-        $elementArray = array('elementName' => 'eName', 'elementCode' => '55', 'active'=>true, 'elementComment'=>'test', 'domainId' => 1);
+        $elementArray = array('elementName' => 'eName', 'elementCode' => '55', 'active'=>1, 'elementComment'=>'test', 'domainId' => 1, 'expgroup'=>'OPEX');
         $element = new Application_Model_Element($elementArray);
         $id = $this->object->saveObject($element);
         $this->assertTrue(is_int($id));

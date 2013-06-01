@@ -25,6 +25,8 @@ return array(
     'approval status'   => 'Статус погодження',
     'invoice detail'    => 'Деталі рахунку',
     'scenario'  => 'Сценарій',
-    'contragent'    =>'Контрагент'
+    'contragent'    =>'Контрагент',
+    'save'      =>'Зберегти',
+    'position'  =>'Посада'
 );
 

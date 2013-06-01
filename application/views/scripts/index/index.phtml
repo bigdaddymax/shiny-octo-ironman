@@ -3,10 +3,18 @@
         <?php echo $this->translate('Create account'); ?>
     </h1>
     <form id="signup" method="post" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'new-domain'), null, true); ?>">
-        <label class="input"><span><?php echo $this->translate('name');?></span><input type="text" id="userName" name="userName" /></label>
-        <label class="input"><span><?php echo $this->translate('email'); ?></span><input type="text" id="email" name="email" /></label>
-        <label class="input"><span><?php echo $this->translate('password'); ?></span><input type="password" id="password" name="password" /></label>
-        <label class="input"><span><?php echo $this->translate('company name'); ?></span><input type="text" id="companyName" name="companyName" /></label>
-        <button id="signup" value="signup"><?php echo $this->translate('signup');?></button>
+        <div class="row">
+            <input type="text" id="userName" name="userName" class="small-2 columns" placeholder="<?php echo $this->translate('name'); ?>"/>
+        </div>
+        <div class="row">
+            <input type="text" id="email" name="email" placeholder="<?php echo $this->translate('email'); ?>" />
+        </div>
+        <div class="row">
+           <input type="password" id="password" name="password" placeholder=" <?php echo $this->translate('password'); ?>"/>
+        </div>
+        <div class="row">
+          <input type="text" id="companyName" name="companyName" placeholder="<?php echo $this->translate('company name'); ?>"/>
+        </div>
+        <button id="signup" value="signup"><?php echo $this->translate('signup'); ?></button>
     </form>
 </div>

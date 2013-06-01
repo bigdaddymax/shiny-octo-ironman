@@ -1,9 +1,16 @@
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="<?php echo $this->baseUrl('css/normalize.css'); ?>" />
+    <link rel="stylesheet" href="<?php echo $this->baseUrl('css/foundation.css'); ?>" />
+    <script src="<?php echo $this->baseUrl('js/vendor/custom.modernizr.js'); ?>"></script>
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
     <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
-    <script src="<?php echo $this->BaseURL('js/scripts.js'); ?>"></script>
+<!--
+<script src="<?php echo $this->baseUrl('js/scripts.js'); ?>"></script>
+-->
     <link type="text/css" rel="stylesheet" href="http://supercapex.localhost/css/style.css" /> 
     <script>
         window.onload = function(){
@@ -46,69 +53,95 @@
     </script>    
 
 </head>
-<!-- JQuery template for SIGNIN FORM -->
-<div id="signin">
-    <form id="signin-form">
-        <table>
-            <tr>
-                <td><label for="login">Login</label></td>
-            </tr>
-            <tr>
-                <td><input type="text" id="login" name="login"></td>
-            </tr>
-            <tr>
-                <td><label for="password">Password</label></td>
-            </tr>
-            <tr>
-                <td><input type="password" id="password" name="password"></td>
-            </tr>
-        </table>
-    </form>
-</div>
+<body>
+  <script>
+  document.write('<script src=' + '/'+
+  ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+  '.js><\/script>')
+  </script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.alerts.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.clearing.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.cookie.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.dropdown.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.forms.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.joyride.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.magellan.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.orbit.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.placeholder.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.reveal.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.section.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.tooltips.js');?>"></script>
+  <script src="<?php echo $this->baseUrl('js/foundation/foundation.topbar.js');?>"></script>
+  <script>
+  $(document).foundation();
+  </script>    
+    
+    
+    <!-- JQuery template for SIGNIN FORM -->
+    <div id="signin">
+        <form id="signin-form">
+            <table>
+                <tr>
+                    <td><label for="login">Login</label></td>
+                </tr>
+                <tr>
+                    <td><input type="text" id="login" name="login"></td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password</label></td>
+                </tr>
+                <tr>
+                    <td><input type="password" id="password" name="password"></td>
+                </tr>
+            </table>
+        </form>
+    </div>
 
-<!-- END OF SIGNIN FORM -->
-<div id="container">
-    <div id="header">
-        <div id="logo">
-            <img src="<?php echo $this->BaseURL('img/CapexOpex1.jpg'); ?>">
-        </div>
-        <div id="top_menu">
-            <?php
-            $session = new Zend_Session_Namespace('Auth');
-            if (1 == $session->auth) {
-                echo '<a href="#" id="signoff-link">' . $this->translate('logout') . '</a>';
-                $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
-                $navigationConfig = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
-                $container = new Zend_Navigation($navigationConfig);
-                $this->navigation($container);
-                $this->navigation()->setAcl($acl->acl);
-                $this->navigation()->setRole($session->login);
-            } else {
-                echo '<a href="#" id="signin-link">' . $this->translate('login') . '</a>';
-            }
+    <!-- END OF SIGNIN FORM -->
+    <div id="container">
+        <div id="header">
+            <div id="logo">
+                <img src="<?php echo $this->baseUrl('img/CapexOpex1.jpg'); ?>">
+            </div>
+            <div id="top_menu">
+                <?php
+                $session = new Zend_Session_Namespace('Auth');
+                if (1 == $session->auth) {
+                    echo '<a href="#" id="signoff-link">' . $this->translate('logout') . '</a>';
+                    $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
+                    $navigationConfig = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
+                    $container = new Zend_Navigation($navigationConfig);
+                    $this->navigation($container);
+                    $this->navigation()->setAcl($acl->acl);
+                    $this->navigation()->setRole($session->login);
+                } else {
+                    echo '<a href="#" id="signin-link">' . $this->translate('login') . '</a>';
+                }
 
 // +++++++++++ FIX ME ++++++++++++++++++ FIX ME ++++++++++++++++++++++++ FIX ME
-            if ('admin' == $session->role) {
-                $this->navigation()->menu()->setPartial('partials/navigation/adminmenu.phtml');
-                echo $this->navigation()->menu()->render();
-            }
-            if ($session->auth) {
-                $this->navigation()->menu()->setPartial('partials/navigation/mainmenu.phtml');
-                echo $this->navigation()->menu()->render();
-            }
+                if ('admin' == $session->role) {
+                    $this->navigation()->menu()->setPartial('partials/navigation/adminmenu.phtml');
+                    echo $this->navigation()->menu()->render();
+                }
+                if ($session->auth) {
+                    $this->navigation()->menu()->setPartial('partials/navigation/mainmenu.phtml');
+                    echo $this->navigation()->menu()->render();
+                }
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                ?>
+            </div>
+            <!--  Fixing float collapse  -->
+            <div style="clear: both;"></div>
+        </div>
+        <div id="main_content">
+            <?php
+            echo $this->layout()->content;
             ?>
         </div>
-        <!--  Fixing float collapse  -->
-        <div style="clear: both;"></div>
-    </div>
-    <div id="main_content">
-        <?php
-        echo $this->layout()->content;
-        ?>
-    </div>
 
-    <div id="footer">
+        <div id="footer">
 
+        </div>
     </div>
-</div>
+</body>
