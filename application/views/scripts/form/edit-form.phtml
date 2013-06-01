@@ -70,38 +70,48 @@
 
 <div id="add-form">
     <form id="app-form">
-        <label class="input"><span><?php echo $this->translate('form name'); ?></span>
-            <input type="text" id="formName" name="formName" value="<?php
-                            echo (isset($this->form['form'])) ? $this->form['form']->formName : '';
-                            ?>"
-                   />
-        </label>
 
-        <label class="input"><span><?php echo $this->translate('contragent'); ?></span>
-            <input type="text" id="contragentName" name="contragentName" value="<?php
-                            echo (isset($this->form['contragent'])) ? $this->form['contragent']->contragentName : '';
-                            ?>"
-                   />
-        </label>
+        <input type="text" id="formName" name="formName" value="<?php
+                echo (isset($this->form['form'])) ? $this->form['form']->formName : '';
+                ?>"
+               placeholder =" <?php echo $this->translate('form name'); ?>"
+               />
 
-        <label class="input"><span><?php echo $this->translate('deptmnt'); ?></span>
-            <?php
-            echo '<select id="nodeId" name="nodeId">';
-            echo '<option></option>';
-            foreach ($this->nodes as $node) {
-                $selected = '';
-                if (isset($this->form['form'])) {
-                    if ($node->nodeId == $this->form['form']->nodeId) {
-                        $selected = 'selected';
-                    }
+
+        <input type="text" id="contragentName" name="contragentName" value="<?php
+                  echo (isset($this->form['contragent'])) ? $this->form['contragent']->contragentName : '';
+                ?>"
+               placeholder="<?php echo $this->translate('contragent'); ?>"
+               />
+
+
+        <?php
+        echo '<select id="expgroup" name="expgroup">' . PHP_EOL;
+        foreach ($this->expgroup as $group) {
+            echo '<option value="' . $group . '">' . $group . '</option>' . PHP_EOL;
+        }
+        echo '</select>' . PHP_EOL;
+        echo '<select id="nodeId" name="nodeId">' . PHP_EOL;
+        echo '<option disabled>' . $this->translate('deptmnt') . '</option>' . PHP_EOL;
+        foreach ($this->nodes as $node) {
+            $selected = '';
+            if (isset($this->form['form'])) {
+                if ($node->nodeId == $this->form['form']->nodeId) {
+                    $selected = 'selected';
                 }
-                echo '<option value="' . $node->nodeId . '" ' . $selected . ' >' . $node->nodeName . '</option>';
             }
-            echo '</select>';
-            ?>
-        </label>
-            <div id="items">
-           <?php
+            echo '<option value="' . $node->nodeId . '" ' . $selected . ' >' . $node->nodeName . '</option>' . PHP_EOL;
+        }
+        echo '</select>' . PHP_EOL;
+        ?>
+        <script>
+    $("#expgroup").change(function(){
+        $("#elements").load("<?php echo $this->url(array('controller'=>'form', 'action'=>'update-elements'));?>", {'expgroup': $(this).val()});
+    });    
+    </script>
+        
+        <div id="items">
+            <?php
             if (isset($this->form['form'])) {
                 foreach ($this->form['form']->items as $item) {
                     echo '<div id="item_' . $item->itemId . '"><div id="item-delete-icon"><a href="#" onClick=deleteItem(' . $item->itemId . ')>x</a></div>' .
@@ -109,36 +119,17 @@
                 }
             }
             ?>
-            </div>
+        </div>
     </form>
     <button id="add-item-btn"><? echo $this->translate('add item'); ?></button>
 </div>
 
 <div id="add-item" title="Add approval item">
     <form id="item-form">
-        <table>
-            <tr><td>
-                    <?php
-                    echo '<select id="elementId" name="elementId">';
-                    foreach ($this->elements as $element) {
-                        echo '<option value="' . $element->elementId . '">' . $element->elementName . '</option>';
-                    }
-                    echo '</select>';
-                    ?>
-                </td></tr>
-            <tr><td>
-                    <label for="itemName">Description</label>
-                </td></tr>
-            <tr><td>
-                    <input type="text" id="itemName" name="itemName">
-                </td></tr>
-            <tr><td>
-                    <label for="value">Value</label>
-                </td></tr>
-            <tr><td>
-                    <input type="text" id="value" name="value">
-                </td></tr>
-        </table>
+        <div id="elements"></div>
+        <input type="text" id="itemName" name="itemName" placeholder="<?php echo $this->translate('description'); ?>">
+        <input type="text" id="value" name="value" placeholder="<?php echo $this->translate('value'); ?>">
+
     </form>
 
 </div>
