@@ -1,0 +1,42 @@
+<script>
+    $(document).ajaxError(function(event, jqxhr, settings, exception){
+        $("#result-message").html(jqxhr.status);
+    });
+
+    $(document).ajaxSuccess(function(event, jqxhr, settings){
+        $("#result-message").html(jqxhr.status);
+    });
+
+    $(function(){
+        $("#update-position-btn").button().click(function(){
+            $.post('<?php echo $this->url(array('controller' => 'objects', 'action' => 'edit-object'), null, true); ?>',
+            $("#position-form").serialize()); 
+               
+        })
+    });
+    
+</script>
+
+<div class="panel">
+    <form id="position-form">
+    <?php
+    if (!empty($this->objects['position'])) {
+        echo '<div class="row">' . PHP_EOL;
+        echo '<input type="text" id="_positionName" name="_positionName" value="' .
+        $this->objects['position']->positionName .
+        '" placeholder="' . $this->objects['nodes'][$this->objects['position']->nodeId]->nodeName . '">' . PHP_EOL;
+        if ($this->objects['nodes']) {
+            echo '<select id="_nodeId" name="_nodeId">';
+            echo '<option disabled>' . $this->translate('deptmnt') . '</option>';
+            foreach ($this->objects['nodes'] as $node) {
+                echo '<option value="'. $node->nodeId.'">' . $node->nodeName . '</option>' . PHP_EOL;
+            }
+            echo '</select>';
+        }
+    }
+    ?>
+        <input type="hidden" id="objectType" name="objectType" value="position">
+        <input type="hidden" id="_positionId" name="_positionId" value="<?php echo $this->objects['position']->positionId;?>">
+    </form>
+</div>
+<button id="update-position-btn"><?php echo $this->translate('save'); ?></button>

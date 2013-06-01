@@ -1,0 +1,9 @@
+<?php
+if (!empty($this->elements)){
+    echo '<select id="elementId" name="elementId">' . PHP_EOL;
+    foreach($this->elements as $element)
+    {
+        echo '<option value="' . $element->elementId . '">' . $element->elementName . '</option>' . PHP_EOL;
+    }
+    echo '</select>' . PHP_EOL;
+}
