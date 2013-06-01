@@ -67,11 +67,11 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertTrue(is_int($this->contragentId));
 
 // ELEMENTS
-        $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34);
+        $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34, 'expgroup'=>'OPEX');
         $element = new Application_Model_Element($elementArray);
         $this->assertTrue($element->isValid());
         $this->elementId1 = $this->objectManager->saveObject($element);
-        $elementArray1 = array('elementName' => 'eName1', 'domainId' => 1, 'elementCode' => 44);
+        $elementArray1 = array('elementName' => 'eName1', 'domainId' => 1, 'elementCode' => 44, 'expgroup'=>'OPEX');
         $element1 = new Application_Model_Element($elementArray1);
         $this->assertTrue($element1->isValid());
         $this->elementId2 = $this->objectManager->saveObject($element1);

@@ -91,36 +91,6 @@ tr.private td{
 }
 
 /*
-    Nice input fields decoration
-*/
-
-.input {
-    display: block;
-    border-radius: 5px;
-}
-.input span {
-    position: absolute;
-    padding: 5px;
-    margin-left: 3px;
-    color: #999;
-    z-index: 1;
-    cursor: text;
-    pointer-events: none;
-}
-.input input, .input textarea, .input select {
-    z-index: 0;
-    padding: 6px;
-    margin: 0;
-    font: inherit;
-
-    width: 200px;
-}
-/* Hack to remove Safari's extra padding. Remove if you don't care about pixel-perfection. */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    .input input, .input textarea, .input select { padding: 4px; }
-}
-
-/*
     Invoice form output decoration
 */
 

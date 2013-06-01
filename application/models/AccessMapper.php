@@ -65,7 +65,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
                 // We have session variables set up but for some reason user doesnt exist
                 $session = new Zend_Session_Namespace('Auth');
                 $session->unsetAll();
-                throw new Exception('Trying to initialize Access Mapper with userId = ' . $userId . ' ' . $f);
+                throw new Exception('Trying to initialize Access Mapper with userId = ' . $userId );
             }
             $this->credentials = $objectManager->getAllObjects('Privilege', array(0 => array('column' => 'userId',
                     'operand' => $userId)));

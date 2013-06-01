@@ -42,6 +42,8 @@ class ElementTest extends TestCase {
         $element->elementCode = 11;
         $this->assertFalse($element->isValid());
         $element->domainId = 3;
+        $this->assertFalse($element->isValid());
+        $element->expgroup = 'CAPEX';
         $this->assertTrue($element->isValid());
         $element->elementComment = 'test';
         $this->assertTrue($element->isValid());
@@ -54,7 +56,7 @@ class ElementTest extends TestCase {
     
     public function testElementToArray()
     {
-        $elementArray = array('elementName'=>'eName', 'elementCode'=>12, 'elementId'=>3, 'elementComment'=>'test', 'active'=>false, 'domainId' =>5);
+        $elementArray = array('elementName'=>'eName', 'elementCode'=>12, 'elementId'=>3, 'elementComment'=>'test', 'active'=>0, 'domainId' =>5);
         $element = new Application_Model_Element($elementArray);
         $elementArray2 = $element->toArray();
         $this->assertEquals($elementArray, $elementArray2);

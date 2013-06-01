@@ -1,8 +1,12 @@
 <div id="add-form" title="Apply for approval">
     <form id="app-form">
-        <label for="formName">Application name</label>
-        <input type="text" id="formName" name="formName" />
+        <input type="text" id="formName" name="formName" placeholder="<?php echo $this->translate('invoice name');?>"/>
         <?php
+        echo '<select id="expgroup" name="expgroup">' . PHP_EOL;
+        foreach($this->expgroups as $group){
+            echo '<option value="' . $group . '">' . $group . '</option>' . PHP_EOL;
+        }
+        echo '</select>' . PHP_EOL;
         echo '<select id="nodeId" name="nodeId">';
         foreach ($this->nodes as $node) {
             echo '<option value="' . $node->nodeId . '">' . $node->nodeName . '</option>';
