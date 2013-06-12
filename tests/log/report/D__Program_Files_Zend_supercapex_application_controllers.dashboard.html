@@ -26,7 +26,7 @@
             <h2>Class Coverage Distribution</h2>
             <canvas id="classCoverageDistribution" width="475" height="200"></canvas>
             <script>
-            var ccd = new RGraph.Bar('classCoverageDistribution', [0,0,0,0,0,0,2,2,0,0,0,2]);
+            var ccd = new RGraph.Bar('classCoverageDistribution', [0,0,0,0,0,0,2,1,1,0,1,1]);
             ccd.Set('chart.background.barcolor1', 'white');
             ccd.Set('chart.background.barcolor2', 'white');
             ccd.Set('chart.colors', ['blue']);
@@ -43,7 +43,7 @@
             <h2>Class Complexity</h2>
             <canvas id="classComplexity" width="475" height="200"></canvas>
             <script>
-            var cc = new RGraph.Scatter('classComplexity', [[100,7,"blue","AuthController"],[66.666666666667,10,"blue","ErrorController"],[100,20,"blue","FormController"],[50.877192982456,12,"blue","IndexController"],[63.829787234043,33,"blue","ObjectsController"],[56.25,7,"blue","ScenarioController"]]);
+            var cc = new RGraph.Scatter('classComplexity', [[100,7,"blue","AuthController"],[78.787878787879,10,"blue","ErrorController"],[96.938775510204,21,"blue","FormController"],[50.877192982456,12,"blue","IndexController"],[64.335664335664,33,"blue","ObjectsController"],[58.536585365854,10,"blue","ScenarioController"]]);
             cc.Set('chart.xmax', 100);
             cc.Set('chart.background.barcolor1', 'white');
             cc.Set('chart.background.barcolor2', 'white');
@@ -59,10 +59,11 @@
           <td valign="top">
             <h2>Top Project Risks</h2>
             <ul>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#14">ObjectsController</a> (84)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#14">ObjectsController</a> (82)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_IndexController.php.html#3">IndexController</a> (29)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ErrorController.php.html#3">ErrorController</a> (13)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#11">ScenarioController</a> (11)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_FormController.php.html#8">FormController</a> (21)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#10">ScenarioController</a> (17)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ErrorController.php.html#3">ErrorController</a> (10)</li>
 
             </ul>
           </td>
@@ -70,16 +71,16 @@
           <td valign="top">
             <h2>Least Tested Methods</h2>
             <ul>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#132">ObjectsController::editPrivilegesAction</a> (0%)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#29">ScenarioController::indexAction</a> (0%)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#56">ScenarioController::openScenarioAction</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#135">ObjectsController::editPrivilegesAction</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#30">ScenarioController::indexAction</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#67">ScenarioController::openScenarioAction</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#79">ScenarioController::deleteScenarioAction</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#127">ObjectsController::userPrivilegesAction</a> (0%)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_IndexController.php.html#63">IndexController::saveNewDomainAction</a> (0%)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#124">ObjectsController::userPrivilegesAction</a> (0%)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_IndexController.php.html#50">IndexController::newDomain1Action</a> (0%)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#150">ObjectsController::openObjectAction</a> (33%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#153">ObjectsController::openObjectAction</a> (33%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_FormController.php.html#137">FormController::updateElementsAction</a> (40%)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ErrorController.php.html#46">ErrorController::getLog</a> (60%)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ErrorController.php.html#6">ErrorController::errorAction</a> (66%)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#42">ScenarioController::addScenarioAction</a> (80%)</li>
 
             </ul>
           </td>
@@ -91,7 +92,7 @@
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
       <tr><td class="ruler"><img src="glass.png" width="3" height="3" alt=""></td></tr>
-      <tr><td class="versionInfo">Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 1.0.2</a> using <a href="http://www.php.net/" target="_top">PHP 5.3.18</a> and PHPUnit 3.5.15 at Sat Jun 1 9:33:12 BST 2013.</td></tr>
+      <tr><td class="versionInfo">Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 1.0.2</a> using <a href="http://www.php.net/" target="_top">PHP 5.3.18</a> and PHPUnit 3.5.15 at Mon Jun 10 14:22:07 BST 2013.</td></tr>
     </table>
 
     <br/>

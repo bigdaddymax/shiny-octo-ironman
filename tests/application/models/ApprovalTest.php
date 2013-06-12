@@ -154,7 +154,7 @@ class ApprovalTest extends TestCase {
 // FORM
         $itemArray1 = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'elementId' => $this->elementId1, 'active' => true);
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId2, 'active' => true);
-        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId1, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true, 'contragentId' => $this->contragentId);
+        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId1, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true, 'contragentId' => $this->contragentId, 'expgroup'=>'CAPEX');
         $form = new Application_Model_Form($formArray1);
 //        Zend_Debug::dump($form);
         $this->assertTrue($form->isValid());

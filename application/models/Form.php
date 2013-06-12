@@ -21,6 +21,7 @@ class Application_Model_Form {
     private $_decision;
     private $_public = 0;
     private $_contragentId;
+    private $_expgroup;
 
     public function __construct(array $formArray = null) {
         if (isset($formArray['formName'])) {
@@ -31,6 +32,9 @@ class Application_Model_Form {
         }
         if (isset($formArray['active'])) {
             $this->_active = (int) $formArray['active'];
+        }
+        if (isset($formArray['expgroup'])) {
+            $this->_expgroup = $formArray['expgroup'];
         }
         if (isset($formArray['public'])) {
             $this->_public = (int) $formArray['public'];
@@ -157,7 +161,12 @@ class Application_Model_Form {
      */
     public function isValid() {
         $this->_valid = true;
-        if (isset($this->_formName) && isset($this->_domainId) && isset($this->_contragentId) && isset($this->_userId) && isset($this->_nodeId) && isset($this->_items)) {
+        if (isset($this->_formName) && isset($this->_domainId) 
+                && isset($this->_contragentId) 
+                && isset($this->_userId) 
+                && isset($this->_nodeId) 
+                && isset($this->_items)
+                && isset($this->_expgroup)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;

@@ -31,25 +31,31 @@
     
 </script> 
 
-<div id="form-data">
-    <div id="form-header">
+<!-- ++++++++ Form data PANEL +++++++ -->
+<div class="panel">
+    <!-- FORM NAME -->
+    <div class="row">
         <?php
         echo $this->translate('invoice detail') . ' #' . $this->form['form']->formId . PHP_EOL;
         ?>
     </div>
-    <div id="form-approvals">
+    <!-- END FROM NAME-->
+    
+    <!-- Form approval status-->
+    <div class="row">
         <?php
         echo $this->translate('approval status');
         if (isset($this->approved)) {
             foreach ($this->approved as $approver) {
-                echo '<tr><td>' . $approver['userName'] . '</td><td>' . $approver['decision'] . '</td></tr>';
+                echo '<div class="small-2 columns">' . $approver['userName'] . '</div><div class="small-1 columns">' . $approver['decision'] . '</div>';
             }
         }
         ?>
-
     </div>
+    <!-- END Form approval status -->
 
-    <div id="form-details">
+    <!-- Form details (author, invoice type, department etc)-->
+    <div class="row">
         <?php
         echo '<div id="form-name">' . $this->form['form']->formName . '</div>' . PHP_EOL;
 
@@ -59,27 +65,36 @@
         echo '<div id = "form-user">' . $this->translate('owner') . ': <b>' . $this->form['owner']->userName . '</b></div>';
         echo '<div id = "form-date">' . $this->translate('date') . ': <b>' . $this->form['form']->date . '</b></div>';
         ?>
-
     </div>
+    <!-- END Form details -->
+    
     <div id="form-descr">
 
     </div>
-    <div id="items">
+    
+    <!-- Invoice items list -->
+    <div id="items" class="row">
         <?php
         foreach ($this->form['items'] as $item) {
-            echo '<div id="item-name">' . $item->itemName . '</div><div id="item-value">' . sprintf("%01.2f", $item->value) . '</div>' . PHP_EOL;
+            echo '<div class="row"><div class="small-2 columns">' . $item->itemName . '</div><div class="small-2 columns">' . sprintf("%01.2f", $item->value) . '</div></div>' . PHP_EOL;
         }
-        ?>
-        <?php echo '<div id="items-total">' . $this->translate('total') . '</div>'; ?>
-        <?php echo '<div id="items-total-amount">' . sprintf("%01.2f", $this->form['total']) . '</div>'; ?>
+         echo '<div class="row">' . PHP_EOL;
+         echo '<div  class="small-2 columns">' . $this->translate('total') . '</div>' . PHP_EOL; 
+         echo '<div  class="small-2 columns">' . sprintf("%01.2f", $this->form['total']) . '</div>' . PHP_EOL;
+         echo '</div>' . PHP_EOL; 
+         ?>
         <!--  Fixing float collapse  -->
-        <div style="clear: both;"></div>
-
     </div>
+    <!-- END Invoice items list -->
+    
+    <!-- ATTACHMENTS list -->
     <div id="attachments">
 
 
     </div>
+    <!-- END ATTACHMENTS -->
+    
+    <!-- Approval buttons -->
     <div id="form-buttons">
         <?php
         if ($this->showApproval && $this->form['form']->public) {
@@ -93,8 +108,12 @@
         }
         ?>
     </div>
+    <!-- END Approval buttons -->
+    
+    <!-- Comments section -->
     <div id="comments">
 
     </div>
-
+    <!-- END Comments section -->
 </div>
+<!-- END OF PANEL -->

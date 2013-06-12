@@ -1,56 +1,55 @@
 <script>
-    $(function(){
-        $("#add-form-btn").button()
-        .click(function(){
+   function addForm(){
             window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'edit-form'), null, true); ?>";
-        });
-    });
+    }
     
     function openForm(formId){
         $('#form-open').load('<?php echo $this->url(array('controller' => 'form', 'action' => 'open-form'), null, true); ?>' + '/formId/' + formId.slice(formId.indexOf('_')+1));
         //location = url;
     }
 </script>
-<div id="forms-list">
-<?php
-if (is_array($this->forms)) {
-    foreach ($this->forms as $form) {
-        $class = '';
-        if ($form['form']->final){
-            if ('approve' == $form['form']->decision){
-            $class = ' class="approved" ';
-            } else {
-                $class = ' class="declined" ';
+<!-- GLOBAL CONTAINER FOR FORMS LIST AND FORM DETAILS -->
+<div class="row">
+    
+    <!--  Forms list goes here -->
+    <div class="small-7 columns">
+        <?php
+        if (is_array($this->forms)) {
+            echo '<table>';
+            foreach ($this->forms as $form) {
+                $class = '';
+                if ($form['form']->final) {
+                    if ('approve' == $form['form']->decision) {
+                        $class = ' class="approved" ';
+                    } else {
+                        $class = ' class="declined" ';
+                    }
+                }
+                if (!$form['form']->public) {
+                    $class.=' private ';
+                }
+                echo '<tr class ="' . $class . '" onClick="openForm(\'form_' . $form['form']->formId . '\')" >' . PHP_EOL .
+                '<td>' . PHP_EOL .
+                (!empty($form['parentNode']) ? '<div>' . $form['parentNode']->nodeName . '</div>' : '') . PHP_EOL .
+                '</td><td>' . $form['node']->nodeName . '</td>' . PHP_EOL .
+                '<td>' . PHP_EOL .
+                substr($form['form']->date, 0, strpos($form['form']->date, ' ')) . '</td>' . PHP_EOL .
+                '<td>' . $form['owner']->userName . '</td>' . PHP_EOL .
+                '<td>' . $form['contragent']->contragentName . '</td>' . PHP_EOL .
+                '<td>' . $form['form']->formName . '</td>' . PHP_EOL .
+                '<td>' . sprintf("%01.2f", $form['total']) . '</td>' . PHP_EOL .
+                '</tr>';
             }
+            echo '</table>';
         }
-        $class = ' row ';
-        if (!$form['form']->public){
-            $class.=' private ';
-        }
-        echo '<div class ="' .$class. '" onClick="openForm(\'form_'.$form['form']->formId.'\')" >'. PHP_EOL .
-                '<div class="small-1 columns"></div>' . PHP_EOL .
-                '<div  class="small-2 columns">' . PHP_EOL .
-                    (!empty($form['parentNode'])? '<div class="row">' . $form['parentNode']->nodeName . '</div>':'') . PHP_EOL .
-                    '<div class="row">' . $form['node']->nodeName . '</div>' . PHP_EOL .
-                '</div>'. PHP_EOL .
-                '<div class="small-2 columns">' . PHP_EOL .
-                   '<div class="row">' . substr($form['form']->date, 0, strpos($form['form']->date, ' ')) . '</div>' . PHP_EOL .
-                   '<div class="row">' . $form['owner']->userName . '</div>' . PHP_EOL .
-                '</div>' . PHP_EOL .
-                '<div class="small-2 columns">' . $form['contragent']->contragentName. '</div>' . PHP_EOL .
-                '<div class="small-2 columns">' . $form['form']->formName . '</div>' . PHP_EOL .
-                '<div class="small-2 columns">' . sprintf("%01.2f", $form['total']) . '</div>' . PHP_EOL .
-            '</div>';
+        ?>
+    </div>
+    <!-- END Forms list -->
+    
+    <!-- Form's details -->
+    <div id="form-open" class="panel small-5 columns"></div>
+    <!-- END Forms details -->
+    <button id="add-form-btn" onclick="addForm()"><?php echo $this->translate('add form');?></button>
 
-    }
-}
-?>
 </div>
-<div id="form-open"></div>
-<div style="clear: both;"></div>
-<button id="add-form-btn">Add application</button>
-
-<div id="test-outer">
-    <div id="test-inner1"></div>
-    <div id="test-inner2"></div>
-</div>
+<!-- END GLOBAL CONTAINER -->

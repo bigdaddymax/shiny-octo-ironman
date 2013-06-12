@@ -81,7 +81,7 @@ class ObjectsManagerTest extends TestCase {
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId, 'formId' => 1);
         $item2 = new Application_Model_Item($itemArray2);
         $this->assertTrue($item2->isValid());
-        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => 1, 'public'=>1, 'contragentId'=>$this->contragentId);
+        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => 1, 'public'=>1, 'contragentId'=>$this->contragentId, 'expgroup'=>'OPEX');
         $this->form = new Application_Model_Form($formArray1);
         $formArray2 = $this->form->toArray();
         unset($formArray2['date']);
@@ -89,7 +89,7 @@ class ObjectsManagerTest extends TestCase {
         $this->assertTrue($this->form->isValid());
         $this->formId = $this->objectManager->saveObject($this->form);
         $this->assertTrue(is_int($this->formId));
-        $formArray3 = array('userId' => $this->userId, 'formName' => 'fName2', 'nodeId' => $this->nodeId, 'items' => array(1 => $item1, 2 => $item2), 'domainId' => 1, 'contragentId'=>$this->contragentId);
+        $formArray3 = array('userId' => $this->userId, 'formName' => 'fName2', 'nodeId' => $this->nodeId, 'items' => array(1 => $item1, 2 => $item2), 'domainId' => 1, 'contragentId'=>$this->contragentId, 'expgroup'=>'OPEX');
         $form2 = new Application_Model_Form($formArray3);
         $this->assertTrue($form2->isValid());
         $formId = $this->objectManager->saveObject($form2);
@@ -141,7 +141,7 @@ class ObjectsManagerTest extends TestCase {
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'userId' => $this->userId, 'elementId' => $this->elementId, 'formId' => 1);
         $item2 = new Application_Model_Item($itemArray2);
         $this->assertTrue($item2->isValid());
-        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId);
+        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId, 'expgroup'=>'OPEX');
         $form = new Application_Model_Form($formArray1, $this->userId);
         $this->assertTrue($form->isValid());
         $formId = $this->objectManager->saveObject($form);
@@ -169,7 +169,7 @@ class ObjectsManagerTest extends TestCase {
         $itemArray4 = array('itemName' => 'item4', 'domainId' => 1, 'value' => 333, 'userId' => $this->userId, 'elementId' => $this->elementId, 'formId' => 1);
         $item4 = new Application_Model_Item($itemArray4);
         $this->assertTrue($item4->isValid());
-        $formArray5 = array('userId' => $this->userId, 'formName' => 'fName5', 'nodeId' => $this->nodeId, 'items' => array(0 => $item4, 1 => $item5), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId);
+        $formArray5 = array('userId' => $this->userId, 'formName' => 'fName5', 'nodeId' => $this->nodeId, 'items' => array(0 => $item4, 1 => $item5), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId,'expgroup'=>'CAPEX');
         $form5 = new Application_Model_Form($formArray5, $this->userId);
         $this->assertTrue($form5->isValid());
         $formId5 = $this->objectManager->saveObject($form5);
@@ -209,7 +209,7 @@ class ObjectsManagerTest extends TestCase {
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'userId' => $this->userId, 'elementId' => $this->elementId, 'formId' => 1);
         $item2 = new Application_Model_Item($itemArray2);
         $this->assertTrue($item2->isValid());
-        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId);
+        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => true, 'contragentId'=>$this->contragentId, 'expgroup'=>'OPEX');
         $form = new Application_Model_Form($formArray1);
         $this->assertTrue($form->isValid());
         $formId = $this->objectManager->saveObject($form);
@@ -225,7 +225,7 @@ class ObjectsManagerTest extends TestCase {
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'userId' => $this->userId, 'elementId' => $this->elementId, 'formId' => 1);
         $item2 = new Application_Model_Item($itemArray2);
         $this->assertTrue($item2->isValid());
-        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => 1, 'public'=>1, 'contragentId'=>$this->contragentId);
+        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $item1, 1 => $item2), 'domainId' => 1, 'active' => 1, 'public'=>1, 'contragentId'=>$this->contragentId, 'expgroup'=>'OPEX');
         $form = new Application_Model_Form($formArray1);
         $this->assertTrue($form->isValid());
         $formId = $this->objectManager->saveObject($form);

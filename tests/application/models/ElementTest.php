@@ -22,9 +22,9 @@ class ElementTest extends TestCase {
     
     public function testElementConstructCorrect()
     {
-        $elementArray = array('elementName'=>'eName', 'elementCode'=>12, 'elementId'=>3, 'elementComment'=>'test', 'active'=>false, 'domainId' => 5);
+        $elementArray = array('elementName'=>'eName', 'elementCode'=>12, 'elementId'=>3, 'elementComment'=>'test', 'active'=>1, 'domainId' => 5, 'expgroup'=>'CAPEX');
         $element = new Application_Model_Element($elementArray);
-        $this->assertFalse($element->active);
+        $this->assertEquals($element->active, 1);
         $this->assertEquals('eName', $element->elementName);
         $this->assertEquals('test', $element->elementComment);
         $this->assertEquals(12, $element->elementCode);

@@ -56,11 +56,11 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $nodeId2 = $this->objectManager->saveObject($node2);
 
 // ELEMENTS
-        $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34, 'expgroup'=>'OPEX');
+        $elementArray = array('elementName' => 'eName', 'domainId' => 1, 'elementCode' => 34, 'expgroup' => 'OPEX');
         $element = new Application_Model_Element($elementArray);
         $this->assertTrue($element->isValid());
         $this->elementId1 = $this->objectManager->saveObject($element);
-        $elementArray1 = array('elementName' => 'eName1', 'domainId' => 1, 'elementCode' => 44, 'expgroup'=>'OPEX');
+        $elementArray1 = array('elementName' => 'eName1', 'domainId' => 1, 'elementCode' => 44, 'expgroup' => 'OPEX');
         $element1 = new Application_Model_Element($elementArray1);
         $this->assertTrue($element1->isValid());
         $this->elementId2 = $this->objectManager->saveObject($element1);
@@ -151,7 +151,6 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
      * 
      * @expectedException InvalidArgumentException
      */
-    
     public function testGetScenarioInvalid() {
         $objectsManager = new Application_Model_ObjectsManager(1);
         $scenario = $objectsManager->getObject('scenario', 'r');
@@ -168,29 +167,33 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->resetRequest();
         $this->resetResponse();
-        $entryArray1 = array('domainId' => 1, 'orderPos' => 1, 'userId' => $this->userId, 'active' => true);
-        $entryArray2 = array('domainId' => 1, 'orderPos' => 2, 'userId' => $this->userId1, 'active' => true);
+        $entryArray1 = array('orderPos' => 1, 'userId' => $this->userId, 'active' => 1, 'domainId' => 1);
+        $entryArray2 = array('orderPos' => 2, 'userId' => $this->userId1, 'active' => 1, 'domainId' => 1);
         $scenarioArray1 = array('scenarioName' => 'eName1', 'active' => false, 'domainId' => 1, 'entries' => array(0 => $entryArray1, 1 => $entryArray2));
-        $params = array('controller' => 'scenario', 'action' => 'add-scenario');
+        $params = array('controller' => 'scenario', 'action' => 'save-scenario');
         $this->request->setMethod('post');
         $this->request->setPost($scenarioArray1);
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->assertController('scenario');
-        $this->assertAction('add-scenario');
-        $entries = $this->objectManager->getAllObjects('scenarioEntry', array(0=>array('column'=>'userId', 'operand'=>$this->userId)));
+        $this->assertAction('save-scenario');
+        $entries = $this->objectManager->getAllObjects('scenarioEntry', array(0 => array('column' => 'userId', 'operand' => $this->userId)));
         $scenarios = $this->objectManager->getAllObjects('scenario');
         $this->assertEquals(count($scenarios), 1);
-        $scenario = $this->objectManager->getObject('scenario',$scenarios[0]->scenarioId);
+        $scenario = $this->objectManager->getObject('scenario', $scenarios[0]->scenarioId);
         $this->assertEquals($scenario->scenarioName, $scenarios[0]->scenarioName);
         $this->assertEquals($scenario->scenarioName, 'eName1');
         $entries = $scenario->entries;
         $this->assertTrue(is_array($entries));
+        $this->assertTrue($entries[0]->isValid());
+        $this->assertTrue($entries[1]->isValid());
         $entryArray3 = $entries[0]->toArray();
         unset($entryArray3['scenarioEntryId']);
         unset($entryArray3['scenarioId']);
         $entryArray4 = $entries[1]->toArray();
         unset($entryArray4['scenarioEntryId']);
         unset($entryArray4['scenarioId']);
+        $this->assertEquals($entryArray1, $entryArray3);
+        $this->assertEquals($entryArray2, $entryArray4);
         $this->assertEquals(array(0 => $entryArray3, 1 => $entryArray4), array(0 => $entryArray1, 1 => $entryArray2));
     }
 
@@ -204,7 +207,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
         $scenarioArray1 = array('scenarioName' => 'test', 'nodeId' => $this->nodeId1, 'domainId' => 1,
             'orderPos_' . $this->userId1 => 1, 'orderPos_' . $this->userId => 2);
-        $params = array('controller' => 'scenario', 'action' => 'add-scenario');
+        $params = array('controller' => 'scenario', 'action' => 'save-scenario');
 //        Zend_Debug::dump($scenarioArray1);
         $this->request->setMethod('post');
         foreach ($scenarioArray1 as $key => $value) {
@@ -213,19 +216,96 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
             }
             $this->request->setPost($key, $value);
         }
+        $entryArray0 = array('orderPos' => 2, 'userId' => $this->userId, 'domainId' => 1, 'active' => 1);
+        $entryArray1 = array('orderPos' => 1, 'userId' => $this->userId1, 'domainId' => 1, 'active' => 1);
         $this->dispatch($this->url($this->urlizeOptions($params)));
-//        $this->assertController('scenario');
-//        $response = $this->getResponse();
-        //Zend_Debug::dump($response);
-//        Zend_Debug::dump($this->request->getPost());
-//        echo $response->outputBody();
         $objectManager = new Application_Model_ObjectsManager(1);
         $scenarios = $objectManager->getAllObjects('scenario');
-//        $this->assertEquals('rr', $response->outputBody());
-//        $this->assertEquals('tt', $scenarios);
-        $scenario = $objectManager->getObject('scenario',$scenarios[0]->scenarioId);
+        $scenario = $objectManager->getObject('scenario', $scenarios[0]->scenarioId);
         $this->assertEquals($scenario->scenarioName, $scenarios[0]->scenarioName);
         $this->assertEquals($scenario->scenarioName, 'test');
+        $entries = $scenario->entries;
+        $realEntry1 = $entries[0]->toArray();
+        unset($realEntry1['scenarioEntryId']);
+        unset($realEntry1['scenarioId']);
+        $realEntry0 = $entries[1]->toArray();
+        unset($realEntry0['scenarioEntryId']);
+        unset($realEntry0['scenarioId']);
+        $this->assertEquals($entryArray1, $realEntry1);
+        $this->assertEquals($entryArray0, $realEntry0);
+    }
+
+    public function testEditScenario() {
+        $user = array('login' => 'user login', 'password' => 'user password');
+        $params = array('controller' => 'auth', 'action' => 'auth');
+        $this->request->setMethod('post');
+        $this->request->setPost($user);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+        $scenarioArray1 = array('scenarioName' => 'test', 'nodeId' => $this->nodeId1, 'domainId' => 1,
+            'orderPos_' . $this->userId1 => 1, 'orderPos_' . $this->userId => 2);
+        $params = array('controller' => 'scenario', 'action' => 'save-scenario');
+//        Zend_Debug::dump($scenarioArray1);
+        $this->request->setMethod('post');
+        foreach ($scenarioArray1 as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+            $this->request->setPost($key, $value);
+        }
+        $entryArray0 = array('orderPos' => 2, 'userId' => $this->userId, 'domainId' => 1, 'active' => 1);
+        $entryArray1 = array('orderPos' => 1, 'userId' => $this->userId1, 'domainId' => 1, 'active' => 1);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $objectManager = new Application_Model_ObjectsManager(1);
+        $scenarios = $objectManager->getAllObjects('scenario');
+        $scenario = $objectManager->getObject('scenario', $scenarios[0]->scenarioId);
+        $this->assertEquals($scenario->scenarioName, $scenarios[0]->scenarioName);
+        $this->assertEquals($scenario->scenarioName, 'test');
+        $entries = $scenario->entries;
+        $realEntry1 = $entries[0]->toArray();
+        unset($realEntry1['scenarioEntryId']);
+        unset($realEntry1['scenarioId']);
+        $realEntry0 = $entries[1]->toArray();
+        unset($realEntry0['scenarioEntryId']);
+        unset($realEntry0['scenarioId']);
+        $this->assertEquals($entryArray1, $realEntry1);
+        $this->assertEquals($entryArray0, $realEntry0);
+
+        $this->resetRequest();
+        $this->resetResponse();
+        $scenarioArray2 = array('scenarioName' => 'test', 'nodeId' => $this->nodeId1, 'domainId' => 1,
+            'orderPos_' . $this->userId1 => 1, 'scenarioId' => $scenario->scenarioId);
+        $params = array('controller' => 'scenario', 'action' => 'save-scenario');
+//        Zend_Debug::dump($scenarioArray1);
+        $this->request->setMethod('post');
+        foreach ($scenarioArray2 as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+            $this->request->setPost($key, $value);
+        }
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $scenarios1 = $this->objectManager->getAllObjects('scenario');
+        $this->assertEquals(count($scenarios1), 1);
+        $entryArray1 = array('orderPos' => 1, 'userId' => $this->userId1, 'domainId' => 1, 'active' => 1);
+        $entries = $scenarios1[0]->entries;
+        $realEntries = $entries[0]->toArray();
+        unset($realEntries['scenarioEntryId']);
+        unset($realEntries['scenarioId']);
+        $this->assertEquals($realEntries, $entryArray1);
+
+        $this->resetRequest();
+        $this->resetResponse();
+
+        $params = array('controller' => 'scenario', 'action' => 'edit-scenario', 'scenarioId' => $scenarios1[0]->scenarioId);
+//        Zend_Debug::dump($scenarioArray1);
+        $this->request->setMethod('post');
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $response = $this->getResponse();
+        $this->assertController('scenario');
+        $this->assertAction('edit-scenario');
+        $this->assertQuery('entries');
     }
 
     /**
@@ -277,10 +357,9 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertController('scenario');
         $this->assertAction('delete-scenario');
 
-        $scenarioDeleted = $objectManager->getObject('scenario',$scenario[0]->scenarioId);
+        $scenarioDeleted = $objectManager->getObject('scenario', $scenario[0]->scenarioId);
         $this->assertFalse($scenarioDeleted);
     }
 
-    
 }
 
