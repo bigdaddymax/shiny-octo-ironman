@@ -1,0 +1,38 @@
+<script>
+    $(document).ajaxError(function(event, jqxhr, settings, exception){
+        $("#result-message").html(jqxhr.status);
+    });
+
+    $(document).ajaxSuccess(function(event, jqxhr, settings){
+        $("#result-message").html(jqxhr.status);
+    });
+
+    $(function(){
+        $("#update-scenario-btn").button().click(function(){
+            $.post('<?php echo $this->url(array('controller' => 'scenario', 'action' => 'edit-object'), null, true); ?>',
+            $("#scenario-form").serialize()); 
+               
+        })
+    });
+    
+</script>
+
+<div class="panel">
+    <form id="scenario-form">
+    <?php
+    if (!empty($this->scenario)) {
+        echo '<div class="row">' . PHP_EOL;
+        echo '<input type="text" id="_scenarioName" name="_scenarioName" value="' .
+        $this->scenario->scenarioName . '">' . PHP_EOL;
+        if ($this->scenario->entries) {
+            echo '<table>' . PHP_EOL;
+            foreach ($this->entries as $key => $entry){
+                echo '<tr id="user_' . $key . '"><td><a href="">x</td><td>' . $entry['user']->userName . '</td></tr>' . PHP_EOL;
+            }
+        }
+    }
+    ?>
+        <input type="hidden" id="_scenarioId" name="_scenarioId" value="<?php echo $this->scenario->scenarioId;?>">
+    </form>
+</div>
+<button id="update-scenario-btn"><?php echo $this->translate('save'); ?></button>

@@ -1,0 +1,90 @@
+<script>
+    function deleteEntry(item){
+        $(item).remove();
+        $("#orderPos").val(Number($("#orderPos").val())-1);
+        
+    }
+    $(function(){
+        $("#new-entry-form").dialog({
+            autoOpen: false,
+            title: "<?php echo $this->translate('add user to scenario'); ?>",
+            buttons: {
+                "<?php echo $this->translate("save"); ?>": function(){
+                    var pos = Number($('#orderPos').val()) + 1;
+                    $("#entries").append('<div id="entry_'+$("#userId").val()+pos+
+                        '" class="row">'+
+                        '<div id="href"><a href="#" onClick="deleteEntry(entry_'+
+                        $("#userId").val()+pos+
+                        ')">x</a></div><div id="user">'+
+                        $("#userId :selected").html()+
+                        '</div>'+
+                        '<input type="hidden" id="orderPos_' + $("#userId").val() +
+                        '" name="orderPos_' + $("#userId").val() +
+                        '" value="'+ pos + '">' +
+                        '</div>');
+                    $("#orderPos").val(pos);
+                    $(this).dialog('close');
+                },
+                "<?php echo $this->translate('cancel'); ?>": function(){$(this).dialog('close');}
+            }
+        });
+    
+        $("#add-entry-btn").button().click(function(){
+            $("#new-entry-form").dialog("open");
+        });
+        $("#add-scenario-btn").button().click(function(){
+            $.post("<?php echo $this->url(array('controller'=>'scenario', 'action'=>'save-scenario'));?>", $("#scenario-data").serialize());
+        });
+    });
+</script>
+
+<div class="row">
+    <div class="small-4 columns">
+        <form id="scenario-data">
+
+                <input id="scenarioName" name="scenarioName" 
+                       placeholder="<?php echo $this->translate('scenario name'); ?>" 
+                       <?php if (!empty($this->scenario)) echo 'value="' . $this->scenario->scenarioName . '"'; ?>
+                       />
+                <?php 
+                    if (!empty($this->scenario)){
+                        echo '<input type="hidden" id="scenarioId" name="scenarioId" value="' . $this->scenario->scenarioId . '">' . PHP_EOL;
+                    }
+                ?>
+            <div class="panel" id="entries">
+                <?php
+                if (!empty($this->entries)) {
+                    foreach ($this->entries as $key => $entry) {
+                        echo '<div class="row" id="entry_' . $entry->userId . $key .
+                        '"><div id="href"><a href="#" onclick="deleteEntry(entry_' . $entry->userId . $key .
+                        ')">x</a></div><div id="user">' . $entry->userName . '</div>' . PHP_EOL;
+                        echo '<input type="hidden" id="orderPos_' . $entry->userId . '" name="orderPos_' . $entry->userId . '" value="' . $key . '"></div>' . PHP_EOL;
+                    }
+                }
+                ?>
+            </div>
+        </form>
+        <input type="hidden" id="orderPos" 
+               value="<?php
+                if (!empty($this->entries)) {
+                    $entries = array_keys($this->entries);
+                    echo end($entries);
+                }
+                ?>">
+        <button id="add-entry-btn">Add new user</button>
+    </div>
+</div>
+<button id="add-scenario-btn">Add scenario</button>
+<div id="new-entry-form">
+    <?php
+    if ($this->users) {
+        echo "<select id='userId' name='userId'>";
+        foreach ($this->users as $user) {
+            echo "<option value='$user->userId'>$user->userName</option>";
+        }
+        echo "</select>";
+    } else {
+        echo 'No users';
+    }
+    ?>
+</div>

@@ -8,10 +8,13 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
     <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
-<!--
-<script src="<?php echo $this->baseUrl('js/scripts.js'); ?>"></script>
--->
+    <!--
+    <script src="<?php echo $this->baseUrl('js/scripts.js'); ?>"></script>
+    -->
     <link type="text/css" rel="stylesheet" href="http://supercapex.localhost/css/style.css" /> 
+    <?php
+    $session = new Zend_Session_Namespace('Auth');
+    ?>
     <script>
         window.onload = function(){
             var a1 = document.getElementById('signin-link');
@@ -29,76 +32,57 @@
                 }
             }
         }
-
-        $(function(){
-            
-            $("#signin").dialog({
-                autoOpen: false,
-                modal:    true,
-                buttons: {
-                    'Login': function(){
-                        $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'auth'), null, true); ?>', $('#signin-form').serialize())
-                        .done(function(data){
-                            window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");
-                        });
-                        $(this).dialog("close");
-                    },
-                    'Close': function() {
-                        $(this).dialog("close");
+<?php
+if (1 <> $session->auth) {
+    ?>
+            $(function(){
+                
+                $("#signin").dialog({
+                    autoOpen: false,
+                    modal:    true,
+                    buttons: {
+                        'Login': function(){
+                            $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'auth'), null, true); ?>', $('#signin-form').serialize())
+                            .done(function(data){
+                                window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");
+                            });
+                            $(this).dialog("close");
+                        },
+                        'Close': function() {
+                            $(this).dialog("close");
+                        }
                     }
-                }
+                });
             });
-        });
-    
+    <?php
+}
+?>
     </script>    
 
 </head>
 <body>
-  <script>
-  document.write('<script src=' + '/'+
-  ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
-  '.js><\/script>')
-  </script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.alerts.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.clearing.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.cookie.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.dropdown.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.forms.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.joyride.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.magellan.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.orbit.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.placeholder.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.reveal.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.section.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.tooltips.js');?>"></script>
-  <script src="<?php echo $this->baseUrl('js/foundation/foundation.topbar.js');?>"></script>
-  <script>
-  $(document).foundation();
-  </script>    
-    
-    
-    <!-- JQuery template for SIGNIN FORM -->
-    <div id="signin">
-        <form id="signin-form">
-            <table>
-                <tr>
-                    <td><label for="login">Login</label></td>
-                </tr>
-                <tr>
-                    <td><input type="text" id="login" name="login"></td>
-                </tr>
-                <tr>
-                    <td><label for="password">Password</label></td>
-                </tr>
-                <tr>
-                    <td><input type="password" id="password" name="password"></td>
-                </tr>
-            </table>
-        </form>
-    </div>
-
-    <!-- END OF SIGNIN FORM -->
+    <script>
+        document.write('<script src=' + '/'+
+            ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+            '.js><\/script>')
+    </script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.alerts.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.clearing.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.cookie.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.dropdown.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.forms.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.joyride.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.magellan.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.orbit.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.placeholder.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.reveal.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.section.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.tooltips.js'); ?>"></script>
+    <script src="<?php echo $this->baseUrl('js/foundation/foundation.topbar.js'); ?>"></script>
+    <script>
+        $(document).foundation();
+    </script>    
     <div id="container">
         <div id="header">
             <div id="logo">
@@ -106,7 +90,6 @@
             </div>
             <div id="top_menu">
                 <?php
-                $session = new Zend_Session_Namespace('Auth');
                 if (1 == $session->auth) {
                     echo '<a href="#" id="signoff-link">' . $this->translate('logout') . '</a>';
                     $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
@@ -115,7 +98,31 @@
                     $this->navigation($container);
                     $this->navigation()->setAcl($acl->acl);
                     $this->navigation()->setRole($session->login);
+                    $this->navigation()->setTranslator(Zend_Registry::get('Zend_Translate'));
                 } else {
+                    ?>
+                    <!-- JQuery template for SIGNIN FORM -->
+                    <div id="signin">
+                        <form id="signin-form">
+                            <table>
+                                <tr>
+                                    <td><label for="login">Login</label></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="text" id="login" name="login"></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="password">Password</label></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="password" id="password" name="password"></td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+                    <!-- END OF SIGNIN FORM -->
+
+                    <?php
                     echo '<a href="#" id="signin-link">' . $this->translate('login') . '</a>';
                 }
 

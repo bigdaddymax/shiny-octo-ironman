@@ -2,19 +2,21 @@
 <config>
     <nav>
         <home>
-            <label>Home</label>
+            <label>home</label>
             <controller>index</controller>
             <action>index</action>
             <resource>home</resource>
             <className>Home</className>
+            <subgroup>general</subgroup>
         </home>
-        <form>
-            <label>Forms</label>
+        <forms>
+            <label>forms</label>
             <controller>form</controller>
             <action>index</action>
             <resource>form</resource>
             <className>Form</className>
-        </form>
+            <subgroup>general</subgroup>
+        </forms>
         <admin>
             <label>Administration</label>
             <title>Administration</title>
@@ -23,7 +25,7 @@
             <resource>admin</resource>
             <pages>
                 <levels>
-                    <label>Nodes</label>
+                    <label>nodes</label>
                     <title>Nodes administration</title>
                     <controller>objects</controller>
                     <action>index</action>
@@ -35,7 +37,7 @@
                     <className>Node</className>
                 </levels>
                 <positions>
-                    <label>Positions</label>
+                    <label>positions</label>
                     <title>Positions administration</title>
                     <controller>objects</controller>
                     <action>index</action>
@@ -47,7 +49,7 @@
                     <subgroup>subadmin</subgroup>
                 </positions>
                 <elements>
-                    <label>Elements</label>
+                    <label>elements</label>
                     <title>Elements administration</title>
                     <controller>objects</controller>
                     <action>index</action>
@@ -59,7 +61,7 @@
                     <subgroup>subadmin</subgroup>
                 </elements>
                 <users>
-                    <label>Users</label>
+                    <label>users</label>
                     <title>Users administration</title>
                     <controller>objects</controller>
                     <action>index</action>
@@ -71,8 +73,8 @@
                     <className>User</className>
                 </users>
                 <scenario>
-                    <label>Scenario</label>
-                    <title>Scenario</title>
+                    <label>scenario</label>
+                    <title>scenario</title>
                     <controller>scenario</controller>
                     <action>index</action>
                     <subgroup>subadmin</subgroup>

@@ -136,7 +136,6 @@ class FormController extends Zend_Controller_Action {
 
     function updateElementsAction() {
         $expGroup = $this->_request->getParam('expgroup');
-        Zend_Debug::dump($expGroup);
         $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
         $this->view->elements = $objectsManager->getAllObjects('element', array(0 => array('column' => 'expgroup', 'operand' => $expGroup)));
         $this->_helper->layout()->disableLayout();

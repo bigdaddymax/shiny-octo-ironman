@@ -14,7 +14,7 @@ class Application_Model_ScenarioEntry {
     private $_scenarioId;
     private $_orderPos;
     private $_userId;
-    private $_active = true;
+    private $_active = 1;
     private $_domainId;
 
     public function __construct(array $scenarioEntryArray = null) {
@@ -22,7 +22,7 @@ class Application_Model_ScenarioEntry {
             $this->domainId = (int) $scenarioEntryArray['domainId'];
         }
         if (isset($scenarioEntryArray['active'])) {
-            $this->_active = (bool) $scenarioEntryArray['active'];
+            $this->_active = (int) $scenarioEntryArray['active'];
         }
         if (isset($scenarioEntryArray['orderPos'])) {
             $this->_orderPos = (int)$scenarioEntryArray['orderPos'];

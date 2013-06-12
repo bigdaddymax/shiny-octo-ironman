@@ -21,7 +21,7 @@ class FormTest extends TestCase {
         $itemArray = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'userId' => 6, 'elementId' => 2, 'formId' => 1);
         $item = new Application_Model_Item($itemArray);
         $this->assertTrue($item->isValid());
-        $formArray = array('formName' => 'eName', 'formId' => 3, 'userId' => 5, 'active' => 0, 'domainId' => 5, 'contragentId'=>2, 'items' => array(0 => $item), 'nodeId' => 3,'public'=>1);
+        $formArray = array('formName' => 'eName', 'formId' => 3, 'userId' => 5, 'active' => 0, 'domainId' => 5, 'contragentId'=>2, 'items' => array(0 => $item), 'nodeId' => 3,'public'=>1, 'expgroup'=>'CAPEX');
         $form = new Application_Model_Form($formArray);
         $this->assertTrue($form->isValid());
         $formArray1 = $form->toArray();
@@ -52,6 +52,8 @@ class FormTest extends TestCase {
         $form->formId = 1;
         $this->assertFalse($form->isValid());
         $form->contragentId = 3;
+        $this->assertFalse($form->isValid());
+        $form->expgroup = 'OPEX';
         $this->assertTrue($form->isValid());
         $this->assertEquals('eName', $form->formName);
         $this->assertEquals(1, $form->formId);

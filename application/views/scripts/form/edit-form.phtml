@@ -50,20 +50,6 @@
             }
             
         });
-        
-        //        $("#contragentName").autocomplete({
-        //            source: function(request, reponse){
-        //                $.ajax({
-        //                    url: "<?php echo $this->url(array('controller' => 'form', 'action' => 'get-autocomlete'), null, true); ?>",
-        //                    data:{},
-        //                    dataType: "jsonp",
-        //                    success: function(data){
-        //                        
-        //                    }
-        //                    });
-        //               }
-        //        });
-        
     });
 
 </script>
@@ -83,10 +69,9 @@
                 ?>"
                placeholder="<?php echo $this->translate('contragent'); ?>"
                />
-
-
         <?php
         echo '<select id="expgroup" name="expgroup">' . PHP_EOL;
+        echo '<option disabled selected=1>' . $this->translate('expgroup') . '</option>';
         foreach ($this->expgroup as $group) {
             echo '<option value="' . $group . '">' . $group . '</option>' . PHP_EOL;
         }

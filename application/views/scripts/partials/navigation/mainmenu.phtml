@@ -1,3 +1,9 @@
 <?php
-
-echo " | <a href = '". $this->url(array('controller'=>'form', 'action'=>'index'), null, true) . "'>Forms</a>";
+$pages = $this->container->findAllBy('subgroup', 'general');
+if (is_array($pages)){
+    foreach($pages as $page){
+        if ($this->navigation()->menu()->accept($page)){
+            echo ' | ' . $this->navigation()->menu()->htmlify($page);
+        }
+    }
+}

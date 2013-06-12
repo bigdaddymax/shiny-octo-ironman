@@ -10,7 +10,7 @@ if ($this->scenarios){
         echo '<tr><td><a href="' .
                 $this->url(array('controller'=>'scenario', 'action'=>'delete-scenario', 'scenarioId'=>$scenario->scenarioId)) . 
                 '">x</a></td><td><a href="'.
-                $this->url(array('controller'=>'scenario', 'action'=>'open-scenario', 'scenarioId'=>$scenario->scenarioId)).
+                $this->url(array('controller'=>'scenario', 'action'=>'edit-scenario', 'scenarioId'=>$scenario->scenarioId)).
                 '">' . $scenario->scenarioName .
                 '</td><td>'.$assigned.'</td></tr>' . PHP_EOL;
     }

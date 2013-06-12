@@ -203,7 +203,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         //       $this->assertTrue($this->accessMapper->isAllowed($session->login, 'node', 'write', $this->nodeId1));
         $itemArray1 = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'elementId' => $this->elementId1, 'active' => true);
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId2, 'active' => true);
-        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId2, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true, 'contragentName' => 'contr name');
+        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId2, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true, 'contragentName' => 'contr name', 'expgroup'=>'CAPEX');
         $params = array('controller' => 'form', 'action' => 'add-form');
         $this->request->setMethod('post');
         $this->request->setPost($formArray1);
@@ -242,7 +242,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name', 'expgroup'=>'CAPEX');
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -295,7 +295,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetRequest();
         $this->resetResponse();
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2,
-            'userId' => $this->userId1, 'contragentName' => 'cntr name');
+            'userId' => $this->userId1, 'contragentName' => 'cntr name', 'expgroup'=>'CAPEX');
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -325,7 +325,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         // Add form via web
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name', 'expgroup'=>'CAPEX');
         $params = array('controller' => 'form', 'action' => 'add-form');
         $this->request->setMethod('post');
         foreach ($formArray1 as $key => $value) {
@@ -386,7 +386,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         // Add form via web
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name', 'expgroup'=>'CAPEX');
         $params = array('controller' => 'form', 'action' => 'add-form');
         $this->request->setMethod('post');
         foreach ($formArray1 as $key => $value) {
@@ -427,7 +427,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name', 'expgroup'=>'CAPEX');
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -464,7 +464,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name', 'expgroup'=>'CAPEX');
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -501,7 +501,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId2, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name', 'expgroup'=>'CAPEX');
         $params = array('controller' => 'form', 'action' => 'add-form');
 //        Zend_Debug::dump($formArray1);
         $this->request->setMethod('post');
@@ -545,7 +545,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         // Create form
         $formArray1 = array('formName' => 'test', 'nodeId' => $this->nodeId1, 'domainId' => 1,
             'value_2' => 3, 'itemName_2' => 'we', 'value_1' => 1, 'itemName_1' => 'test',
-            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name');
+            'elementId_1' => $this->elementId1, 'elementId_2' => $this->elementId2, 'userId' => $this->userId1, 'contragentName' => 'cntr name', 'expgroup'=>'CAPEX');
         $params = array('controller' => 'form', 'action' => 'add-form');
         $this->request->setMethod('post');
         foreach ($formArray1 as $key => $value) {
