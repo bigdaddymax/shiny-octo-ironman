@@ -21,7 +21,21 @@ class FormController extends Zend_Controller_Action {
         $access = new Application_Model_AccessMapper($this->session->userId, $this->session->domainId);
         $allowedObjects = $access->getAllowedObjectIds();
         $objectManager = new Application_Model_ObjectsManager($this->session->domainId);
-        $forms = $objectManager->getAllForms($objectManager->createAccessFilterArray($this->session->userId));
+        $accessFilter = $objectManager->createAccessFilterArray($this->session->userId);
+        $this->view->pages = $objectManager->getNumberOfPages('form',   $accessFilter, $this->session->records_per_page);
+        if ($this->_request->getParam('page')){
+            $accessFilter['LIMIT']['start'] =  ((int) $this->_request->getParam('page') - 1) * $this->session->records_per_page;
+            $accessFilter['LIMIT']['number'] = $this->session->records_per_page;
+            $this->view->currentPage = $this->_request->getParam('page');
+        } else {
+            $accessFilter['LIMIT']['start'] =  0;
+            $accessFilter['LIMIT']['number'] = $this->session->records_per_page;
+            
+        }
+        if (!$this->view->currentPage){
+            $this->view->currentPage = 1;
+        }
+        $forms = $objectManager->getAllForms($accessFilter);
         ($forms === false) ? $this->view->forms = 'No forms' : $this->view->forms = $forms;
         $this->view->elements = $objectManager->getAllObjects('Element');
         if (!empty($allowedObjects['write'])) {

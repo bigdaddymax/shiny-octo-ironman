@@ -21,6 +21,9 @@ class Application_Model_ApprovalEntry {
                 }
             }
         }
+        if (!$this->_date) {
+            $this->_date = date('Y-m-d H:i:s');
+        }
     }
 
     public function __set($name, $value) {

@@ -144,7 +144,6 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         return $mainObjectId;
     }
 
-    
     /**
      * Return array of objects if there are any, false otherwise
      * @todo FILTER Functionality Use filter to limit forms in selection
@@ -175,7 +174,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
                     $forms[$f->formId]['parentNode'] = $this->getObject('node', $forms[$f->formId]['node']->parentNodeId);
                 }
                 $forms[$f->formId]['total'] = 0;
-                foreach ($f->items as $item){
+                foreach ($f->items as $item) {
                     $forms[$f->formId]['total'] += $item->value;
                 }
             }
@@ -184,8 +183,6 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
             return false;
         }
     }
-    
-    
 
     public function prepareFormForOutput($formId, $userId) {
         if (!empty($formId)) {
@@ -454,14 +451,13 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         return $entryId;
     }
 
-    
-    public function getFormOwner($formId){
-        if (!$formId){
+    public function getFormOwner($formId) {
+        if (!$formId) {
             throw new InvalidArgumentException('Form ID not provided.', 417);
         }
         return parent::getFormOwner($formId);
     }
-    
+
     /**
      * 
      * @param int $formId
@@ -487,6 +483,11 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
             }
         }
         return $email;
+    }
+
+    
+    public function getNumberOfPages($object, $filterArray, $recordsPerPage){
+        return parent::getNumberOfPages($object, $filterArray, $recordsPerPage);
     }
 
     public function setDomainId($domainId) {

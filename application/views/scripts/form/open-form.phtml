@@ -32,9 +32,9 @@
 </script> 
 
 <!-- ++++++++ Form data PANEL +++++++ -->
-<div class="panel">
+<div>
     <!-- FORM NAME -->
-    <div class="row">
+    <div id="form-header" class="row">
         <?php
         echo $this->translate('invoice detail') . ' #' . $this->form['form']->formId . PHP_EOL;
         ?>
@@ -42,12 +42,12 @@
     <!-- END FROM NAME-->
     
     <!-- Form approval status-->
-    <div class="row">
+    <div class="row" id="approval_status">
         <?php
-        echo $this->translate('approval status');
+        echo '<h5><center>' . $this->translate('approval status') . '</center></h5>' . PHP_EOL;
         if (isset($this->approved)) {
             foreach ($this->approved as $approver) {
-                echo '<div class="small-2 columns">' . $approver['userName'] . '</div><div class="small-1 columns">' . $approver['decision'] . '</div>';
+                echo '<div id="form-item">' . $approver['userName'] . " " . substr($approver['date'], 0, strpos($approver['date'], ' ')) . '</div>';
             }
         }
         ?>
@@ -57,13 +57,18 @@
     <!-- Form details (author, invoice type, department etc)-->
     <div class="row">
         <?php
-        echo '<div id="form-name">' . $this->form['form']->formName . '</div>' . PHP_EOL;
+        echo '<div id="form-name"><h5>' . $this->form['form']->expgroup . '</h5></div>' . PHP_EOL;
+        echo '<div id="form-name"><h6>' . $this->form['contragent']->contragentName . '</h6></div>' . PHP_EOL;
 
         if (!empty($this->form['parentNode']->nodeName))
-            echo '<div id = "form-node">' . $this->translate('company') . ': <b>' . $this->form['parentNode']->nodeName . '</b></div>';
-        echo '<div id = "form-node">' . $this->translate('deptmnt') . ': <b>' . $this->form['node']->nodeName . '</b></div>';
-        echo '<div id = "form-user">' . $this->translate('owner') . ': <b>' . $this->form['owner']->userName . '</b></div>';
-        echo '<div id = "form-date">' . $this->translate('date') . ': <b>' . $this->form['form']->date . '</b></div>';
+            echo '<div id = "form-node">' . $this->translate('company') . ': <strong>' . $this->form['parentNode']->nodeName . '</strong></div>';
+        echo '<div id = "form-node">' . $this->translate('deptmnt') . ': <strong>' . $this->form['node']->nodeName . '</strong></div>';
+        echo '<div id="form-author">' . PHP_EOL;
+        echo '<div id = "form-user">' . $this->translate('owner') . ': <strong>' . $this->form['owner']->userName . '</strong></div>';
+        echo '<div id = "form-date">' . $this->translate('date') . ': <strong>' . substr($this->form['form']->date, 0, strpos($this->form['form']->date, ' ')) . '</strong></div>';
+        echo '<div style="display: block; clear: both;"></div>';
+        echo '</div>';
+        echo '<div id="form-name" class="clear panel"><h6>' . $this->form['form']->formName . '</h6></div>' . PHP_EOL;
         ?>
     </div>
     <!-- END Form details -->
@@ -76,11 +81,11 @@
     <div id="items" class="row">
         <?php
         foreach ($this->form['items'] as $item) {
-            echo '<div class="row"><div class="small-2 columns">' . $item->itemName . '</div><div class="small-2 columns">' . sprintf("%01.2f", $item->value) . '</div></div>' . PHP_EOL;
+            echo '<div id="form-item" class="row"><div class="float: left">' . $item->itemName . '</div><div class="float: right">' . sprintf("%01.2f", $item->value) . '</div></div>' . PHP_EOL;
         }
-         echo '<div class="row">' . PHP_EOL;
-         echo '<div  class="small-2 columns">' . $this->translate('total') . '</div>' . PHP_EOL; 
-         echo '<div  class="small-2 columns">' . sprintf("%01.2f", $this->form['total']) . '</div>' . PHP_EOL;
+         echo '<div id="form-total" class="row">' . PHP_EOL;
+         echo '<div  class="float: left">' . $this->translate('total') . '</div>' . PHP_EOL; 
+         echo '<div  class="float: right">' . sprintf("%01.2f", $this->form['total']) . '</div>' . PHP_EOL;
          echo '</div>' . PHP_EOL; 
          ?>
         <!--  Fixing float collapse  -->
