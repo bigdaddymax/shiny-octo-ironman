@@ -4,9 +4,10 @@
 body {
     /*    background-color: #AAAAAA;*/
 /**    font-size: 16px;
-
-    font-family: Arial,Helvetica,sans-serif;
 */
+font-size: 0.875em;
+ /*   font-family: 'Open Sans', sans-serif, verdana;*/
+
 }
 
 #menu {
@@ -124,3 +125,66 @@ tr.private td{
     right: 0px;
     top: 50%;
 }
+
+/**/
+/* Form details formating */ 
+/**/
+
+#form-header {
+    margin-top: 1em;
+}
+
+#approval_status {
+    border-right-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-top-style: solid;
+    border-right-width: 1px;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    margin-top: 1em;
+    padding-bottom: 1em;
+    text-align: center;
+}
+
+#form-author {
+    margin-top: 5px;
+}
+
+#form-name {
+    margin-top: 5px;
+}
+
+#form-node {
+    margin-top: 5px;
+}
+
+#form-user {
+    margin-top: 5px;
+    float: left;
+}
+
+#form-date {
+    margin-top: 5px;
+    float: right;
+}
+
+#form-item {
+    margin-top: 10px;
+    border-bottom: thin solid grey;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 2px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#form-total {
+    margin-top: 10px;
+    margin-bottom: 25px;
+    font-weight: bold;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 10px;
+    margin-right: 10px;}

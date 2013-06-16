@@ -1,6 +1,6 @@
 <script>
-   function addForm(){
-            window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'edit-form'), null, true); ?>";
+    function addForm(){
+        window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'edit-form'), null, true); ?>";
     }
     
     function openForm(formId){
@@ -9,10 +9,10 @@
     }
 </script>
 <!-- GLOBAL CONTAINER FOR FORMS LIST AND FORM DETAILS -->
-<div class="row">
-    
+<div>
+
     <!--  Forms list goes here -->
-    <div class="small-7 columns">
+    <div class="large-8 columns">
         <?php
         if (is_array($this->forms)) {
             echo '<table>';
@@ -28,9 +28,9 @@
                 if (!$form['form']->public) {
                     $class.=' private ';
                 }
-                echo '<tr class ="' . $class . '" onClick="openForm(\'form_' . $form['form']->formId . '\')" >' . PHP_EOL .
+                echo '<tr ' . $class . ' onClick="openForm(\'form_' . $form['form']->formId . '\')" >' . PHP_EOL .
                 '<td>' . PHP_EOL .
-                (!empty($form['parentNode']) ? '<div>' . $form['parentNode']->nodeName . '</div>' : '') . PHP_EOL .
+                (!empty($form['parentNode']) ? $form['parentNode']->nodeName : '') . PHP_EOL .
                 '</td><td>' . $form['node']->nodeName . '</td>' . PHP_EOL .
                 '<td>' . PHP_EOL .
                 substr($form['form']->date, 0, strpos($form['form']->date, ' ')) . '</td>' . PHP_EOL .
@@ -43,13 +43,37 @@
             echo '</table>';
         }
         ?>
+
+        <!-- Paginator -->
+        <div class="pagination-centered">
+            <ul class="pagination">
+                <li class="arrow <?php echo ($this->currentPage == 1) ? 'unavailable': ''; ?>"><a href="<?php echo $this->url(array('controller'=>'form', 'action'=>'index', 'page'=>1), null, true);?>">&laquo;</a></li>
+                <?php
+                if ($this->pages > 1) {
+                    for ($i = 1; $i <= $this->pages; $i++) {
+                        if ($i == $this->currentPage) {
+                            $class = 'class="current"';
+                        } else {
+                            $class = '';
+                        }
+                        echo "<li $class ><a href='" . $this->url(array('controller'=>'form', 'action'=>'index', 'page'=>$i), null, true) . "'>" . $i . '</a></li>' . PHP_EOL;
+                    }
+                }
+                ?>
+                <li class="arrow <?php echo ($this->currentPage == $this->pages) ? 'unavailable': ''; ?>"><a href="<?php echo $this->url(array('controller'=>'form', 'action'=>'index', 'page'=>$this->pages), null, true); ?>">&raquo;</a></li>
+            </ul>
+        </div>
+        <!-- End of PAGINATOR -->
+
+
     </div>
     <!-- END Forms list -->
-    
+
+
     <!-- Form's details -->
-    <div id="form-open" class="panel small-5 columns"></div>
+    <div id="form-open" class="large-4 columns"></div>
     <!-- END Forms details -->
-    <button id="add-form-btn" onclick="addForm()"><?php echo $this->translate('add form');?></button>
+    <button id="add-form-btn" onclick="addForm()"><?php echo $this->translate('add form'); ?></button>
 
 </div>
 <!-- END GLOBAL CONTAINER -->

@@ -257,6 +257,11 @@ class ObjectsManagerTest extends TestCase {
         $this->objectManager->getEmailingList(-1);
     }
     
+    
+    public function testGetPagesFilter(){
+        $accessFilter = $this->objectManager->createAccessFilterArray($this->userId);
+        $this->objectManager->getPagesFilter(1, $accessFilter);
+    }
 }
 
 ?>

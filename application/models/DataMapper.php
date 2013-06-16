@@ -238,7 +238,6 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                     }
                 } else {
                     if ('LIMIT' == (string) $key) {
-                        echo $key . PHP_EOL;
                         $limit = ' LIMIT ' . ((int) $filterElement['start']) . ', ' . ((int) $filterElement['number']);
                     } elseif ('ORDER' == $key) {
                         $order = ' ORDER BY ' . $this->dbLink->quoteinto('?', $filterElement['column']) . ' ' . $filterElement['operand'];
@@ -246,6 +245,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 }
             }
         }
+
         return $result . $limit . $order;
     }
 
@@ -380,7 +380,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      */
     protected function getApprovalStatus($formId) {
         return $this->dbLink->fetchAll($this->dbLink->quoteinto('select 
-                                                ss.userId, ae.decision, ss.formId, ss.userName, ss.login, ss.orderPos
+                                                ss.userId, ae.decision, ss.formId, ss.userName, ss.login, ss.orderPos,ae.date
                                             from
                                                 (select se.userId, se.orderPos, f.formId, u.userName, u.login from scenario_entry se
                                             join scenario_assignment sa on se.scenarioId = sa.scenarioId
@@ -427,6 +427,12 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         return $this->_getObject($userId);
     }
 
+    protected function getNumberOfPages($object, $filterArray, $recordsPerPage){
+        $this->setClassAndTableName($object);
+        $filter = $this->prepareFilter($filterArray);
+        $count = $this->dbLink->fetchOne('SELECT count('.$this->objectIdName.') FROM ' . $this->tableName . ' ' . $filter);
+        return ceil($count / $recordsPerPage);
+    }
 }
 
 ?>

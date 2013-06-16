@@ -26,7 +26,7 @@
             <h2>Class Coverage Distribution</h2>
             <canvas id="classCoverageDistribution" width="475" height="200"></canvas>
             <script>
-            var ccd = new RGraph.Bar('classCoverageDistribution', [4,0,0,0,0,0,2,3,3,3,8,11]);
+            var ccd = new RGraph.Bar('classCoverageDistribution', [4,0,0,0,0,0,2,3,3,2,9,11]);
             ccd.Set('chart.background.barcolor1', 'white');
             ccd.Set('chart.background.barcolor2', 'white');
             ccd.Set('chart.colors', ['blue']);
@@ -43,7 +43,7 @@
             <h2>Class Complexity</h2>
             <canvas id="classComplexity" width="475" height="200"></canvas>
             <script>
-            var cc = new RGraph.Scatter('classComplexity', [[0,13,"blue","NetBeansSuite"],[0,21,"blue","File_Iterator"],[0,15,"blue","File_Iterator_Factory"],[0,11,"blue","Text_Template"],[100,3,"blue","Bootstrap"],[100,7,"blue","AuthController"],[78.787878787879,10,"blue","ErrorController"],[96.938775510204,21,"blue","FormController"],[50.877192982456,12,"blue","IndexController"],[64.335664335664,33,"blue","ObjectsController"],[58.536585365854,10,"blue","ScenarioController"],[71.844660194175,28,"blue","Application_Model_AccessMapper"],[89.473684210526,18,"blue","Application_Model_ApprovalEntry"],[83.333333333333,7,"blue","Application_Model_Auth"],[100,1,"blue","BaseDBAbstract"],[100,21,"blue","Application_Model_Comment"],[97.777777777778,23,"blue","Application_Model_Contragent"],[89.099526066351,71,"blue","Application_Model_DataMapper"],[100,16,"blue","Application_Model_Domain"],[100,19,"blue","Application_Model_Element"],[99.159663865546,54,"blue","Application_Model_Form"],[100,22,"blue","Application_Model_Item"],[100,16,"blue","Application_Model_Node"],[75.08896797153,93,"blue","Application_Model_ObjectsManager"],[100,19,"blue","Application_Model_Position"],[100,23,"blue","Application_Model_Privilege"],[90,17,"blue","Application_Model_Resource"],[96.629213483146,39,"blue","Application_Model_Scenario"],[91.304347826087,21,"blue","Application_Model_ScenarioAssignment"],[93.617021276596,20,"blue","Application_Model_ScenarioEntry"],[100,22,"blue","Application_Model_User"],[91.666666666667,21,"blue","Application_Model_UserGroup"],[61.71875,43,"blue","Capex_PasswordHash"],[65.116279069767,15,"blue","Capex_Plugins_AuthPlugin"]]);
+            var cc = new RGraph.Scatter('classComplexity', [[0,13,"blue","NetBeansSuite"],[0,21,"blue","File_Iterator"],[0,15,"blue","File_Iterator_Factory"],[0,11,"blue","Text_Template"],[100,3,"blue","Bootstrap"],[100,7,"blue","AuthController"],[78.787878787879,10,"blue","ErrorController"],[96.190476190476,21,"blue","FormController"],[50.877192982456,12,"blue","IndexController"],[64.335664335664,33,"blue","ObjectsController"],[58.536585365854,10,"blue","ScenarioController"],[71.844660194175,28,"blue","Application_Model_AccessMapper"],[90.243902439024,19,"blue","Application_Model_ApprovalEntry"],[83.333333333333,7,"blue","Application_Model_Auth"],[100,1,"blue","BaseDBAbstract"],[100,21,"blue","Application_Model_Comment"],[97.777777777778,23,"blue","Application_Model_Contragent"],[89.150943396226,72,"blue","Application_Model_DataMapper"],[100,16,"blue","Application_Model_Domain"],[100,19,"blue","Application_Model_Element"],[99.159663865546,54,"blue","Application_Model_Form"],[100,22,"blue","Application_Model_Item"],[100,16,"blue","Application_Model_Node"],[75.087719298246,95,"blue","Application_Model_ObjectsManager"],[100,19,"blue","Application_Model_Position"],[100,23,"blue","Application_Model_Privilege"],[90,17,"blue","Application_Model_Resource"],[96.629213483146,39,"blue","Application_Model_Scenario"],[91.304347826087,21,"blue","Application_Model_ScenarioAssignment"],[93.617021276596,20,"blue","Application_Model_ScenarioEntry"],[100,22,"blue","Application_Model_User"],[91.666666666667,21,"blue","Application_Model_UserGroup"],[61.71875,43,"blue","Capex_PasswordHash"],[65.116279069767,15,"blue","Capex_Plugins_AuthPlugin"]]);
             cc.Set('chart.xmax', 100);
             cc.Set('chart.background.barcolor1', 'white');
             cc.Set('chart.background.barcolor2', 'white');
@@ -64,7 +64,7 @@
               <li><a href="D:_Program Files_Zend_supercapex_application_models_UserGroup.php.html#8">Application_Model_UserGroup</a> (21)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_FormController.php.html#8">FormController</a> (21)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_models_ScenarioEntry.php.html#10">Application_Model_ScenarioEntry</a> (20)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_models_ApprovalEntry.php.html#3">Application_Model_ApprovalEntry</a> (18)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_ApprovalEntry.php.html#3">Application_Model_ApprovalEntry</a> (19)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_models_Resource.php.html#11">Application_Model_Resource</a> (17)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#10">ScenarioController</a> (17)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ErrorController.php.html#3">ErrorController</a> (10)</li>
@@ -76,16 +76,16 @@
           <td valign="top">
             <h2>Least Tested Methods</h2>
             <ul>
-              <li><a href="D:_Program Files_Zend_supercapex_application_models_ObjectsManager.php.html#315">Application_Model_ObjectsManager::deleteScenario</a> (0%)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#79">ScenarioController::deleteScenarioAction</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#67">ScenarioController::openScenarioAction</a> (0%)</li>
               <li><a href="D:_Program Files_Zend_supercapex_library_Capex_PasswordHash.php.html#167">Capex_PasswordHash::gensalt_blowfish</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_AccessMapper.php.html#165">Application_Model_AccessMapper::getAllowedObjectIds1</a> (0%)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ScenarioController.php.html#30">ScenarioController::indexAction</a> (0%)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#135">ObjectsController::editPrivilegesAction</a> (0%)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_IndexController.php.html#63">IndexController::saveNewDomainAction</a> (0%)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_controllers_ObjectsController.php.html#127">ObjectsController::userPrivilegesAction</a> (0%)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_models_AccessMapper.php.html#165">Application_Model_AccessMapper::getAllowedObjectIds1</a> (0%)</li>
               <li><a href="D:_Program Files_Zend_supercapex_application_models_AccessMapper.php.html#188">Application_Model_AccessMapper::getNodeObjects</a> (0%)</li>
-              <li><a href="D:_Program Files_Zend_supercapex_application_models_ObjectsManager.php.html#243">Application_Model_ObjectsManager::revokePrivilege</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_library_Capex_PasswordHash.php.html#149">Capex_PasswordHash::gensalt_extended</a> (0%)</li>
+              <li><a href="D:_Program Files_Zend_supercapex_application_models_ObjectsManager.php.html#262">Application_Model_ObjectsManager::getPrivilegesTable</a> (0%)</li>
 
             </ul>
           </td>
@@ -97,7 +97,7 @@
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
       <tr><td class="ruler"><img src="glass.png" width="3" height="3" alt=""></td></tr>
-      <tr><td class="versionInfo">Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 1.0.2</a> using <a href="http://www.php.net/" target="_top">PHP 5.3.18</a> and PHPUnit 3.5.15 at Mon Jun 10 14:22:07 BST 2013.</td></tr>
+      <tr><td class="versionInfo">Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 1.0.2</a> using <a href="http://www.php.net/" target="_top">PHP 5.3.18</a> and PHPUnit 3.5.15 at Sat Jun 15 19:02:13 BST 2013.</td></tr>
     </table>
 
     <br/>
