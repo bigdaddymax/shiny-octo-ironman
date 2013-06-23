@@ -485,6 +485,24 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         return $email;
     }
 
+    public function prepareCommentsForOutput($formId){
+        $comments = $this->getAllObjects('comment', array(0=>array('column'=>'formId', 'operand'=>$formId)));
+        if ($comments){
+            foreach ($comments as $comment) {
+                $author = $this->getObject('user', $comment->userId);
+                $row[] = '<div id="form-item">'. PHP_EOL .
+                            '<div class="row">'. PHP_EOL .
+                                '<div class="float: left"><strong>' . $author->userName. '</strong></div>'. PHP_EOL .
+                                '<div class="float: right">' . $comment->date. '</div>'. PHP_EOL .
+                                '<div class="display: block; clear: both;"></div>' .
+                            '</div>'. PHP_EOL .
+                            '<div class="comment">' . $comment->comment . '</div>' . PHP_EOL .
+                        '</div>' . PHP_EOL;
+            }
+        }
+        return (isset($row))? $row: false;
+    }
+    
     
     public function getNumberOfPages($object, $filterArray, $recordsPerPage){
         return parent::getNumberOfPages($object, $filterArray, $recordsPerPage);

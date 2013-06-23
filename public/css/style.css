@@ -3,10 +3,10 @@
 /********************/
 body {
     /*    background-color: #AAAAAA;*/
-/**    font-size: 16px;
-*/
-font-size: 0.875em;
- /*   font-family: 'Open Sans', sans-serif, verdana;*/
+    /**    font-size: 16px;
+    */
+    font-size: 0.875em;
+    /*   font-family: 'Open Sans', sans-serif, verdana;*/
 
 }
 
@@ -134,6 +134,14 @@ tr.private td{
     margin-top: 1em;
 }
 
+.form-list {
+
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
 #approval_status {
     border-right-style: solid;
     border-left-style: solid;
@@ -188,3 +196,37 @@ tr.private td{
     padding-right: 5px;
     margin-left: 10px;
     margin-right: 10px;}
+.comment {
+    margin-top: 5px;
+}
+
+.filter {
+    margin-right: 10px;
+    margin-left: 10px;
+    padding-left: 5px;
+    padding-top: 10px;
+    clear: both;
+    background-color: #eeeeee;
+}
+
+.filter-items {
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.search {
+    padding-top: 1.25em;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.form-fieldset {
+  width: 65%;
+}
+
+.add-form-button {
+    
+    margin-left: 10px;
+}

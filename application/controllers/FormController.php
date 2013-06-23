@@ -110,6 +110,7 @@ class FormController extends Zend_Controller_Action {
             $this->view->form = $objectManager->prepareFormForOutput((int) $this->getRequest()->getParam('formId'), $this->session->userId);
             $this->view->approved = $objectManager->getApprovalStatus((int) $this->getRequest()->getParam('formId'));
             $this->view->showApproval = $objectManager->isApprovalAllowed((int) $this->getRequest()->getParam('formId'), $this->session->userId);
+            $this->view->comments = $objectManager->prepareCommentsForOutput((int) $this->getRequest()->getParam('formId'));
             $this->_helper->layout()->disableLayout();
 //            $this->_helper->viewRenderer->setNoRender(true);
 //            $this->_helper->json(array('form'=>$this->view->form,
@@ -142,7 +143,10 @@ class FormController extends Zend_Controller_Action {
 
     function addCommentAction() {
         $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-        $comment = new Application_Model_Comment($this->_request->getParams());
+        $params = $this->_request->getParams();
+        $params['userId'] = $this->session->userId;
+        $params['parentCommentId'] = -1;
+        $comment = new Application_Model_Comment($params);
         $comment->date = date('Y-m-d H:i');
         $comment->domainId = $this->session->domainId;
         $commentId = $objectsManager->saveObject($comment);

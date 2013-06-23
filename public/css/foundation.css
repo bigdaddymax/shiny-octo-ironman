@@ -1859,9 +1859,9 @@ form.custom .custom {
     background: #222222;
     position: relative; }
   form.custom .custom.checkbox.checked:before {
-    content: "\2A2F";
-    color: #222222;
-    margin-top: -8px;
+    content: "x";
+    color: #888888;
+    margin-top: -5px;
     margin-left: 2px; }
 
 /* Custom Select Options and Dropdowns */
