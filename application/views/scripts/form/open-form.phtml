@@ -29,6 +29,10 @@
         });
     });
     
+    function addComment(){
+        $.post("<?php echo $this->url(array('controller'=>'form', 'action'=>'add-comment'));?>", {'formId': <?php echo $this->form['form']->formId;?>, 'comment': $("#comment").val()});
+    }
+    
 </script> 
 
 <!-- ++++++++ Form data PANEL +++++++ -->
@@ -117,7 +121,16 @@
     
     <!-- Comments section -->
     <div id="comments">
-
+        <h4><?php echo $this->translate('comments');?></h4>
+        <input type="text" id="comment" name="comment">
+        <button id="add-comment" onclick="addComment()"><?php echo $this->translate('add comment');?></button>
+        <?php
+            if ($this->comments){
+                foreach ($this->comments as $comment){
+                    echo $comment;
+                }
+            }
+        ?>
     </div>
     <!-- END Comments section -->
 </div>
