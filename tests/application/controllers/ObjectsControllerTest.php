@@ -3,6 +3,7 @@
 class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     private $objectManager;
+    private $scenarioId;
 
     public function setUp() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
@@ -422,7 +423,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetRequest();
         $this->resetResponse();
         
-        $formArray1 = array('_nodeName' => 'Modified node name', '_parentNodeId'=>$nodeId1, '_scenarioId'=>55, '_nodeId'=>$nodeId, 'objectType'=>'node');
+        $formArray1 = array('_nodeName' => 'Modified node name', '_parentNodeId'=>$nodeId1, '_scenarioId'=>$scenarioId, '_nodeId'=>$nodeId, 'objectType'=>'node');
         $params1 = array('controller'=>'objects', 'action'=>'edit-object');
         $this->request->setMethod('post');
         $this->request->setPost($formArray1);

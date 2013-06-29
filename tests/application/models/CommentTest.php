@@ -15,10 +15,16 @@ class CommentTest extends TestCase {
     public $nodeId;
     public $elementId1;
     public $elementId2;
+    public $contragentId;
 
     public function setUp() {
         parent::setUp();
         $this->objectManager = new Application_Model_ObjectsManager(1);
+        $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('element');
+        $this->objectManager->dbLink->delete('comment');
+        $this->objectManager->dbLink->delete('form');
+        $this->objectManager->dbLink->delete('contragent');
         $this->objectManager->dbLink->delete('user');
         $this->objectManager->dbLink->delete('position');
         $this->objectManager->dbLink->delete('node');
@@ -62,15 +68,19 @@ class CommentTest extends TestCase {
         // FORM
         $itemArray1 = array('itemName' => 'item1', 'domainId' => 1, 'value' => 55.4, 'elementId' => $this->elementId1, 'active' => true);
         $itemArray2 = array('itemName' => 'item2', 'domainId' => 1, 'value' => 22.1, 'elementId' => $this->elementId2, 'active' => true);
-        $formArray1 = array('userId' => $this->userId1, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true, 'contragentId' => $this->contragentId, 'expgroup' => 'CAPEX');
+        $formArray1 = array('userId' => $this->userId, 'formName' => 'fName1', 'nodeId' => $this->nodeId, 'items' => array(0 => $itemArray1, 1 => $itemArray2), 'domainId' => 1, 'active' => true, 'contragentId' => $this->contragentId, 'expgroup' => 'CAPEX');
         $form = new Application_Model_Form($formArray1);
-//        Zend_Debug::dump($form);
         $this->assertTrue($form->isValid());
         $this->formId = $this->objectManager->saveObject($form);
     }
 
     public function tearDown() {
         $this->objectManager = new Application_Model_ObjectsManager(1);
+        $this->objectManager->dbLink->delete('item');
+        $this->objectManager->dbLink->delete('element');
+        $this->objectManager->dbLink->delete('comment');
+        $this->objectManager->dbLink->delete('form');
+        $this->objectManager->dbLink->delete('contragent');
         $this->objectManager->dbLink->delete('user');
         $this->objectManager->dbLink->delete('position');
         $this->objectManager->dbLink->delete('node');

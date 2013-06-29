@@ -521,7 +521,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $form6 = current($forms);
         $formId = $form6['form']->formId;
 
-        $commentArray = array('formId' => $formId, 'comment' => 'bla bla bla bla', 'parentCommentId' => -1, 'userId' => $this->userId, 'active' => 1, 'domainId' => 1);
+        $commentArray = array('formId' => $formId, 'comment' => 'bla bla bla bla', 'parentCommentId' => -1, 'active' => 1, 'domainId' => 1);
         $params = array('controller' => 'form', 'action' => 'add-comment');
         $this->request->setMethod('post');
         $this->request->setPost($commentArray);
@@ -531,6 +531,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $comments = $this->objectManager->getAllObjects('comment');
         $comments[0]->date = null;
         $commentArray['commentId'] = $comments[0]->commentId;
+        $commentArray['userId'] = $this->userId1;
         $this->assertTrue($comments[0] instanceof Application_Model_Comment);
         $this->assertEquals($comments[0]->toArray(), $commentArray);
     }

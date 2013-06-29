@@ -108,7 +108,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 $this->dbLink->insert($this->tableName, $objectArray);
                 $object->{$this->objectIdName} = (int) $this->dbLink->lastInsertId();
             }
-            return $object->{$this->objectIdName};
+            return (int) $object->{$this->objectIdName};
         } else
             throw new InvalidArgumentException($this->objectName . ' data are not valid', 417);
     }
@@ -184,8 +184,11 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     protected function createAccessFilterArray($userId) {
         $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
         $accessibleIds = $accessMapper->getAllowedObjectIds();
-        $accessFilter = array(0 => array('condition' => 'IN', 'column' => 'nodeId', 'operand' => $accessibleIds['read']));
-        return $accessFilter;
+        if ($accessibleIds) {
+            return array(0 => array('condition' => 'IN', 'column' => 'nodeId', 'operand' => $accessibleIds['read']));
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -420,19 +423,19 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         return $result;
     }
 
-
     protected function getFormOwner($formId) {
         $userId = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT userId FROM form WHERE formId = ?', $formId));
         $this->setClassAndTableName('user');
         return $this->_getObject($userId);
     }
 
-    protected function getNumberOfPages($object, $filterArray, $recordsPerPage){
+    protected function getNumberOfPages($object, $filterArray, $recordsPerPage) {
         $this->setClassAndTableName($object);
         $filter = $this->prepareFilter($filterArray);
-        $count = $this->dbLink->fetchOne('SELECT count('.$this->objectIdName.') FROM ' . $this->tableName . ' ' . $filter);
+        $count = $this->dbLink->fetchOne('SELECT count(' . $this->objectIdName . ') FROM ' . $this->tableName . ' ' . $filter);
         return ceil($count / $recordsPerPage);
     }
+
 }
 
 ?>

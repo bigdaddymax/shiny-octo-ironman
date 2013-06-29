@@ -30,7 +30,6 @@ class FormController extends Zend_Controller_Action {
         } else {
             $accessFilter['LIMIT']['start'] =  0;
             $accessFilter['LIMIT']['number'] = $this->session->records_per_page;
-            
         }
         if (!$this->view->currentPage){
             $this->view->currentPage = 1;

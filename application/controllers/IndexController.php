@@ -47,18 +47,6 @@ class IndexController extends Zend_Controller_Action {
         $this->redirector->gotoSimple('index', 'index');
     }
 
-    public function newDomain1Action() {
-        if (!$this->getRequest()->getParam('domainName')) {
-            throw new Exception('No domain name provided', 400);
-        }
-        $session = new Zend_Session_Namespace('Auth');
-        if ($this->getRequest()->getParam('domainName')) {
-            $session->newNode['domainName'] = $this->getRequest()->getParam('domainName');
-            $session->newNode['nodeName'] = $this->getRequest()->getParam('domainName');
-        } else {
-            throw new Exception('Domain data not complete', 400);
-        }
-    }
 
     public function saveNewDomainAction() {
         $domain = new Application_Model_Domain(array('domainName' => $this->getRequest()->getParam('domainName')));
