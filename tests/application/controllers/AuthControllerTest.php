@@ -9,6 +9,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
         $this->objectManager1 = new Application_Model_ObjectsManager(1);
         $this->objectManager1->dbLink->delete('item');
+        $this->objectManager1->dbLink->delete('comment');
         $this->objectManager1->dbLink->delete('form');
         $this->objectManager1->dbLink->delete('privilege');
         $this->objectManager1->dbLink->delete('resource');

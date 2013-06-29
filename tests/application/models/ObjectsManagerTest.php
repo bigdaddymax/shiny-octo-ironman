@@ -57,8 +57,6 @@ class ObjectsManagerTest extends TestCase {
         $this->assertTrue($contragent->isValid());
         $this->contragentId = $this->objectManager->saveObject($contragent);
         $this->assertTrue($contragent instanceof Application_Model_Contragent);
-        echo 'dump';
-        Zend_Debug::dump($this->contragentId);
         $this->assertTrue(is_int($this->contragentId));
     }
 

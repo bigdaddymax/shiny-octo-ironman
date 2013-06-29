@@ -302,10 +302,9 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //        Zend_Debug::dump($scenarioArray1);
         $this->request->setMethod('post');
         $this->dispatch($this->url($this->urlizeOptions($params)));
-        $response = $this->getResponse();
         $this->assertController('scenario');
         $this->assertAction('edit-scenario');
-        $this->assertQuery('entries');
+        $this->assertQuery('#entries');
     }
 
     /**

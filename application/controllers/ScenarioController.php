@@ -90,5 +90,4 @@ class ScenarioController extends Zend_Controller_Action {
     }
 
 }
-
 ?>
