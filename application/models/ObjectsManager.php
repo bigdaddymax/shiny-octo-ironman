@@ -108,9 +108,9 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         }
 
         // Do we deal with existing object?
-        if (!$object->{$this->objectIdName}) {
+//        if (!$object->{$this->objectIdName}) {
             $object->{$this->objectIdName} = $this->checkObjectExistance($object);
-        }
+//        }
         // Form and Scenario are special case - they contain 
         // a property that is array of other simple objects.
         // So we have to treat these arrays separately later

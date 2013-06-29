@@ -21,6 +21,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager->dbLink->delete('user');
         $this->objectManager->dbLink->delete('position');
         $this->objectManager->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('element');
         $this->objectManager->dbLink->delete('domain_owner');
         $this->objectManager->dbLink->delete('user_group');
         $this->objectManager->dbLink->delete('domain_owner');
@@ -53,6 +54,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager->dbLink->delete('user');
         $this->objectManager->dbLink->delete('position');
         $this->objectManager->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('element');
         $this->objectManager->dbLink->delete('contragent');
         $this->objectManager->dbLink->delete('domain');
         $this->objectManager->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));

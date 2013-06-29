@@ -10,10 +10,12 @@ private $objectManager;
         $this->objectManager->dbLink->delete('domain_owner');
         $this->objectManager->dbLink->delete('user_group');
         $this->objectManager->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('scenario_entry');
         $this->objectManager->dbLink->delete('user');
         $this->objectManager->dbLink->delete('domain_owner');
         $this->objectManager->dbLink->delete('position');
         $this->objectManager->dbLink->delete('node');
+        $this->objectManager->dbLink->delete('resource');
         $this->objectManager->dbLink->delete('domain');
         parent::setUp();
     }
@@ -23,11 +25,13 @@ private $objectManager;
         $this->objectManager->dbLink->delete('domain_owner');
         $this->objectManager->dbLink->delete('user_group');
         $this->objectManager->dbLink->delete('approval_entry');
+        $this->objectManager->dbLink->delete('scenario_entry');
         $this->objectManager->dbLink->delete('user');
          $this->objectManager->dbLink->delete('domain_owner');
         $this->objectManager->dbLink->delete('position');
         $this->objectManager->dbLink->delete('node');
-       $this->objectManager->dbLink->delete('domain');
+        $this->objectManager->dbLink->delete('resource');
+        $this->objectManager->dbLink->delete('domain');
         $this->objectManager->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
         
     }

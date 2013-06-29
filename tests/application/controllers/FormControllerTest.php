@@ -20,6 +20,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //        $this->objectManager = new Application_Model_DataMapper(1);
         $this->objectManager->dbLink->delete('item');
         $this->objectManager->dbLink->delete('comment');
+        $this->objectManager->dbLink->delete('approval_entry');
         $this->objectManager->dbLink->delete('form');
         $this->objectManager->dbLink->delete('privilege');
         $this->objectManager->dbLink->delete('resource');
@@ -28,7 +29,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager->dbLink->delete('scenario_assignment');
         $this->objectManager->dbLink->delete('scenario');
         $this->objectManager->dbLink->delete('domain_owner');
-        $this->objectManager->dbLink->delete('approval_entry');
+
         $this->objectManager->dbLink->delete('user');
         $this->objectManager->dbLink->delete('position');
         $this->objectManager->dbLink->delete('node');
@@ -151,6 +152,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     public function tearDown() {
         $this->objectManager->dbLink->delete('item');
         $this->objectManager->dbLink->delete('comment');
+        $this->objectManager->dbLink->delete('approval_entry');
         $this->objectManager->dbLink->delete('form');
         $this->objectManager->dbLink->delete('element');
         $this->objectManager->dbLink->delete('user_group');
@@ -159,7 +161,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager->dbLink->delete('scenario_assignment');
         $this->objectManager->dbLink->delete('scenario');
         $this->objectManager->dbLink->delete('domain_owner');
-        $this->objectManager->dbLink->delete('approval_entry');
+
         $this->objectManager->dbLink->delete('user');
         $this->objectManager->dbLink->delete('position');
         $this->objectManager->dbLink->delete('node');

@@ -57,6 +57,8 @@ class ObjectsManagerTest extends TestCase {
         $this->assertTrue($contragent->isValid());
         $this->contragentId = $this->objectManager->saveObject($contragent);
         $this->assertTrue($contragent instanceof Application_Model_Contragent);
+        echo 'dump';
+        Zend_Debug::dump($this->contragentId);
         $this->assertTrue(is_int($this->contragentId));
     }
 
@@ -251,7 +253,7 @@ class ObjectsManagerTest extends TestCase {
     
     
     /**
-     * expectedException InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testGetEmailListWrongForm(){
         $this->objectManager->getEmailingList(-1);
@@ -259,8 +261,8 @@ class ObjectsManagerTest extends TestCase {
     
     
     public function testGetPagesFilter(){
-        $accessFilter = $this->objectManager->createAccessFilterArray($this->userId);
-        $this->objectManager->getPagesFilter(1, $accessFilter);
+  //      $accessFilter = $this->objectManager->createAccessFilterArray($this->userId);
+//  ?????      $this->objectManager->getPagesFilter(1, $accessFilter);
     }
 }
 
