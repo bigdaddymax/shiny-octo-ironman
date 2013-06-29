@@ -21,6 +21,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager1->dbLink->delete('user');
         $this->objectManager1->dbLink->delete('position');
         $this->objectManager1->dbLink->delete('node');
+        $this->objectManager1->dbLink->delete('element');
         $this->objectManager1->dbLink->delete('domain_owner');
         $this->objectManager1->dbLink->delete('user_group');
         $this->objectManager1->dbLink->delete('user');
@@ -51,8 +52,9 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager1->dbLink->delete('scenario');
         $this->objectManager1->dbLink->delete('domain_owner');
         $this->objectManager1->dbLink->delete('approval_entry');
-        $this->objectManager1->dbLink->delete('user');
         $this->objectManager1->dbLink->delete('user_group');
+        $this->objectManager1->dbLink->delete('user');
+
         
         $this->objectManager1->dbLink->delete('position');
         $this->objectManager1->dbLink->delete('node');

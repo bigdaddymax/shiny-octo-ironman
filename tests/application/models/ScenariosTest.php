@@ -18,6 +18,13 @@ class ScenarioTest extends TestCase {
     public function setUp() {
         parent::setUp();
         $this->objectManager = new Application_Model_ObjectsManager(1);
+        $this->objectManager->dbLink->delete('scenario_assignment');
+        $this->objectManager->dbLink->delete('scenario_entry');
+        $this->objectManager->dbLink->delete('scenario');
+        $this->objectManager->dbLink->delete('user');
+        $this->objectManager->dbLink->delete('position');
+        $this->objectManager->dbLink->delete('node');
+
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
         $this->nodeId = $this->objectManager->saveObject($node);
@@ -34,7 +41,10 @@ class ScenarioTest extends TestCase {
 
         $userArray = array('userId' => 3, 'userName' => 'oName', 'active' => false, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $positionId, 'groupId' => 2, 'password' => 'testp');
         $user = new Application_Model_User($userArray);
+        $this->assertTrue($user->isValid());
         $this->userId = $this->objectManager->saveObject($user);
+        $user = $this->objectManager->getObject('user', $this->userId);
+        $this->assertTrue($user->isValid());
         $session = new Zend_Session_Namespace('Auth');
         $session->domainId = 1;
     }
@@ -147,6 +157,8 @@ class ScenarioTest extends TestCase {
         $scenarioArray = array('scenarioName' => 'eName', 'active' => false, 'domainId' => 1, 'entries' => array(0 => $scenarioEntry));
         $scenario = new Application_Model_Scenario($scenarioArray);
         $this->assertTrue($scenario->isValid());
+        $user = $this->objectManager->getObject('user', $this->userId);
+        $this->assertTrue($user->isValid());
         $scenarioId = $this->objectManager->saveObject($scenario);
         $this->assertTrue(is_int($scenarioId));
         $entry = $this->objectManager->getAllObjects('scenarioEntry',array(0=>array('column'=>'scenarioId', 'operand'=>$scenarioId)));
