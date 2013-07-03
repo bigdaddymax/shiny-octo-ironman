@@ -1,5 +1,6 @@
-<div id="add-object-form" title="Add new position">
+<div id="add-object-form" title="<?php echo $this->translate('add new element');?>">
     <form id="object-form">
+        <label for="expgroup"><?php echo $this->translate('expgroup'); ?></label>
         <select id="expgroup" name="expgroup">
             <option disabled><?php echo $this->translate('expgroup');?></option>
             <?php 
@@ -8,11 +9,14 @@
                 }
             ?>
         </select>
+        <label for="elementName"><?php echo $this->translate('element'); ?></label>
         <input type="text" id="elementName" name="_elementName" placeholder="<?php echo $this->translate('element'); ?>"/>
+        <label for="elementCode"><?php echo $this->translate('element code'); ?></label>
         <input type="text" id="elementCode" name="_elementCode" placeholder="<?php echo $this->translate('element code'); ?>"/></td>
+        <label for="elementComment"><?php echo $this->translate('element comment'); ?></label>
         <input type="text" id="elementComment" name="_elementComment" placeholder="<?php echo $this->translate('element comment'); ?>"/></td>
         <input type="hidden" id="objectType" name="objectType" value="element"></td>
     </form>
 </div>
 
-<button id="add-object-btn">Add element</button>
+<button id="add-object-btn"><?php echo $this->translate('add new element');?></button>

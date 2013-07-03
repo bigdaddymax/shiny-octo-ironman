@@ -1,33 +1,32 @@
-<div id="new-scenario-form">
+<div id="new-scenario-form" title="<?php echo $this->translate('add new scenario'); ?>">
     <form id="scenario-data">
-    <table>
-        <tr id="scenario-tbl">
-           <td><lable for="scenarioName">Scenario name:</td><td><input id="scenarioName" name="scenarioName"></td>
-        </tr>
-    </table>
+        <div>
+            <label for="scenarioName"><?php echo $this->translate('scenario name'); ?></label>
+        </div>
+        <div>
+            <input type="text" id="scenarioName" name="scenarioName" placeholder="<?php echo $this->translate('scenario name'); ?>"/>
+        </div>
+        <table width="100%">
+            <tr  id="scenario-tbl"></tr>
+        </table>
     </form>
     <input type="hidden" id="orderPos" value="0">
-    <button id="add-entry-btn">Add new user</button>
+    <button id="add-entry-btn"><?php echo $this->translate('add user');?></button>
 </div>
-<button id="add-scenario-btn">Add scenario</button>
-<div id="new-entry-form">
-    <table>
-        <tr>
-            <td><label for="userId">Select user</label></td>
-        </tr>
-        <tr>
-            <td>
-                <?php if ($this->users){
-                    echo "<select id='userId' name='userId'>";
-                    foreach($this->users as $user){
-                        echo "<option value='$user->userId'>$user->userName</option>";
-                    }
-                    echo "</select>";
-                } else {
-                    echo 'No users';
-                }
-?>
-            </td>
-        </tr>
-    </table>
+<button id="add-scenario-btn"><?php echo $this->translate('add new scenario'); ?></button>
+<div id="new-entry-form" title="<?php echo $this->translate('add user');?>">
+    <div>
+        <label for="userId"><?php echo $this->translate('select user');?></label>
+    </div>
+    <?php
+    if ($this->users) {
+        echo "<select id='userId' name='userId'>";
+        foreach ($this->users as $user) {
+            echo "<option value='$user->userId'>$user->userName</option>";
+        }
+        echo "</select>";
+    } else {
+        echo $this->translate('No users');
+    }
+    ?>
 </div>

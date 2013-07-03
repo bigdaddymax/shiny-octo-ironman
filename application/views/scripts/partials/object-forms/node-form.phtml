@@ -1,36 +1,32 @@
-<div id="add-object-form" title="Add new node">
+<div id="add-object-form" title="<?php echo $this->translate('add new node'); ?>">
     <form id="object-form">
-        <table>
-            <tr>
-                <td><label for="nodeName">Node Name</label></td>
-            </tr>
-            <tr>
-                <td><input type="text" name="_nodeName" /></td>
-            </tr>
-            <?php
-            if (!empty($this->subobjects['nodes']) && is_array($this->subobjects['nodes'])) {
-                echo '<tr>';
-                echo '<td>';
-                echo '<select  id="parentNodeId" name="_parentNodeId">';
-                echo '<option value="-1">No parent</option>';
-                foreach ($this->subobjects['nodes'] as $node) {
-                    echo '<option " value="' .
-                    $node->nodeId . '">' .
-                    $node->nodeName .
-                    '</option>';
-                }
-                echo '</select>';
-                echo '</td>';
-                echo '</tr>';
-            } else {
-                echo '<input type="hidden" id="parentNodeId" name="_parentNodeId" value="-1">';
+        <div>
+            <label for="nodeName"><?php echo $this->translate('node name'); ?></label>
+        </div>
+        <div>
+            <input type="text" name="_nodeName" placeholder="<?php echo $this->translate('node name'); ?>" />
+        </div>
+        <div>
+            <label for="parentNodeId"><?php echo $this->translate('select parent node');?></label>
+        </div>
+        <?php
+        if (!empty($this->subobjects['nodes']) && is_array($this->subobjects['nodes'])) {
+            echo '<select  id="parentNodeId" name="_parentNodeId">';
+            echo '<option value="-1">' . $this->translate('no parent') . '</option>';
+            foreach ($this->subobjects['nodes'] as $node) {
+                echo '<option " value="' .
+                $node->nodeId . '">' .
+                $node->nodeName .
+                '</option>';
             }
-            ?>
-            <tr>
-                <td><input type="hidden" id="objectType" name="objectType" value="node"></td>
-            </tr>
-        </table>
+            echo '</select>';
+        } else {
+            echo '<input type="hidden" id="parentNodeId" name="_parentNodeId" value="-1">';
+        }
+        ?>
+        <input type="hidden" id="objectType" name="objectType" value="node">
+
     </form>
 </div>
 
-<button id="add-object-btn">Add node</button>
+<button id="add-object-btn"><?php echo $this->translate('add new node');?></button>

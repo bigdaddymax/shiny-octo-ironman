@@ -1,15 +1,24 @@
-<div class="panel">
-<?php
-if (is_array($this->positions)){
-    foreach ($this->positions as $position) {
-        echo '<div class="row"><div class="small-1 columns"><a href="'.
-                $this->url(array('controller'=>'objects', 'action'=>'delete', 'objectType'=>'position','positionId'=>$position->positionId)).
-                '">x</a></div><div class="small-1 columns"><a href="' .
-                $this->url(array('controller'=>'objects', 'action'=>'open-object', 'objectType'=>'position', 'positionId'=>$position->positionId)).
-                 '">'.$position->positionName . '</a>' .
-                '</div><div class="small-2 columns">' . $this->subobjects['nodes'][$position->nodeId]->nodeName .
-                '</div></div>';
-    }
-}
-?>
+<div>
+    <table width="100%">
+        <?php
+        if (is_array($this->positions)) {
+            foreach ($this->positions as $position) {
+                echo '<tr>' . PHP_EOL .
+                        '<td>' . PHP_EOL .
+                            '<a href="' .
+                            $this->url(array('controller' => 'objects', 'action' => 'delete', 'objectType' => 'position', 'positionId' => $position->positionId)) .
+                            '">x</a>' . PHP_EOL .
+                        '</td>' . PHP_EOL .
+                        '<td>' . PHP_EOL .
+                            '<a href="' .
+                            $this->url(array('controller' => 'objects', 'action' => 'open-object', 'objectType' => 'position', 'positionId' => $position->positionId)) .
+                            '">' . $position->positionName . '</a>' . PHP_EOL .
+                        '</td>' . PHP_EOL .
+                        '<td>' . $this->subobjects['nodes'][$position->nodeId]->nodeName .
+                        '</td>' . PHP_EOL .
+                '</tr>';
+            }
+        }
+        ?>
+    </table>
 </div>

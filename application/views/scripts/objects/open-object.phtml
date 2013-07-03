@@ -1,3 +1,8 @@
-<?php 
+<div class="object-list">
+    <?php
+    echo $this->partial('partials/object-edit/' . $this->partialFile, array('objects' => $this->objects));
+    ?>
+</div>
+<div class="object-help">
 
-    echo $this->partial('partials/object-edit/'.$this->partialFile, array('objects'=>$this->objects));
+</div>
