@@ -184,7 +184,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     protected function createAccessFilterArray($userId) {
         $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
         $accessibleIds = $accessMapper->getAllowedObjectIds();
-        if ($accessibleIds) {
+        if (!empty($accessibleIds['read'])) {
             return array(0 => array('condition' => 'IN', 'column' => 'nodeId', 'operand' => $accessibleIds['read']));
         } else {
             return false;

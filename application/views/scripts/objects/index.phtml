@@ -10,7 +10,7 @@
                 'Save' : function(){
                     $.post(addUrl, $("#object-form").serialize())
                     .done(function(data){
-                  //      $("#main").html(data);
+                        //      $("#main").html(data);
                         $("#add-object-form").dialog("close");
                         location.reload();
                     });
@@ -28,7 +28,12 @@
         });
     });
 </script>
-<?php
-$session = new Zend_Session_Namespace('Auth');
-echo $this->partial('partials/object-forms/' . $this->objectName . '-form.phtml', array('subobjects' => $this->subobjects));
-echo $this->partial('partials/object-lists/' . $this->objectName . '-list.phtml', array($this->objectName . 's' => $this->objects, 'subobjects'=>$this->subobjects));
+<div class="object-list">
+    <?php
+    $session = new Zend_Session_Namespace('Auth');
+    echo $this->partial('partials/object-forms/' . $this->objectName . '-form.phtml', array('subobjects' => $this->subobjects));
+    echo $this->partial('partials/object-lists/' . $this->objectName . '-list.phtml', array($this->objectName . 's' => $this->objects, 'subobjects' => $this->subobjects));
+    ?>
+</div>
+<div class="object-help">
+</div>

@@ -12,7 +12,7 @@
 <div>
     <!-- Left part of FORMS page -->
     <div class="large-8 left">
-    <!-- Different controls go here (like filter etc) -->
+        <!-- Different controls go here (like filter etc) -->
         <form class="filter custom">
             <fieldset class="left form-fieldset"> 
                 <legend>
@@ -27,38 +27,38 @@
                     </div>
                 </legend>
                 <div class="left filter-items">
-                <label for="checkbox1">
-                    <input type="checkbox" id="checkbox1" style="display: none;">
-                    <span class="custom checkbox"></span> <?php echo $this->translate('all'); ?>
-                </label>
-                <label for="checkbox2">
-                    <input type="checkbox" id="checkbox2" style="display: none;">
-                    <span class="custom checkbox"></span> <?php echo $this->translate('new'); ?>
-                </label>
+                    <label for="checkbox1">
+                        <input type="checkbox" id="checkbox1" style="display: none;">
+                        <span class="custom checkbox"></span> <?php echo $this->translate('all'); ?>
+                    </label>
+                    <label for="checkbox2">
+                        <input type="checkbox" id="checkbox2" style="display: none;">
+                        <span class="custom checkbox"></span> <?php echo $this->translate('new'); ?>
+                    </label>
                 </div>
                 <div class="left filter-items">
-                <label for="checkbox3">
-                    <input type="checkbox" id="checkbox3" style="display: none;">
-                    <span class="custom checkbox"></span> <?php echo $this->translate('approved'); ?>
-                </label>
-                <label for="checkbox4">
-                    <input type="checkbox" id="checkbox4" style="display: none;">
-                    <span class="custom checkbox"></span> <?php echo $this->translate('declined'); ?>
-                </label>
+                    <label for="checkbox3">
+                        <input type="checkbox" id="checkbox3" style="display: none;">
+                        <span class="custom checkbox"></span> <?php echo $this->translate('approved'); ?>
+                    </label>
+                    <label for="checkbox4">
+                        <input type="checkbox" id="checkbox4" style="display: none;">
+                        <span class="custom checkbox"></span> <?php echo $this->translate('declined'); ?>
+                    </label>
                 </div>
                 <div class="left filter-items">
-                <label for="checkbox5">
-                    <input type="checkbox" id="checkbox5" style="display: none;">
-                    <span class="custom checkbox"></span> <?php echo $this->translate('progress'); ?>
-                </label>
+                    <label for="checkbox5">
+                        <input type="checkbox" id="checkbox5" style="display: none;">
+                        <span class="custom checkbox"></span> <?php echo $this->translate('progress'); ?>
+                    </label>
                 </div>
             </fieldset>
             <div class="large-4 right search">
-                <input type="text" name="search" id="search" placeholder="<?php echo $this->translate('search');?>">
+                <input type="text" name="search" id="search" placeholder="<?php echo $this->translate('search'); ?>">
             </div>
             <div style="display: block; clear: both"></div>
         </form>
-            <button class ="add-form-button"onclick="addForm()"><?php echo $this->translate('add form'); ?></button>
+        <button class ="add-form-button"onclick="addForm()"><?php echo $this->translate('add form'); ?></button>
 
         <!-- End of different controls go here (like filter etc) -->
 
@@ -97,27 +97,32 @@
 
             <!-- Paginator -->
             <div class="pagination-centered">
-                <ul class="pagination">
-                    <li class="arrow <?php echo ($this->currentPage == 1) ? 'unavailable' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'form', 'action' => 'index', 'page' => 1), null, true); ?>">&laquo;</a></li>
-                    <?php
-                    if ($this->pages > 1) {
-                        for ($i = 1; $i <= $this->pages; $i++) {
-                            if ($i == $this->currentPage) {
-                                $class = 'class="current"';
-                            } else {
-                                $class = '';
-                            }
-                            echo "<li $class ><a href='" . $this->url(array('controller' => 'form', 'action' => 'index', 'page' => $i), null, true) . "'>" . $i . '</a></li>' . PHP_EOL;
-                        }
-                    }
+                <?php if ($this->pages > 1) {
                     ?>
-                    <li class="arrow <?php echo ($this->currentPage == $this->pages) ? 'unavailable' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'form', 'action' => 'index', 'page' => $this->pages), null, true); ?>">&raquo;</a></li>
-                </ul>
+                    <ul class="pagination">
+                        <li class="arrow <?php echo ($this->currentPage == 1) ? 'unavailable' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'form', 'action' => 'index', 'page' => 1), null, true); ?>">&laquo;</a></li>
+                        <?php
+                        if ($this->pages > 1) {
+                            for ($i = 1; $i <= $this->pages; $i++) {
+                                if ($i == $this->currentPage) {
+                                    $class = 'class="current"';
+                                } else {
+                                    $class = '';
+                                }
+                                echo "<li $class ><a href='" . $this->url(array('controller' => 'form', 'action' => 'index', 'page' => $i), null, true) . "'>" . $i . '</a></li>' . PHP_EOL;
+                            }
+                        }
+                        ?>
+                        <li class="arrow <?php echo ($this->currentPage == $this->pages) ? 'unavailable' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'form', 'action' => 'index', 'page' => $this->pages), null, true); ?>">&raquo;</a></li>
+                    </ul>
+                    <?php
+                }
+                ?>
             </div>
             <!-- End of PAGINATOR -->
 
         </div>
-    <!-- END Forms list -->
+        <!-- END Forms list -->
     </div>
     <!-- END left part of FORMS page -->
 

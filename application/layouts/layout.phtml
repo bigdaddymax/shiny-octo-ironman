@@ -42,14 +42,14 @@ if (1 <> $session->auth) {
                     autoOpen: false,
                     modal:    true,
                     buttons: {
-                        'Login': function(){
+                        '<?php echo $this->translate('login');?>': function(){
                             $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'auth'), null, true); ?>', $('#signin-form').serialize())
                             .done(function(data){
                                 window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");
                             });
                             $(this).dialog("close");
                         },
-                        'Close': function() {
+                        '<?php echo $this->translate('close');?>': function() {
                             $(this).dialog("close");
                         }
                     }
@@ -103,22 +103,15 @@ if (1 <> $session->auth) {
                 } else {
                     ?>
                     <!-- JQuery template for SIGNIN FORM -->
-                    <div id="signin">
+                    <div id="signin" title="<?php echo $this->translate('login to system');?>">
                         <form id="signin-form">
-                            <table>
-                                <tr>
-                                    <td><label for="login">Login</label></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="text" id="login" name="login"></td>
-                                </tr>
-                                <tr>
-                                    <td><label for="password">Password</label></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="password" id="password" name="password"></td>
-                                </tr>
-                            </table>
+                            <div>
+                                <div><input type="text" id="login" name="login" placeholder="<?php echo $this->translate('email');?>">
+                                </div>
+                                <div>
+                                    <input type="password" id="password" name="password" placeholder="<?php echo $this->translate('password');?>">
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <!-- END OF SIGNIN FORM -->

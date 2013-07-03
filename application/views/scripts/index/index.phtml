@@ -1,7 +1,7 @@
-<div id="registration-form">
-    <h1>
-        <?php echo $this->translate('Create account'); ?>
-    </h1>
+<div class="registration-form">
+    <h4>
+        <?php echo $this->translate('сreate account'); ?>
+    </h4>
     <form id="signup" method="post" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'new-domain'), null, true); ?>">
         <div class="row">
             <input type="text" id="userName" name="userName" class="small-2 columns" placeholder="<?php echo $this->translate('name'); ?>"/>
@@ -15,6 +15,6 @@
         <div class="row">
           <input type="text" id="companyName" name="companyName" placeholder="<?php echo $this->translate('company name'); ?>"/>
         </div>
-        <button id="signup" value="signup"><?php echo $this->translate('signup'); ?></button>
+        <button id="signup-button" class="signup-button" value="signup"><?php echo $this->translate('signup'); ?></button>
     </form>
 </div>

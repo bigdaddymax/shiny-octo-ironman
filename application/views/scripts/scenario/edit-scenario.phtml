@@ -11,17 +11,17 @@
             buttons: {
                 "<?php echo $this->translate("save"); ?>": function(){
                     var pos = Number($('#orderPos').val()) + 1;
-                    $("#entries").append('<div id="entry_'+$("#userId").val()+pos+
-                        '" class="row">'+
-                        '<div id="href"><a href="#" onClick="deleteEntry(entry_'+
+                    $("#entries tr:last").after('<tr id="entry_'+$("#userId").val()+pos+
+                        '">'+
+                        '<td id="href"><a href="#" onClick="deleteEntry(entry_'+
                         $("#userId").val()+pos+
-                        ')">x</a></div><div id="user">'+
+                        ')">x</a></td><td id="user">'+
                         $("#userId :selected").html()+
-                        '</div>'+
                         '<input type="hidden" id="orderPos_' + $("#userId").val() +
                         '" name="orderPos_' + $("#userId").val() +
                         '" value="'+ pos + '">' +
-                        '</div>');
+                        '</td>'+
+                        '</tr>');
                     $("#orderPos").val(pos);
                     $(this).dialog('close');
                 },
@@ -33,49 +33,53 @@
             $("#new-entry-form").dialog("open");
         });
         $("#add-scenario-btn").button().click(function(){
-            $.post("<?php echo $this->url(array('controller'=>'scenario', 'action'=>'save-scenario'));?>", $("#scenario-data").serialize());
+            $.post("<?php echo $this->url(array('controller' => 'scenario', 'action' => 'save-scenario')); ?>", $("#scenario-data").serialize());
         });
     });
 </script>
 
-<div class="row">
-    <div class="small-4 columns">
-        <form id="scenario-data">
-
-                <input id="scenarioName" name="scenarioName" 
-                       placeholder="<?php echo $this->translate('scenario name'); ?>" 
-                       <?php if (!empty($this->scenario)) echo 'value="' . $this->scenario->scenarioName . '"'; ?>
-                       />
-                <?php 
-                    if (!empty($this->scenario)){
-                        echo '<input type="hidden" id="scenarioId" name="scenarioId" value="' . $this->scenario->scenarioId . '">' . PHP_EOL;
-                    }
-                ?>
-            <div class="panel" id="entries">
-                <?php
-                if (!empty($this->entries)) {
-                    foreach ($this->entries as $key => $entry) {
-                        echo '<div class="row" id="entry_' . $entry->userId . $key .
-                        '"><div id="href"><a href="#" onclick="deleteEntry(entry_' . $entry->userId . $key .
-                        ')">x</a></div><div id="user">' . $entry->userName . '</div>' . PHP_EOL;
-                        echo '<input type="hidden" id="orderPos_' . $entry->userId . '" name="orderPos_' . $entry->userId . '" value="' . $key . '"></div>' . PHP_EOL;
-                    }
+<div class="object-list" >
+    <form id="scenario-data">
+        <div>
+            <label for="scenarioName"><?php echo $this->translate('scenario name'); ?></label>
+        </div>
+        <input type="text" id="scenarioName" name="scenarioName" 
+               placeholder="<?php echo $this->translate('scenario name'); ?>" 
+               <?php if (!empty($this->scenario)) echo 'value="' . $this->scenario->scenarioName . '"'; ?>
+               />
+               <?php
+               if (!empty($this->scenario)) {
+                   echo '<input type="hidden" id="scenarioId" name="scenarioId" value="' . $this->scenario->scenarioId . '">' . PHP_EOL;
+               }
+               ?>
+        <table id="entries" width="100%">
+            <?php
+            if (!empty($this->entries)) {
+                foreach ($this->entries as $key => $entry) {
+                    echo '<tr id="entry_' . $entry->userId . $key .
+                    '"><td id="href"><a href="#" onclick="deleteEntry(entry_' . $entry->userId . $key .
+                    ')">x</a></td><td id="user">' . $entry->userName . '</td>' . PHP_EOL;
+                    echo '<input type="hidden" id="orderPos_' . $entry->userId . '" name="orderPos_' . $entry->userId . '" value="' . $key . '"></td></tr>' . PHP_EOL;
                 }
-                ?>
-            </div>
-        </form>
-        <input type="hidden" id="orderPos" 
-               value="<?php
-                if (!empty($this->entries)) {
-                    $entries = array_keys($this->entries);
-                    echo end($entries);
-                }
-                ?>">
-        <button id="add-entry-btn">Add new user</button>
-    </div>
+            }
+            ?>
+        </table>
+    </form>
+    <input type="hidden" id="orderPos" 
+           value="<?php
+            if (!empty($this->entries)) {
+                $entries = array_keys($this->entries);
+                echo end($entries);
+            }
+            ?>">
+    <button id="add-entry-btn"><?php echo $this->translate('add user'); ?></button>
+    <button id="add-scenario-btn"><?php echo $this->translate('save changes'); ?></button>
 </div>
-<button id="add-scenario-btn">Add scenario</button>
-<div id="new-entry-form">
+
+<div class="object-help">
+
+</div>
+<div id="new-entry-form" title="<?php echo $this->translate('add user'); ?>">
     <?php
     if ($this->users) {
         echo "<select id='userId' name='userId'>";

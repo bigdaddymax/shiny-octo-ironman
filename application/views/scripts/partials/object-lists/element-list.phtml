@@ -1,19 +1,21 @@
-<div class="panel">
-<?php
-if (is_array($this->elements)){
-    foreach ($this->elements as $element) {
-        echo '<div class="row">'. PHP_EOL;
-        echo '<div class="small-2 columns"><a href="'. 
-                $this->url(array('controller'=>'objects',
-                                                    'action'=>'delete',
-                                                    'elementId'=>$element->elementId)).
-                '">x</a></div>' . PHP_EOL;
-        echo '<div class="small-2 columns">' . $element->elementName . '</div>' . PHP_EOL;
-        echo '<div class="small-1 columns">' . $element->elementCode . '</div>' . PHP_EOL;
-        echo '<div class="small-1 columns">' . $element->expgroup . '</div>' . PHP_EOL;
-        echo '<div class="small-3 columns">' . $element->elementComment . '</div>' . PHP_EOL;
-        echo '</div>' . PHP_EOL;
-    }
-}
-?>
+<div>
+    <table width="100%">
+        <?php
+        if (is_array($this->elements)) {
+            foreach ($this->elements as $element) {
+                echo '<tr>' . PHP_EOL;
+                echo '<td><a href="' .
+                $this->url(array('controller' => 'objects',
+                    'action' => 'delete',
+                    'elementId' => $element->elementId)) .
+                '">x</a></td>' . PHP_EOL;
+                echo '<td>' . $element->elementName . '</td>' . PHP_EOL;
+                echo '<td>' . $element->elementCode . '</td>' . PHP_EOL;
+                echo '<td>' . $element->expgroup . '</td>' . PHP_EOL;
+                echo '<td>' . $element->elementComment . '</td>' . PHP_EOL;
+                echo '</tr>' . PHP_EOL;
+            }
+        }
+        ?>
 </div>
+</table>
