@@ -8,5 +8,15 @@ It allows you:
 2. Customize document flow depending on the nature of expence, amount of invoice, department etc;
 3. Interactively solve different questions about invoices and/or expences during approval procedure;
 4. Create quick reports on monthly basis per department/employee about expences they ordered.
+5. Check current expences against planned (budgeted) for particular group of expences for particular department/company
+6. ....
 
+
+Reason for this project
+-----------------------
+
+* To improve understanding of MVC model and ZF1.
+* To learn TDD (using PHPUnit).
+* Play with different Javascript and CSS frameworks (JQuery, Foundation).
+* Create a useful application based on my personal real experience in field of controlling expences in midsize group.
  
