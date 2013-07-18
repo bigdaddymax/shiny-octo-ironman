@@ -1,0 +1,58 @@
+GUIDELINES
+===========
+
+1. General info.
+2. "Object" class struscture.
+3. AAA implementation guide.
+4. AJAX interaction description.
+5. Forms handling guide.
+6. CSS description.
+7. Forms/user error handling.
+
+
+1. General info.
+
+
+2. "Object" class structure
+
+
+3. AAA implementation.
+
+
+4. AJAX interaction description.
+    Many forms in project use AJAX to retrieve some info from web server during user's interaction
+and display this information in appropriate placeholders.
+General guide for AJAX implementation in the project:
+    a) we use JQuery $.post() method to request data from the web server
+    b) to form URL for request we use url() view helper of Zend Framework with third option ($reset) set to true:
+        $this->url(array('controller'=>'index', 'action'=>'info'), null, true);
+    c) we pass parameters of query as $.post() argumment:
+        $.post('/info', {username: 'Max', email: 'mmaxbb@gmail.com'});
+    d) we use JSON format to get data from the server and handle errors. 
+        JSON array has following structure: {error: 1/0, message: 'Message from server',
+                                             code: Server Code,
+                                             errorCode: error code (exception code if any)
+                                             data: SomeData, param1: param1, param2: param2 ...}
+
+        Server response codes(http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html):
+            200     OK
+            201 Created
+            202 Accepted
+            204 No Content
+            205 Reset Content
+            206 Partial Content
+
+            400 Bad Request
+            401 Unauthorized
+            403 Forbidden
+            404 Not Found
+            405 Method Not Allowed
+            406 Not Acceptable
+            409 Conflict
+            
+            500 Internal Server Error
+            501 Not Implemented
+            
+        Error codes:
+            
+    e) we use 
