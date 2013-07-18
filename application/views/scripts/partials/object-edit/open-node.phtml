@@ -19,12 +19,15 @@
 <div id="result-message"></div>
 <div class="panel">
     <form id="node-form">
-        <div><input type="text" id="_nodeName" name="_nodeName" value="<?php echo $this->objects['node']->nodeName; ?>" placeholder="<?php echo $this->translate('deptmnt'); ?>"></div>
+        <div>
+            <label for="_nodeName"><?php echo $this->translate('node name');?></label>
+            <input type="text" id="_nodeName" name="_nodeName" value="<?php echo $this->objects['node']->nodeName; ?>" placeholder="<?php echo $this->translate('deptmnt'); ?>"></div>
         <?php
         if ($this->objects['nodes']) {
+            echo '<label for="_parentnodeId">' . $this->translate('parent node') .'</label>' . PHP_EOL;
             echo '<select id="_parentnodeId" name="_parentNodeId">' . PHP_EOL;
             echo '<option disabled>' . $this->translate('parent node') . '</option>' . PHP_EOL;
-            echo '<option value="-1">No parent</option>' . PHP_EOL;
+            echo '<option value="-1">' . $this->translate('no parent') . '</option>' . PHP_EOL;
             $selected = '';
             foreach ($this->objects['nodes'] as $node) {
                 // Exclude from the list current node - we don't want node to parent to itself
@@ -38,6 +41,7 @@
         }
         $selected = '';
         if ($this->objects['scenarios']) {
+            echo '<label for="_scenarioId">' . $this->translate('scenario') . '</label>' . PHP_EOL;
             echo '<select id="_scenarioId" name="_scenarioId">' . PHP_EOL;
             echo '<option disabled>' . $this->translate('scenario') . '</option>' . PHP_EOL;
             echo '<option value="-1">No scenario</option>' . PHP_EOL;
