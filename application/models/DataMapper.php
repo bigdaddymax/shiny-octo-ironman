@@ -18,6 +18,7 @@
  * @author Max
  */
 require_once APPLICATION_PATH . '/models/BaseDBAbstract.php';
+require_once APPLICATION_PATH . '/models/ExceptionsMapper.php';
 
 class Application_Model_DataMapper extends BaseDBAbstract {
 
@@ -109,7 +110,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 $object->{$this->objectIdName} = (int) $this->dbLink->lastInsertId();
             }
             return (int) $object->{$this->objectIdName};
-        } else
+        }
+        else
             throw new InvalidArgumentException($this->objectName . ' data are not valid', 417);
     }
 
@@ -275,53 +277,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
     }
 
     /**
-     * Checks if object is related to other objects in database. 
-     * 
-     * @param int $id
-     * @param object $class
-     * @return boolean Returns true is other objects are dependent on this object with $id, false otherwise
-     */
-    protected function checkObjectDependencies($class, $id) {
-        if (isset($class)) {
-            $this->setClassAndTableName($class);
-        } elseif (!isset($this->className)) {
-            throw new InvalidArgumentException('Class name is not set.');
-        }
-        // Get all tables in our database schema that contain column $this->objectIdName (for example, "positionId" or "userId")
-        $tables = $this->dbLink->fetchCol($this->dbLink->quoteinto('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME = ? AND TABLE_SCHEMA="' . $this->config->database->params->dbname . 'supercapex"', $this->objectIdName));
-        $count = null;
-        foreach ($tables as $table) {
-            if ($table != $this->tableName) {
-                $query = $this->dbLink->quoteinto("SELECT $this->objectIdName FROM $table  WHERE  $this->objectIdName = ?", $id);
-                $query .= $this->dbLink->quoteinto(" AND domainId = ? LIMIT 0, 1", $this->domainId);
-                $count = $this->dbLink->fetchOne($query);
-                if ($count == $id) {
-                    return array('dependentTable' => $table, 'ID' => $id);
-                }
-            }
-        }
-        // Now check in the same table for entries in ID and ParentId columns. For example,
-        // levelId == parentLevelId
-        // First check if parentObjectId exists
-        $object = $this->getObject($this->objectName, $id);
-        if (false !== $object) {
-            $objectArray = $object->toArray();
-            if ($object->isValid()) {
-                if (isset($objectArray[$this->objectParentIdName])) {
-                    // Parent Id exists
-                    $topId = $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName .
-                                    ' WHERE ' . $this->objectParentIdName . ' = ?', $id));
-                    if (!empty($topId)) {
-                        return array('ID' => $topId);
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * deleteObject - deletes object permanently from DB
+     * deleteObject - deletes object permanently from DB. Just brutal delete.
      * 
      * @param int $id
      * @param string $class
@@ -335,16 +291,11 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         } elseif (!isset($this->className)) {
             throw new InvalidArgumentException('Class name is not set.');
         }
-        $dependentTable = $this->checkObjectDependencies($this->objectName, $id);
-        if ($dependentTable === false) {
+        try {
             $this->dbLink->delete($this->tableName, array($this->objectIdName . '=?' => $id));
-            return true;
-        } else {
-            if (isset($dependentTable['dependentTable'])) {
-                throw new Exception('Other objects depend on "' . $this->objectName . '" with ID ' . $dependentTable['ID'] . ' in table ' . $dependentTable['dependentTable']);
-            } else {
-                throw new Exception('Other objects has "' . $this->objectName . '" as parent.');
-            }
+        } catch (Zend_Db_Exception $e) {
+
+            throw new DependantObjectDeletionAttempt($e->getMessage(), $e->getCode(), $e);
         }
     }
 

@@ -1,36 +1,51 @@
 <!DOCTYPE html>
 <script>
-    $(function(){
+    $(function() {
         var addUrl;
         addUrl = "<?php echo $this->url(array('controller' => 'objects', 'action' => 'add-object'), null, true); ?>";
         $('#add-object-form').dialog({
             autoOpen: false,
-            modal:    true,
-            buttons:  {
-                'Save' : function(){
+            modal: true,
+            buttons: {
+                'Save': function() {
                     $.post(addUrl, $("#object-form").serialize())
-                    .done(function(data){
-                        //      $("#main").html(data);
+                            .done(function(data) {
                         $("#add-object-form").dialog("close");
                         location.reload();
                     });
-                    //                        $(this).dialog("close");
                 },
-                'Cancel' : function(){
+                'Cancel': function() {
                     $(this).dialog("close");
                 }
             }
         });
-             
+
         $("#add-object-btn").button()
-        .click(function(){
+                .click(function() {
             $("#add-object-form").dialog("open");
         });
     });
+
+    function deleteObject(objType, objId) {
+        $.post("<?php echo $this->url(array('controller' => 'objects', 'action' => 'delete'), null, true); ?>",
+                {'objectType': objType, 'id': objId},
+                function(data) {
+                    // Our controller returns JSON
+                    if (1 == data.error) {
+                        $("#result-message").append('<div data-alert class="alert-box"><a href="#" class="close">&times</a>' + data.message + '</div>');
+                    } else {
+                        // If no error just reload the page to reflect changes
+                        location.reload();
+                    }
+                }
+        );
+
+    }
 </script>
+<div id="result-message">
+</div>
 <div class="object-list">
     <?php
-    $session = new Zend_Session_Namespace('Auth');
     echo $this->partial('partials/object-forms/' . $this->objectName . '-form.phtml', array('subobjects' => $this->subobjects));
     echo $this->partial('partials/object-lists/' . $this->objectName . '-list.phtml', array($this->objectName . 's' => $this->objects, 'subobjects' => $this->subobjects));
     ?>

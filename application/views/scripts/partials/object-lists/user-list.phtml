@@ -1,17 +1,16 @@
-<table>
+<table width="100%">
 <?php
 if (is_array($this->users)){
     foreach ($this->users as $user) {
         echo '<tr>' . PHP_EOL;
-        echo '<td><a href="'.
+        echo '<td><a href="#" onClick="deleteObject(\'user\', ' . $user->userId . ')">x</a></td>' . PHP_EOL;
+        echo '<td><a href="' .
                 $this->url(array('controller'=>'objects',
-                                 'action'=>'delete',
-                                 'userId'=>$user->userId,
-                                 'objectType'=>'user')).
-                '">x</a></td>' . PHP_EOL;
-        echo '<td>' . $user->userName . '</td>' . PHP_EOL;
+                                 'action'=>'open-object',
+                                 'objectType'=>'user',
+                                 'userId'=>$user->userId), null, true).
+                '">' . $user->userName . '</a></td>' . PHP_EOL;
         echo '<td>' . $user->login . '</td>' . PHP_EOL;
-        echo '<td>' . $user->positionId . '</td>' . PHP_EOL;
         echo '<td><a href="' . $this->url(array('controller' => 'objects',
                                                 'action' => 'user-privileges',
                                                 'userId' => $user->userId)) .

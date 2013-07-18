@@ -54,47 +54,47 @@
 
 </script>
 
-<div id="add-form">
+<div id="add-form" class="object-list">
     <form id="app-form">
 
         <input type="text" id="formName" name="formName" value="<?php
-                echo (isset($this->form['form'])) ? $this->form['form']->formName : '';
-                ?>"
+echo (isset($this->form['form'])) ? $this->form['form']->formName : '';
+?>"
                placeholder =" <?php echo $this->translate('form name'); ?>"
                />
 
 
         <input type="text" id="contragentName" name="contragentName" value="<?php
-                  echo (isset($this->form['contragent'])) ? $this->form['contragent']->contragentName : '';
-                ?>"
+               echo (isset($this->form['contragent'])) ? $this->form['contragent']->contragentName : '';
+?>"
                placeholder="<?php echo $this->translate('contragent'); ?>"
                />
-        <?php
-        echo '<select id="expgroup" name="expgroup">' . PHP_EOL;
-        echo '<option disabled selected=1>' . $this->translate('expgroup') . '</option>';
-        foreach ($this->expgroup as $group) {
-            echo '<option value="' . $group . '">' . $group . '</option>' . PHP_EOL;
-        }
-        echo '</select>' . PHP_EOL;
-        echo '<select id="nodeId" name="nodeId">' . PHP_EOL;
-        echo '<option disabled>' . $this->translate('deptmnt') . '</option>' . PHP_EOL;
-        foreach ($this->nodes as $node) {
-            $selected = '';
-            if (isset($this->form['form'])) {
-                if ($node->nodeId == $this->form['form']->nodeId) {
-                    $selected = 'selected';
-                }
-            }
-            echo '<option value="' . $node->nodeId . '" ' . $selected . ' >' . $node->nodeName . '</option>' . PHP_EOL;
-        }
-        echo '</select>' . PHP_EOL;
-        ?>
+               <?php
+               echo '<select id="expgroup" name="expgroup">' . PHP_EOL;
+               echo '<option disabled selected=1>' . $this->translate('expgroup') . '</option>';
+               foreach ($this->expgroup as $group) {
+                   echo '<option value="' . $group . '">' . $group . '</option>' . PHP_EOL;
+               }
+               echo '</select>' . PHP_EOL;
+               echo '<select id="nodeId" name="nodeId">' . PHP_EOL;
+               echo '<option disabled>' . $this->translate('deptmnt') . '</option>' . PHP_EOL;
+               foreach ($this->nodes as $node) {
+                   $selected = '';
+                   if (isset($this->form['form'])) {
+                       if ($node->nodeId == $this->form['form']->nodeId) {
+                           $selected = 'selected';
+                       }
+                   }
+                   echo '<option value="' . $node->nodeId . '" ' . $selected . ' >' . $node->nodeName . '</option>' . PHP_EOL;
+               }
+               echo '</select>' . PHP_EOL;
+               ?>
         <script>
-    $("#expgroup").change(function(){
-        $("#elements").load("<?php echo $this->url(array('controller'=>'form', 'action'=>'update-elements'));?>", {'expgroup': $(this).val()});
-    });    
-    </script>
-        
+            $("#expgroup").change(function(){
+                $("#elements").load("<?php echo $this->url(array('controller' => 'form', 'action' => 'update-elements')); ?>", {'expgroup': $(this).val()});
+            });    
+        </script>
+
         <div id="items">
             <?php
             if (isset($this->form['form'])) {
@@ -107,6 +107,8 @@
         </div>
     </form>
     <button id="add-item-btn"><?php echo $this->translate('add item'); ?></button>
+
+    <button id="add-form-btn"><?php echo $this->translate('save form'); ?></button>
 </div>
 
 <div id="add-item" title="Add approval item">
@@ -119,7 +121,6 @@
 
 </div>
 
-<button id="add-form-btn"><?php echo $this->translate('save form'); ?></button>
 
 <form id="items-form">
     <input type="hidden" id="counter" value="0">

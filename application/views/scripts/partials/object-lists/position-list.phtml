@@ -5,9 +5,7 @@
             foreach ($this->positions as $position) {
                 echo '<tr>' . PHP_EOL .
                         '<td>' . PHP_EOL .
-                            '<a href="' .
-                            $this->url(array('controller' => 'objects', 'action' => 'delete', 'objectType' => 'position', 'positionId' => $position->positionId)) .
-                            '">x</a>' . PHP_EOL .
+                            '<a href="#" onClick="deleteObject(\'position\', ' . $position->positionId . ')">x</a>' . PHP_EOL .
                         '</td>' . PHP_EOL .
                         '<td>' . PHP_EOL .
                             '<a href="' .
