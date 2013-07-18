@@ -11,6 +11,7 @@
  * 
  * * @author Max
  */
+
 class ObjectsController extends Zend_Controller_Action {
 
     private $objectManager;
@@ -68,11 +69,11 @@ class ObjectsController extends Zend_Controller_Action {
                 $this->subobjects = array('nodes' => $this->objectManager->getAllObjects('node'));
                 break;
             case 'element':
-                $this->subobjects = array('expgroup'=>$this->config->expences->group);
+                $this->subobjects = array('expgroup' => $this->config->expences->group);
                 break;
             case 'position':
                 $nodes = $this->objectManager->getAllObjects('Node');
-                foreach ($nodes as $node){
+                foreach ($nodes as $node) {
                     $nodeArray['nodes'][$node->nodeId] = $node;
                 }
                 $this->subobjects = $nodeArray;
@@ -115,13 +116,15 @@ class ObjectsController extends Zend_Controller_Action {
     }
 
     public function deleteAction() {
-        $objectId = (int) $this->_request->getParam($this->objectIdName);
-        //try {
-        $this->objectManager->deleteObject($this->objectName, $objectId);
-        $this->redirector->gotoSimple('index', 'objects', null, array('objectType' => $this->objectName));
-        //} catch (Zend_Exception $e) {
-        //  $this->view->exceptionMessage = 'Got exception while trying to delete ' . $this->objectName . ': ' . $e->getMessage();
-//        }
+        $objectId = (int) $this->_request->getParam('id');
+        // If something goes wrong exception will be thrown
+        try {
+            $this->objectManager->deleteObject($this->objectName, $objectId);
+            $this->redirector->gotoSimple('index', 'objects', null, array('objectType' => $this->objectName));
+        } catch (DependantObjectDeletionAttempt $e) {
+            // We catch only DependantObjectDeletionAttempt. All other (?) exceptions will be handled default way
+            $this->_helper->json($e->errorToArray());
+        }
     }
 
     public function userPrivilegesAction() {
@@ -135,10 +138,10 @@ class ObjectsController extends Zend_Controller_Action {
     public function editPrivilegesAction() {
         if ($this->_request->isPost()) {
             $privilege = new Application_Model_Privilege(array('userId' => $this->_request->getParam('userId'),
-                        'objectType' => $this->_request->getParam('object'),
-                        'objectId' => $this->_request->getParam('objectId'),
-                        'privilege' => $this->_request->getParam('privilege'),
-                        'domainId' => $this->session->domainId));
+                'objectType' => $this->_request->getParam('object'),
+                'objectId' => $this->_request->getParam('objectId'),
+                'privilege' => $this->_request->getParam('privilege'),
+                'domainId' => $this->session->domainId));
             if ((bool) $this->_request->getParam('state')) {
                 $result = $this->objectManager->grantPrivilege($privilege);
             } else {
@@ -171,13 +174,26 @@ class ObjectsController extends Zend_Controller_Action {
             case 'position':
                 $position = $this->objectManager->getObject('position', $objectId);
                 $nodes = $this->objectManager->getAllObjects('node');
-                if ($nodes){
-                    foreach ($nodes as $node){
+                if ($nodes) {
+                    foreach ($nodes as $node) {
                         $nodesArray[$node->nodeId] = $node;
                     }
                 }
-                $this->view->objects = array('position'=>$position, 'nodes'=>$nodesArray);
+                $this->view->objects = array('position' => $position, 'nodes' => $nodesArray);
                 $this->view->partialFile = 'open-position.phtml';
+                break;
+            case 'user':
+                $user = $this->objectManager->getObject('user', $this->_request->getParam('userId'));
+                $positions = $this->objectManager->getAllObjects('position');
+                $nodes = $this->objectManager->getAllObjects('node');
+                $position = $this->objectManager->getObject('position', $user->positionId);
+                $node = $this->objectManager->getObject('node', $position->nodeId);
+                $this->view->objects = array('user' => $user,
+                    'positions' => $positions,
+                    'nodes' => $nodes,
+                    'positionId' => $position->positionId,
+                    'nodeId' => $node->nodeId);
+                $this->view->partialFile = 'open-user.phtml';
                 break;
         }
     }

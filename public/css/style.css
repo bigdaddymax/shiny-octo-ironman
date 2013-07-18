@@ -266,3 +266,7 @@ tr.private td{
     float: left;
     width: 40%
 }
+
+.object-help {
+    float: right;
+}

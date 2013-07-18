@@ -20,3 +20,11 @@ Reason for this project
 * Play with different Javascript and CSS frameworks (JQuery, Foundation).
 * Create a useful application based on my personal real experience in field of controlling expences in midsize group.
  
+TODO list
+
+* Intercept errors about "Integrity constrains" when deleting items
+* Implement language change
+* Create "User cabinet"
+* Create user settings for language preferences
+* Implement filtering of invoices
+* Correct view of "show invoice"

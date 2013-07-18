@@ -440,5 +440,24 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertEquals($nodeEdited1->parentNodeId, $nodeId1);
     }
 
+    public function testOpenUser(){
+        $userArray = array('login' => 'test@domain', 'password' => 'test_pwd');
+        $params = array('controller' => 'auth', 'action' => 'auth');
+        $this->request->setMethod('post');
+        $this->request->setPost($userArray);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+        $session=new Zend_Session_Namespace('Auth');
+        $this->objectManager = new Application_Model_ObjectsManager($session->domainId);
+        $users = $this->objectManager->getAllObjects('user');
+        Zend_Debug::dump($users);
+        $this->assertTrue($users[0] instanceof Application_Model_User);
+        $params = array('controller'=>'objects', 'action'=>'open-object', 'objectType'=>'user', 'userId'=>$users[0]->userId);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->assertController('objects');
+        $this->assertAction('open-object');
+        $this->assertQueryContentContains('#_positions', '/administrator/');
+    }
 }
 

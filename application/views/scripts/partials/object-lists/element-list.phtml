@@ -4,11 +4,7 @@
         if (is_array($this->elements)) {
             foreach ($this->elements as $element) {
                 echo '<tr>' . PHP_EOL;
-                echo '<td><a href="' .
-                $this->url(array('controller' => 'objects',
-                    'action' => 'delete',
-                    'elementId' => $element->elementId)) .
-                '">x</a></td>' . PHP_EOL;
+                echo '<td><a href="#" onClick="deleteObject(\'element\', ' . $element->elementId . ')">x</a></td>' . PHP_EOL;
                 echo '<td>' . $element->elementName . '</td>' . PHP_EOL;
                 echo '<td>' . $element->elementCode . '</td>' . PHP_EOL;
                 echo '<td>' . $element->expgroup . '</td>' . PHP_EOL;
