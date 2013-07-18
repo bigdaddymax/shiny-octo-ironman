@@ -22,10 +22,12 @@
     <?php
     if (!empty($this->objects['position'])) {
         echo '<div class="row">' . PHP_EOL;
+        echo '<lable for="_positionName">' . $this->translate('position name') . '</label>';
         echo '<input type="text" id="_positionName" name="_positionName" value="' .
         $this->objects['position']->positionName .
-        '" placeholder="' . $this->objects['nodes'][$this->objects['position']->nodeId]->nodeName . '">' . PHP_EOL;
+        '" placeholder="' . $this->translate('position name') . '">' . PHP_EOL;
         if ($this->objects['nodes']) {
+            echo '<label  for="_nodeId">' . $this->translate('deptmnt') . '</label>' . PHP_EOL;
             echo '<select id="_nodeId" name="_nodeId">';
             echo '<option disabled>' . $this->translate('deptmnt') . '</option>';
             foreach ($this->objects['nodes'] as $node) {

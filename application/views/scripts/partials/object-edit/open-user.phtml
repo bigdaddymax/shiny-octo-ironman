@@ -4,6 +4,7 @@
         <input type="text" id="userName" name="userName" placeholder="<?php echo $this->translate('name');?>" value="<?php echo $this->objects['user']->userName;?>"/>
         <?php 
             if (!empty($this->objects['nodes'])){
+                echo '<label for="_nodeId">' . $this->translate('deptmnt') . '</label>' . PHP_EOL;
                 echo '<select id="_nodeId">' . PHP_EOL;
                 echo '<option disabled>' . $this->translate('deptmnt') . '</option>' . PHP_EOL;
                 foreach ($this->objects['nodes'] as $node){
@@ -12,6 +13,7 @@
                 echo '</select>' . PHP_EOL;
             }
             if (!empty($this->objects['positions'])){
+                echo '<label for="_positionId">' . $this->translate('position') . '</label>' . PHP_EOL;
                 echo '<select id="_positionId">' . PHP_EOL;
                 echo '<option disabled>' . $this->translate('position') . '</option>' . PHP_EOL;
                 foreach ($this->objects['positions'] as $position){
