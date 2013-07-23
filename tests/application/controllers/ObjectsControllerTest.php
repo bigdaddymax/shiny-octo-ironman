@@ -240,11 +240,9 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertEquals(4, count($nodes2));
 
         $params3 = array('controller' => 'objects', 'action' => 'delete',
-            'objectType' => 'node', 'nodeId' => $nodeId1);
+            'objectType' => 'node', 'id' => $nodeId1);
         $this->resetResponse();
         $this->dispatch($this->url($this->urlizeOptions($params3)));
-        $response = $this->getResponse();
-        echo $response->outputBody();
 //        $this->assertRedirect();
 
         $nodes3 = $objectManager->getAllObjects('Node');
@@ -300,11 +298,13 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertEquals(4, count($nodes3));
 
         $params4 = array('controller' => 'objects', 'action' => 'delete',
-            'objectType' => 'node', 'nodeId' => $nodeId1);
+            'objectType' => 'node', 'id' => $nodeId1);
         $this->resetResponse();
         $this->dispatch($this->url($this->urlizeOptions($params4)));
-
+        $this->assertController('objects');
+        $this->assertAction('delete');
         $nodes4 = $objectManager->getAllObjects('Node');
+//        Zend_Debug::dump($nodes4);
         $this->assertEquals(3, count($nodes4));
     }
 
@@ -358,7 +358,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->assertEquals(4, count($nodes3));
 
         $params4 = array('controller' => 'objects', 'action' => 'delete',
-            'objectType' => 'node', 'nodeId' => $nodeId1);
+            'objectType' => 'node', 'id' => $nodeId1);
         $this->resetResponse();
         $this->dispatch($this->url($this->urlizeOptions($params4)));
 
@@ -411,6 +411,8 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setMethod('post');
         $this->request->setPost($formArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
+        $response = $this->getResponse();
+        echo $response->outputBody();
         $this->assertController('objects');
         $this->assertAction('edit-object');
         $nodeEdited = $objectManager->getObject('node', $nodeId);
@@ -451,13 +453,11 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $session=new Zend_Session_Namespace('Auth');
         $this->objectManager = new Application_Model_ObjectsManager($session->domainId);
         $users = $this->objectManager->getAllObjects('user');
-        Zend_Debug::dump($users);
         $this->assertTrue($users[0] instanceof Application_Model_User);
         $params = array('controller'=>'objects', 'action'=>'open-object', 'objectType'=>'user', 'userId'=>$users[0]->userId);
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->assertController('objects');
         $this->assertAction('open-object');
-        $this->assertQueryContentContains('#_positions', '/administrator/');
     }
 }
 

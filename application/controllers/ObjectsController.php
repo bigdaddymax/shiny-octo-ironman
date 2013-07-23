@@ -11,7 +11,6 @@
  * 
  * * @author Max
  */
-
 class ObjectsController extends Zend_Controller_Action {
 
     private $objectManager;
@@ -117,7 +116,6 @@ class ObjectsController extends Zend_Controller_Action {
 
     public function deleteAction() {
         $objectId = (int) $this->_request->getParam('id');
-        // If something goes wrong exception will be thrown
         try {
             $this->objectManager->deleteObject($this->objectName, $objectId);
             $this->redirector->gotoSimple('index', 'objects', null, array('objectType' => $this->objectName));
@@ -201,15 +199,20 @@ class ObjectsController extends Zend_Controller_Action {
     public function editObjectAction() {
         $this->objectManager->saveObject($this->params);
         $objectId = (int) $this->params[$this->objectIdName];
+        $result = array();
         switch ($this->objectName) {
             case 'node':
                 $scenarioAssignment = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
-                if ($scenarioAssignment[0] instanceof Application_Model_ScenarioAssignment) {
-                    $this->objectManager->deleteObject('scenarioAssignment', $scenarioAssignment[0]->scenarioAssignmentId);
-                }
-                if (1 < $this->params['scenarioId']) {
-                    $scenarioAssignment = new Application_Model_ScenarioAssignment($this->params);
-                    $scenarioAssignmentId = $this->objectManager->saveObject($scenarioAssignment);
+                try {
+                    if ($scenarioAssignment[0] instanceof Application_Model_ScenarioAssignment) {
+                        $this->objectManager->deleteObject('scenarioAssignment', $scenarioAssignment[0]->scenarioAssignmentId);
+                    }
+                    if (1 < $this->params['scenarioId']) {
+                        $scenarioAssignment = new Application_Model_ScenarioAssignment($this->params);
+                        $scenarioAssignmentId = $this->objectManager->saveObject($scenarioAssignment);
+                    }
+                } catch (Exception $e) {
+                    $result = array('error' => 1, 'code' => 500, 'message' => $e->getMessage());
                 }
                 $node = $this->objectManager->getObject($this->objectName, $objectId);
                 $scenarios = $this->objectManager->getAllObjects('scenario');
@@ -218,11 +221,10 @@ class ObjectsController extends Zend_Controller_Action {
                 $this->view->objects = array('node' => $node,
                     'scenarios' => $scenarios,
                     'nodes' => $nodes, 'assignment' => ($assignment) ? $assignment[0] : NULL);
-                $this->view->partialFile = 'edit-node.phtml';
                 break;
         }
+        $this->_helper->json($result);
     }
-
 }
 
 ?>

@@ -65,7 +65,7 @@ class Application_Model_Node {
     }
 
     /**
-     * Returns true if nodeName is set, 
+     * Returns true if Node object is valid 
      * @return boolean
      */
     public function isValid() {

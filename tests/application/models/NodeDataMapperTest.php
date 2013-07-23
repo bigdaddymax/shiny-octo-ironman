@@ -131,11 +131,10 @@ class NodeDataMapperTest extends TestCase {
         $id1 = $this->objectManager->saveObject($node1);
 //        $this->assertEquals($this->objectManager->objectParentIdName, 'parentNodeId');
 //        $this->assertEquals($this->objectManager->className, 'Application_Model_Node');
+        $this->assertTrue($this->objectManager->checkObjectDependencies('node', $id));
         $objectManager = new Application_Model_ObjectsManager(1);
         $node2 = $objectManager->getObject('Node', $id);
         $this->assertEquals($node2->nodeId, $node1->parentNodeId);
-        $this->assertTrue(is_array($objectManager->checkObjectDependencies('Node',$id)));
-        $this->assertFalse($this->objectManager->checkObjectDependencies('node',$id1));
     }
     
     
@@ -159,8 +158,7 @@ class NodeDataMapperTest extends TestCase {
 
     /**
      * 
-     * @expectedException Exception
-     * @expectedExceptionMessage Other objects has "Node" as parent
+     * @expectedException DependantObjectDeletionAttempt
      */
     public function testDeleteDependentNode() {
         $nodeArray = array('nodeName' => 'lName1', 'parentNodeId' => -1, 'active' => false, 'domainId' => 1);
@@ -173,6 +171,7 @@ class NodeDataMapperTest extends TestCase {
         $this->assertEquals($nodes, array(0=>$node, 1=>$node1));
         $this->objectManager->deleteObject('node', $id);
         $nodes1 = $this->objectManager->getAllObjects('node');
+        $this->assertEquals(2, count($nodes1));
         $this->assertEquals(array(0=>$node, 1=>$node1), $nodes1 );
     }
 
