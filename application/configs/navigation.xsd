@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <nav>
-        <home>
-            <label>home</label>
-            <controller>index</controller>
-            <action>index</action>
-            <resource>home</resource>
-            <className>Home</className>
-            <subgroup>general</subgroup>
-        </home>
         <forms>
             <label>forms</label>
             <controller>form</controller>

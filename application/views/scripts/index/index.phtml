@@ -1,20 +1,59 @@
+<script>
+
+</script>
+<div class="blog-article">
+    <h2> CAPEXOPEX introduction. </h2>
+    <h4>Welcome everybody to CAPEXOPEX project page!</h4>
+    <p>
+        To make long story short – this is all about invoices and spending tracking system, highly configurable and flexible to use it in organisation of any size and very and very easy to deal with to allow even not very IT experienced people to use it on daily basis.
+    </p>
+    <p>
+        Main objective of the CAPEXOPEX is to allow small businesses to keep tracking of tracking of how they do their day to day payments by:
+    </p>
+    <ul>
+        <li>
+            providing convenient and simple form for inputting requests for invoice payment;
+        </li>
+        <li>
+            allowing to create different invoice approval scenarios starting from automatic approval for some invoices and ending with chains of people involved in approval and notification process. 
+        </li>
+        <li>
+            presenting reports on applications, approvals, amounts, contragents etc.
+        </li>
+        <li>
+            storing history of everything that happen to every single invoice and activities of every user of the system (regardless their change of positions, departments etc)
+        </li>
+        <li>
+            creating flexible access control system, allowing to administrator to provide access to some (or all) information based on department and/or personal level.
+        </li>
+    </ul>
+    <p>
+        This is how it looks now. There are also some plans to continue development. Some of planed TODO things:
+    </p>   
+    <ul>
+        <li>
+            Provide API and/or utilize API of existing accountant application to automatically keep track of full history of invoices: payed, not payed, postponed, returned, etc.
+        </li>
+        <li>
+            Create a mobile (Android/iOS) app for easier interacting with application.
+        </li>
+        <li>
+            Create budgeting helper to allow customers estimate regular expenses.
+        </li>
+        <li>
+            Introduce Project feature to simplify tracking of expenses for some dedicated project of some particular activity.
+        </li>
+        <li>
+            Anything else?
+        </li>
+    </ul>
+</div>  
+
 <div class="registration-form">
     <h4>
         <?php echo $this->translate('сreate account'); ?>
     </h4>
-    <form id="signup" method="post" action="<?php echo $this->url(array('controller' => 'index', 'action' => 'new-domain'), null, true); ?>">
-        <div class="row">
-            <input type="text" id="userName" name="userName" class="small-2 columns" placeholder="<?php echo $this->translate('name'); ?>"/>
-        </div>
-        <div class="row">
-            <input type="text" id="email" name="email" placeholder="<?php echo $this->translate('email'); ?>" />
-        </div>
-        <div class="row">
-           <input type="password" id="password" name="password" placeholder=" <?php echo $this->translate('password'); ?>"/>
-        </div>
-        <div class="row">
-          <input type="text" id="companyName" name="companyName" placeholder="<?php echo $this->translate('company name'); ?>"/>
-        </div>
-        <button id="signup-button" class="signup-button" value="signup"><?php echo $this->translate('signup'); ?></button>
-    </form>
+    <?php
+    echo $this->form;
+    ?>
 </div>

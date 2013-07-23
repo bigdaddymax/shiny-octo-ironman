@@ -57,6 +57,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         elseif (is_string($object))
             $this->className = 'Application_Model_' . ucfirst($object);
         $this->objectName = substr($this->className, strrpos($this->className, '_') + 1);
+
+        // Transforming camelCase names of classes to underscored_names for MySQL tables
         if (preg_match_all('/[A-Z]/', substr($this->className, strrpos($this->className, '_') + 1), $matches, PREG_OFFSET_CAPTURE)) {
             if (2 == count($matches[0])) {
                 $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $matches[0][1][1]) .
@@ -66,8 +68,6 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 $this->tableName = strtolower($this->objectName);
             }
         }
-        //       echo $this->tableName . PHP_EOL;
-//        $this->objectIdName = $this->objectName . 'Id';
 
         $this->objectIdName = lcfirst(substr($this->className, strrpos($this->className, '_') + 1)) . 'Id';
         $this->objectParentIdName = 'parent' . ucwords($this->objectIdName);
@@ -291,6 +291,9 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         } elseif (!isset($this->className)) {
             throw new InvalidArgumentException('Class name is not set.');
         }
+        if ($this->checkParentObjects($class, $id)) {
+            throw new DependantObjectDeletionAttempt('This object is parent to others, cannot delete', 23000);
+        }
         try {
             $this->dbLink->delete($this->tableName, array($this->objectIdName . '=?' => $id));
         } catch (Zend_Db_Exception $e) {
@@ -303,7 +306,7 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * getObjectsCount - returns number of entries in specific table after applying optional filter
      * @param type $class
      * @param type $filter
-     * @return type
+     * @return integer
      */
     protected function getObjectsCount($class, $filter = null) {
         $this->setClassAndTableName($class);
@@ -385,6 +388,30 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         $filter = $this->prepareFilter($filterArray);
         $count = $this->dbLink->fetchOne('SELECT count(' . $this->objectIdName . ') FROM ' . $this->tableName . ' ' . $filter);
         return ceil($count / $recordsPerPage);
+    }
+
+    /**
+     * In some cases we have parent - child relation between objects but cannot set these 
+     * dependancies on database level. For exmple, when an object may have or may have not a parent.
+     * In this case if we set foreign key for columns and we will want to create a record for
+     * object that doesn't have parent we receive MySQL error about constrains violation.
+     * For some objects that might have parents or be parent to other objects we will perform
+     * checking befor allow to delete them.
+     * 
+     * @param string | object $class
+     * @param integer $id
+     * @return true | false Result of check
+     */
+    protected function checkParentObjects($class, $id) {
+        $this->setClassAndTableName($class);
+        $columns = $this->dbLink->fetchOne($this->dbLink->quoteinto('SHOW COLUMNS FROM ' . $this->tableName . ' WHERE field LIKE ?', $this->objectParentIdName));
+        if ($columns) {
+            $objects = $this->getAllObjects($this->objectName, array(0 => array('column'=>$this->objectParentIdName, 'operand' => $id)));
+            if ($objects) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

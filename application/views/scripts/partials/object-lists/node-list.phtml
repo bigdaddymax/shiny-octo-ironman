@@ -4,7 +4,7 @@
         if (is_array($this->nodes)) {
             foreach ($this->nodes as $node) {
                 echo '<tr>' . PHP_EOL .
-                            '<td><a href="#" onclick="deleteObject(\'node\', '. $node->nodeId .')">x</a>' . PHP_EOL .
+                            '<td><a href="#" onclick="deleteObject(\'node\', '. $node->nodeId .')">&times</a>' . PHP_EOL .
                             '</td>' . PHP_EOL .
                             '<td><a href="' . $this->url(array('controller' => 'objects',
                                         'action' => 'open-object',

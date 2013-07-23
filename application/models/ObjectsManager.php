@@ -513,7 +513,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     }
 
     public function checkObjectDependencies($class, $id) {
-        return parent::checkObjectDependencies($class, $id);
+        return parent::checkParentObjects($class, $id);
     }
 
     public function getObjectsCount($class, $filter = null) {

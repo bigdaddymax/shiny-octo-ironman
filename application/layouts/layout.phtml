@@ -1,8 +1,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width" />
-<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="<?php echo $this->baseUrl('css/normalize.css'); ?>" />
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="<?php echo $this->baseUrl('css/normalize.css'); ?>" />
     <link rel="stylesheet" href="<?php echo $this->baseUrl('css/foundation.css'); ?>" />
     <script src="<?php echo $this->baseUrl('js/vendor/custom.modernizr.js'); ?>"></script>
 
@@ -12,44 +12,46 @@
     <!--
     <script src="<?php echo $this->baseUrl('js/scripts.js'); ?>"></script>
     -->
-    <link type="text/css" rel="stylesheet" href="<?php echo $this->baseUrl('css/style.css');?>" /> 
+    <link type="text/css" rel="stylesheet" href="<?php echo $this->baseUrl('css/style.css'); ?>" /> 
     <?php
     $session = new Zend_Session_Namespace('Auth');
     ?>
     <script>
-        window.onload = function(){
+        window.onload = function() {
             var a1 = document.getElementById('signin-link');
             var a2 = document.getElementById('signoff-link');
-            if (a1){
-                a1.onclick = function(){
+            if (a1) {
+                a1.onclick = function() {
                     $("#signin").dialog("open");
                     return false;
-                }    
+                }
             }
-            if (a2){
-                a2.onclick = function (){
+            if (a2) {
+                a2.onclick = function() {
                     $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'logoff'), null, true); ?>')
-                    .done(function(data){window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");});
+                            .done(function(data) {
+                        window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");
+                    });
                 }
             }
         }
 <?php
 if (1 <> $session->auth) {
     ?>
-            $(function(){
-                
+            $(function() {
+
                 $("#signin").dialog({
                     autoOpen: false,
-                    modal:    true,
+                    modal: true,
                     buttons: {
-                        '<?php echo $this->translate('login');?>': function(){
+                        '<?php echo $this->translate('login'); ?>': function() {
                             $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'auth'), null, true); ?>', $('#signin-form').serialize())
-                            .done(function(data){
+                                    .done(function(data) {
                                 window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");
                             });
                             $(this).dialog("close");
                         },
-                        '<?php echo $this->translate('close');?>': function() {
+                        '<?php echo $this->translate('close'); ?>': function() {
                             $(this).dialog("close");
                         }
                     }
@@ -63,9 +65,9 @@ if (1 <> $session->auth) {
 </head>
 <body>
     <script>
-        document.write('<script src=' + '/'+
-            ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
-            '.js><\/script>')
+        document.write('<script src=' + '/' +
+                ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+                '.js><\/script>')
     </script>
     <script src="<?php echo $this->baseUrl('js/foundation/foundation.js'); ?>"></script>
     <script src="<?php echo $this->baseUrl('js/foundation/foundation.alerts.js'); ?>"></script>
@@ -87,7 +89,7 @@ if (1 <> $session->auth) {
     <div id="container">
         <div id="header">
             <div id="logo">
-                <img src="<?php echo $this->baseUrl('img/CapexOpex1.jpg'); ?>">
+                <a href="<?php echo $this->url(array('controller'=>'index', 'action'=>'index'), null, true);?>"><img src="<?php echo $this->baseUrl('img/CapexOpex1.jpg'); ?>"></a>
             </div>
             <div id="top_menu">
                 <?php
@@ -103,13 +105,13 @@ if (1 <> $session->auth) {
                 } else {
                     ?>
                     <!-- JQuery template for SIGNIN FORM -->
-                    <div id="signin" title="<?php echo $this->translate('login to system');?>">
+                    <div id="signin" title="<?php echo $this->translate('login to system'); ?>">
                         <form id="signin-form">
                             <div>
-                                <div><input type="text" id="login" name="login" placeholder="<?php echo $this->translate('email');?>">
+                                <div><input type="text" id="login" name="login" placeholder="<?php echo $this->translate('email'); ?>">
                                 </div>
                                 <div>
-                                    <input type="password" id="password" name="password" placeholder="<?php echo $this->translate('password');?>">
+                                    <input type="password" id="password" name="password" placeholder="<?php echo $this->translate('password'); ?>">
                                 </div>
                             </div>
                         </form>
