@@ -70,6 +70,8 @@ tr.private td{
 
 #main_content {
     margin-left: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
 }
 
 #logo {
