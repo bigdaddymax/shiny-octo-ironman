@@ -89,7 +89,7 @@ if (1 <> $session->auth) {
     <div id="container">
         <div id="header">
             <div id="logo">
-                <a href="<?php echo $this->url(array('controller'=>'index', 'action'=>'index'), null, true);?>"><img src="<?php echo $this->baseUrl('img/CapexOpex1.jpg'); ?>"></a>
+                <a href="<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true); ?>"><img src="<?php echo $this->baseUrl('img/CapexOpex1.jpg'); ?>"></a>
             </div>
             <div id="top_menu">
                 <?php
@@ -141,10 +141,12 @@ if (1 <> $session->auth) {
             <?php
             echo $this->layout()->content;
             ?>
+            <div style="display: block; clear: both"></div>
         </div>
 
         <div id="footer">
-
+            <hr>
+            <center>2013</center>
         </div>
     </div>
 </body>
