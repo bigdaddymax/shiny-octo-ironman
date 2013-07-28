@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * Very basic decorator mainly used to format error messages on the output forms
+ */
+class Capex_Decorator_CapexFormErrors extends Zend_Form_Decorator_Abstract {
+
+    Public function render($content) {
+
+        $element = $this->getElement();
+        if (!$element instanceof Zend_Form_Element) {
+            return $content;
+        }
+
+        if (null === $element->getView()) {
+            return $content;
+        }
+        
+        $seperator = $this->getSeparator();
+        $placement = $this->getPlacement();
+        $errors = $this->buildErrors();
+        switch ($placement) {
+            case (self::PREPEND):
+                return $errors . $seperator . $content;
+                break;
+            case (self::APPEND):
+            default:
+                return $content . $seperator . $errors;
+                break;
+        }
+    }
+
+    function buildErrors() {
+
+        $element = $this->getElement();
+        $messages = $element->getMessages();
+
+        if (empty($messages)) {
+            return '';
+        }
+        $message = array_pop($messages);
+
+        return '<div class="alert-box alert">' . $message . '</div>';
+    }
+}
