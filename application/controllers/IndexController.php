@@ -16,7 +16,9 @@ class IndexController extends Zend_Controller_Action {
     public function init() {
         $this->redirector = $this->_helper->getHelper('Redirector');
         $registry = Zend_Registry::getInstance();
+
         $this->translate = $registry->get('Zend_Translate');
+
         $form = new Zend_Form();
         $form->setAction('/index/new-domain');
         $form->setTranslator($this->translate);
@@ -24,24 +26,22 @@ class IndexController extends Zend_Controller_Action {
         $username = $form->createElement('text', 'userName');
         $username->addValidator('alnum')
                 ->setRequired(true);
-        $username->getDecorator('errors')->setOption('placement', 'prepend');
-        
+
         $company = $form->createElement('text', 'companyName');
         $company->addValidator('StringLength', 4)
                 ->setRequired('true');
-        $company->getDecorator('errors')->setOption('placement', 'prepend');
 
         $email = $form->createElement('text', 'email');
-        $email->addValidator('StringLength', false, array(6));
-        $email->getDecorator('errors')->setOption('placement', 'prepend');
-        
+        $email->addValidator('StringLength', false, array(6))
+                ->setRequired();
+
         $password = $form->createElement('password', 'password');
         $password->addValidator('StringLength', false, array(4))
                 ->setRequired(true);
-        $password->getDecorator('errors')->setOption('placement', 'prepend');
 
         $submit = $form->createElement('submit', 'signup');
         $submit->setIgnore(true);
+
         $form->addElement($username)
                 ->addElement($company)
                 ->addElement($email)
@@ -64,6 +64,14 @@ class IndexController extends Zend_Controller_Action {
                 ->setAttrib('name', 'companyName')
                 ->setAttrib('placeholder', $this->translate->_('company'));
         $form->signup->setAttrib('class', 'signup-button button');
+
+        $form->addElementPrefixPath('Capex_Decorator', 'Capex/decorator', 'decorator');
+        $form->setElementDecorators(array('viewHelper',
+            array('CapexFormErrors', array('placement' => 'prepend')),
+            'label',
+            array('htmlTag', array('tag' => 'div'))));
+        $form->signup->setDecorators(array('viewHelper'));
+        
         $this->form = $form;
     }
 
