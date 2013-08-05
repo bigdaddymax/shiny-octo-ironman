@@ -15,10 +15,11 @@ class Capex_Decorator_CapexFormErrors extends Zend_Form_Decorator_Abstract {
         if (null === $element->getView()) {
             return $content;
         }
-        
+
         $seperator = $this->getSeparator();
         $placement = $this->getPlacement();
         $errors = $this->buildErrors();
+
         switch ($placement) {
             case (self::PREPEND):
                 return $errors . $seperator . $content;
@@ -34,12 +35,17 @@ class Capex_Decorator_CapexFormErrors extends Zend_Form_Decorator_Abstract {
 
         $element = $this->getElement();
         $messages = $element->getMessages();
+        $class = $this->getOption('class');
+        if ($class) {
+            $class = 'class="' . $class . '"';
+        }
 
         if (empty($messages)) {
             return '';
         }
         $message = array_pop($messages);
 
-        return '<div class="alert-box alert">' . $message . '</div>';
+        return '<div ' . $class . '>' . $message . '</div>';
     }
+
 }

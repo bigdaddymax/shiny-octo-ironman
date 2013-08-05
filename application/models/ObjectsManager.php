@@ -502,7 +502,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         }
         return (isset($row))? $row: false;
     }
-    
+        
     
     public function getNumberOfPages($object, $filterArray, $recordsPerPage){
         return parent::getNumberOfPages($object, $filterArray, $recordsPerPage);

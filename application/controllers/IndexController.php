@@ -12,7 +12,11 @@ class IndexController extends Zend_Controller_Action {
     private $redirector;
     private $translate;
     private $form;
+    private $objectManager;
 
+    /**
+     * Init some staff, basically, the signup form
+     */
     public function init() {
         $this->redirector = $this->_helper->getHelper('Redirector');
         $registry = Zend_Registry::getInstance();
@@ -24,15 +28,41 @@ class IndexController extends Zend_Controller_Action {
         $form->setTranslator($this->translate);
 
         $username = $form->createElement('text', 'userName');
+
+        $usernameValidator = new Zend_Validate_Callback(
+                array('callback' => function($user) {
+                $objectManager = new Application_Model_ObjectsManager(-1);
+                $userTest = $objectManager->checkUserExistance($user);
+                if ($userTest) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }));
+        $usernameValidator->setMessage("User '%value%' is already registered");
+
         $username->addValidator('alnum')
+                ->addValidator($usernameValidator)
                 ->setRequired(true);
 
         $company = $form->createElement('text', 'companyName');
         $company->addValidator('StringLength', 4)
                 ->setRequired('true');
 
+        $emailValidator = new Zend_Validate_Callback(
+                array('callback' => function($email) {
+                $objectManager = new Application_Model_ObjectsManager(-1);
+                $emailTest = $objectManager->checkEmailExistance($email);
+                if ($emailTest) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }));
+        $emailValidator->setMessage("Email '%value%' is already registered");
         $email = $form->createElement('text', 'email');
         $email->addValidator('StringLength', false, array(6))
+                ->addValidator($emailValidator)
                 ->setRequired();
 
         $password = $form->createElement('password', 'password');
@@ -67,11 +97,11 @@ class IndexController extends Zend_Controller_Action {
 
         $form->addElementPrefixPath('Capex_Decorator', 'Capex/decorator', 'decorator');
         $form->setElementDecorators(array('viewHelper',
-            array('CapexFormErrors', array('placement' => 'prepend')),
+            array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
             'label',
             array('htmlTag', array('tag' => 'div'))));
         $form->signup->setDecorators(array('viewHelper'));
-        
+
         $this->form = $form;
     }
 
@@ -111,22 +141,25 @@ class IndexController extends Zend_Controller_Action {
         }
     }
 
-    public function saveNewDomainAction() {
-        $domain = new Application_Model_Domain(array('domainName' => $this->getRequest()->getParam('domainName')));
-        $domainId = $objectManager->saveObject($domain);
-        $user = new Application_Model_User(array('userName' => $session->newUser['userName'],
-            'login' => $session->newUser['login'],
-            'password' => $session->newUser['password'],
-            'domainId' => $domainId,
-            'positionId' => -1));
-        $userId = $objectManager->saveObject($user);
-        $userGroup = new Application_Model_UserGroup(array('userId' => $userId,
-            'userGroupName' => 'admin',
-            'role' => 'admin',
-            'domainId' => $domainId));
-        $userGroupId = $objectManager->saveObject($userGroup);
-        $domainOwner = new Application_Model_DomainOwner(array('domainId' => $domainId, 'userId' => $userId));
-        $objectManager->saveObject($domainOwner);
+    public function changeLangAction() {
+        switch ($this->getRequest()->getParam('lang')) {
+            case 'ua';
+            case 'en' : $session = new Zend_Session_Namespace('Auth');
+                $session->lang = $this->getRequest()->getParam('lang');
+                $langLocale = $this->getRequest()->getParam('lang');
+
+                // Set up and load the translations (all of them!)
+                $translate = new Zend_Translate(array(
+                    'adapter' => 'array',
+                    'content' => APPLICATION_PATH . '/../library/Capex/lang/' . $langLocale . '/translation.php',
+                    'locale' => $langLocale
+                ));
+
+                $registry = Zend_Registry::getInstance();
+                $registry->set('Zend_Translate', $translate);
+                break;
+        }
+        $this->redirector->gotoSimple('index', 'index');
     }
 
 }
