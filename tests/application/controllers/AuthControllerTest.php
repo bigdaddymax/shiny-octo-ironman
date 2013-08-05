@@ -74,8 +74,6 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setMethod('post');
         $this->request->setPost($user);
         $this->dispatch($this->url($this->urlizeOptions($params)));
-        $response = $this->getResponse();
-        echo $response->outputBody();
         $session = new Zend_Session_Namespace('Auth');
         $this->assertTrue((bool)$session->auth);
     }
@@ -85,14 +83,11 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
  */    
   
     public function testDefaultAdminAuth() {
-//        rer;
-         $inputArray = array('userName'=>'testName', 'email'=>'test@domain', 'password'=>'test_pwd', 'companyName'=>'New node name');
+        $inputArray = array('userName'=>'testName', 'email'=>'test@domain', 'password'=>'test_pwd', 'companyName'=>'New node name');
         $params = array('controller'=>'index', 'action'=>'new-domain');
         $this->request->setMethod('post');
         $this->request->setPost($inputArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
-        $response = $this->getResponse();
-        echo $response->outputBody();
         $this->assertController('index');
         $this->assertAction('new-domain');
         $this->resetRequest();

@@ -413,7 +413,14 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         }
         return false;
     }
+    
+    public function checkUserExistance($userName) {
+        return $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT * FROM user WHERE username=?', $userName));
+    }
 
+    public function checkEmailExistance($email) {
+        return $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT * FROM user WHERE login=?', $email));
+    }
 }
 
 ?>
