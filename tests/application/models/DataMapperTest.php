@@ -8,7 +8,7 @@ class DataMapperTest extends TestCase {
     private $positionId;
 
     public function setUp() {
-                $this->markTestSkipped('Cannot test protected method.');
+        $this->markTestSkipped('Cannot test protected method.');
         $this->dataMapper = new Application_Model_DataMapper(1);
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario');
@@ -94,14 +94,13 @@ class DataMapperTest extends TestCase {
         $filter = $dataMapper->prepareFilter(array(0 => array('column' => 'nodeId', 'operand' => 44)));
         $this->assertEquals($filter, ' WHERE domainId = 1 AND nodeId = 44 ');
     }
-    
+
     /**
      * @ignore
      */
-
     public function testSaveExisting() {
         $this->markTestSkipped('Cannot test protected method.');
-        
+
         $this->dataMapper->dbLink->insert('user', array('userName' => 'uName',
             'login' => 'uLogin',
             'password' => 'uPassword',

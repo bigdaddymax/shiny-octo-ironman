@@ -40,6 +40,18 @@
                     <className>Position</className>
                     <subgroup>subadmin</subgroup>
                 </positions>
+                <templates>
+                    <label>templates</label>
+                    <title>Templates administration</title>
+                    <controller>objects</controller>
+                    <action>index</action>
+                    <params>
+                        <objectType>template</objectType>
+                    </params>
+                    <resource>template</resource>
+                    <className>Template</className>
+                    <subgroup>subadmin</subgroup>
+                </templates>
                 <elements>
                     <label>elements</label>
                     <title>Elements administration</title>

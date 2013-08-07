@@ -6,6 +6,7 @@ class ApprovalTest extends TestCase {
     private $userId;
     private $userId1;
     private $userId2;
+    private $userId3;
     private $nodeId;
     private $nodeId1;
     private $nodeId2;
@@ -98,6 +99,9 @@ class ApprovalTest extends TestCase {
         $userArray2 = array('userName' => 'user3', 'domainId' => 1, 'login' => 'user login3', 'password' => 'user password', 'positionId' => $positionId1);
         $user2 = new Application_Model_User($userArray2);
         $this->userId2 = $this->objectManager->saveObject($user2);
+        $userArray3 = array('userName' => 'user4', 'domainId' => 1, 'login' => 'user login4', 'password' => 'user password', 'positionId' => $positionId1);
+        $user3 = new Application_Model_User($userArray3);
+        $this->userId3 = $this->objectManager->saveObject($user3);
 
 // RESOURCES
         $resourceArray = array('resourceName' => 'admin', 'domainId' => 1);
@@ -111,21 +115,24 @@ class ApprovalTest extends TestCase {
         $privilegeArray1 = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId1, 'privilege' => 'read', 'domainId' => 1);
         $privilege1 = new Application_Model_Privilege($privilegeArray1);
         $this->objectManager->saveObject($privilege1);
-        $privilegeArray2 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId1, 'privilege' => 'write', 'domainId' => 1);
-        $privilege2 = new Application_Model_Privilege($privilegeArray2);
-        $this->objectManager->saveObject($privilege2);
-        $privilegeArray3 = array('objectType' => 'resource', 'objectId' => $resourceId, 'userId' => $this->userId, 'privilege' => 'read', 'domainId' => 1);
-        $privilege3 = new Application_Model_Privilege($privilegeArray3);
-        $this->objectManager->saveObject($privilege3);
         $privilegeArray4 = array('objectType' => 'node', 'objectId' => $this->nodeId, 'userId' => $this->userId1, 'privilege' => 'approve', 'domainId' => 1);
         $privilege4 = new Application_Model_Privilege($privilegeArray4);
         $this->objectManager->saveObject($privilege4);
+        $privilegeArray2 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId1, 'privilege' => 'write', 'domainId' => 1);
+        $privilege2 = new Application_Model_Privilege($privilegeArray2);
+        $this->objectManager->saveObject($privilege2);
         $privilegeArray5 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId, 'privilege' => 'approve', 'domainId' => 1);
         $privilege5 = new Application_Model_Privilege($privilegeArray5);
         $this->objectManager->saveObject($privilege5);
         $privilegeArray6 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId2, 'privilege' => 'approve', 'domainId' => 1);
         $privilege6 = new Application_Model_Privilege($privilegeArray6);
         $this->objectManager->saveObject($privilege6);
+        $privilegeArray7 = array('objectType' => 'node', 'objectId' => $this->nodeId1, 'userId' => $this->userId3, 'privilege' => 'approve', 'domainId' => 1);
+        $privilege7 = new Application_Model_Privilege($privilegeArray7);
+        $this->objectManager->saveObject($privilege7);
+        $privilegeArray3 = array('objectType' => 'resource', 'objectId' => $resourceId, 'userId' => $this->userId, 'privilege' => 'read', 'domainId' => 1);
+        $privilege3 = new Application_Model_Privilege($privilegeArray3);
+        $this->objectManager->saveObject($privilege3);
 
 // USERGROUPS        
         $usergroupArray = array('userId' => $this->userId, 'role' => 'admin', 'domainId' => 1, 'userGroupName' => 'administrators');
@@ -139,7 +146,8 @@ class ApprovalTest extends TestCase {
         $entryArray1 = array('domainId' => 1, 'orderPos' => 1, 'userId' => $this->userId, 'active' => true);
         $entryArray2 = array('domainId' => 1, 'orderPos' => 2, 'userId' => $this->userId1, 'active' => true);
         $entryArray3 = array('domainId' => 1, 'orderPos' => 3, 'userId' => $this->userId2, 'active' => true);
-        $scenarioArray1 = array('scenarioName' => 'eName1', 'active' => false, 'domainId' => 1, 'entries' => array(0 => $entryArray1, 1 => $entryArray2, 2 => $entryArray3));
+        $entryArray4 = array('domainId' => 1, 'orderPos' => 4, 'userId' => $this->userId3, 'active' => true);
+        $scenarioArray1 = array('scenarioName' => 'eName1', 'active' => false, 'domainId' => 1, 'entries' => array(0 => $entryArray1, 1 => $entryArray2, 2 => $entryArray3, 3 => $entryArray4));
         $this->scenario = new Application_Model_Scenario($scenarioArray1);
         $this->scenarioId = $this->objectManager->saveObject($this->scenario);
         $this->scenario = $this->objectManager->getObject('scenario', $this->scenarioId);
@@ -256,6 +264,9 @@ class ApprovalTest extends TestCase {
         $appr = $this->objectManager->approveForm($this->formId, $this->userId1, 'approve');
         $emails2 = $this->objectManager->getEmailingList($this->formId);
         $this->assertEquals($emails2, array('owner'=>'user login2', 'approval'=>'user login3'));
+        $appr = $this->objectManager->approveForm($this->formId, $this->userId2, 'approve');
+        $emails3 = $this->objectManager->getEmailingList($this->formId);
+        $this->assertEquals($emails3, array('owner'=>'user login2', 'approval'=>'user login4'));
     }
 
 }

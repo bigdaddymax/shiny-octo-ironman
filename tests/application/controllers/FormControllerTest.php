@@ -87,10 +87,10 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $positionId1 = $this->objectManager->saveObject($position1);
 
 // USERS        
-        $userArray = array('userName' => 'user1', 'domainId' => 1, 'login' => 'user login', 'password' => 'user password', 'positionId' => $positionId);
+        $userArray = array('userName' => 'user1', 'domainId' => 1, 'login' => 'user@login', 'password' => 'user password', 'positionId' => $positionId);
         $user = new Application_Model_User($userArray);
         $this->userId = $this->objectManager->saveObject($user);
-        $userArray1 = array('userName' => 'user2', 'domainId' => 1, 'login' => 'user login2', 'password' => 'user password', 'positionId' => $positionId1);
+        $userArray1 = array('userName' => 'user2', 'domainId' => 1, 'login' => 'user@login2', 'password' => 'user password', 'positionId' => $positionId1);
         $user1 = new Application_Model_User($userArray1);
         $this->userId1 = $this->objectManager->saveObject($user1);
 
@@ -145,7 +145,39 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $assignment = new Application_Model_ScenarioAssignment($assignmentArray);
         $assignmentId = $this->objectManager->saveObject($assignment);
         $this->assertTrue(is_int($assignmentId));
-
+ // Template
+        $templateArray = array('templateName'=>'test template', 'language' =>'ua', 'type'=>'approved_owner','body' =>'<!DOCTYPE html>
+<html>
+    <head>
+        <title>Approval needed</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h3>Dear %name%</h3>
+        <div>Invoice "%fname%" from %contragent% totally amounted %total% was just approved.</div>
+        <div>Please review this invoice and take appropriate action</div>
+        <div><a href="%link%">Click here to open invoice</a></div>
+    </body>
+</html>', 'domainId'=>1);
+        $template = new Application_Model_Template($templateArray);
+        $id = $this->objectManager->saveObject($template);
+        $this->assertTrue(is_int($id));
+        $template->type = 'approved_next';
+        $template->templateName = 'test template 2';
+        $template->templateId = NULL;
+        $id1 = $this->objectManager->saveObject($template);
+        $this->assertNotEquals($id1, $id);
+        $this->assertTrue(is_int($id1));
+        $templateArray = array('templateName'=>'test template', 'language' =>'ua', 'type'=>'approved_subj_owner','body' =>'Your invoice "%fname%" was approved.', 'domainId'=>1);
+        $template = new Application_Model_Template($templateArray);
+        $id2 = $this->objectManager->saveObject($template);
+        $this->assertTrue(is_int($id2));
+        $this->assertNotEquals($id, $id2);
+        $template->type = 'approved_subj_next';
+        $template->body = 'Invoice "%fname%" was approved and needs your attention.';
+        $template->templateId = NULL;
+        $id3 = $this->objectManager->saveObject($template);
+        $this->assertTrue(is_int($id3));
         parent::setUp();
     }
 
@@ -166,10 +198,11 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager->dbLink->delete('position');
         $this->objectManager->dbLink->delete('node');
         $this->objectManager->dbLink->delete('contragent');
+        $this->objectManager->dbLink->delete('template');
     }
 
     public function testIndexAction() {
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -190,7 +223,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 //        $session = new Zend_Session_Namespace('Auth');
 //        $session->auth = 1;
 //        $session->login = 'admin';
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -198,7 +231,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetRequest();
         $this->resetResponse();
         $session = new Zend_Session_Namespace('Auth');
-        $this->assertEquals($session->login, 'user login2');
+        $this->assertEquals($session->login, 'user@login2');
         $this->assertEquals($session->domainId, 1);
         $this->assertEquals($session->auth, 1);
         $accessMapper = new Application_Model_AccessMapper($session->userId, 1);
@@ -233,7 +266,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testAddNewFormFromWeb() {
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -287,7 +320,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testErrorResponseWhenAddForm() {
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -314,7 +347,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testAddAndPublish() {
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -372,10 +405,12 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $form = $objectManager->getObject('form', $form3['form']->formId, $this->userId1);
         $this->assertEquals($form->formName, $form3['form']->formName);
         $this->assertEquals($form->formName, 'test');
+        // Test emails generation
+        
     }
 
     public function testPublishInvalidForm() {
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -419,7 +454,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testOpenFormAction() {
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -456,7 +491,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testEditFormAction() {
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -493,7 +528,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testCommentForm() {
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -538,7 +573,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     public function testApprovalAllowance() {
         // Login
-        $user = array('login' => 'user login2', 'password' => 'user password');
+        $user = array('login' => 'user@login2', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -588,7 +623,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
 
         // Login under first user 
-        $user = array('login' => 'user login', 'password' => 'user password');
+        $user = array('login' => 'user@login', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
         $this->request->setPost($user);
@@ -631,7 +666,7 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $data = json_decode($response->outputBody());
         $this->assertEquals($data->error, 1);
         $this->assertRedirect();
-
+        //Test approve incorrect form
         $this->resetRequest();
         $this->resetResponse();
         $params = array('controller' => 'form', 'action' => 'approve', 'formId' => 555);

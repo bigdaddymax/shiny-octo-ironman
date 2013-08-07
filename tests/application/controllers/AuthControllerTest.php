@@ -10,6 +10,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager1 = new Application_Model_ObjectsManager(1);
         $this->objectManager1->dbLink->delete('item');
         $this->objectManager1->dbLink->delete('comment');
+        $this->objectManager1->dbLink->delete('approval_entry');
         $this->objectManager1->dbLink->delete('form');
         $this->objectManager1->dbLink->delete('privilege');
         $this->objectManager1->dbLink->delete('resource');
@@ -18,7 +19,6 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager1->dbLink->delete('scenario_assignment');
         $this->objectManager1->dbLink->delete('scenario');
         $this->objectManager1->dbLink->delete('domain_owner');
-        $this->objectManager1->dbLink->delete('approval_entry');
         $this->objectManager1->dbLink->delete('user');
         $this->objectManager1->dbLink->delete('position');
         $this->objectManager1->dbLink->delete('node');
@@ -27,6 +27,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->objectManager1->dbLink->delete('user_group');
         $this->objectManager1->dbLink->delete('user');
         $this->objectManager1->dbLink->delete('contragent');
+        $this->objectManager1->dbLink->delete('template');
         $this->objectManager1->dbLink->delete('domain');
         $this->objectManager1->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
 

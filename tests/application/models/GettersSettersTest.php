@@ -173,6 +173,15 @@ class GettersSettersTest extends PHPUnit_Extensions_OutputTestCase {
         $comment->valid = 1;
     }
 
+    public function testTemplateGetterSetter() {
+        $template = new Application_Model_Template();
+        $template->templateName = 'Test Template';
+        $template->templateId  = 3;
+        $this->assertEquals('Test Template', $template->templateName);
+        $this->assertEquals(3, $template->templateId);
+        $this->expectOutputString('Cannot set value for "valid" property');
+        $template->valid = 1;
+    }
 }
 
 ?>

@@ -109,7 +109,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
 
         // Do we deal with existing object?
 //        if (!$object->{$this->objectIdName}) {
-            $object->{$this->objectIdName} = $this->checkObjectExistance($object);
+        $object->{$this->objectIdName} = $this->checkObjectExistance($object);
 //        }
         // Form and Scenario are special case - they contain 
         // a property that is array of other simple objects.
@@ -485,26 +485,59 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         return $email;
     }
 
-    public function prepareCommentsForOutput($formId){
-        $comments = $this->getAllObjects('comment', array(0=>array('column'=>'formId', 'operand'=>$formId)));
-        if ($comments){
+    /**
+     * Create email HTML body according to input parameters from template that is stared in database.
+     * @param type $email Destination email (user)
+     * @param type $emailType approved_next | declined_next | commented_next | approved_owner | declined_owner | commented_owner
+     * @param type $lang
+     * @param type $formId
+     * @return string HTML code with body of email with %link% for further link addition
+     */
+    public function createEmailBody($email, $emailType, $lang, $formId) {
+        $template = $this->getAllObjects('template', array(0 => array('column' => 'language', 'operand' => $lang), 1 => array('column' => 'type', 'operand' => $emailType)));
+        if (!$template) {
+            throw new UnableToLoadMessageTemplate('Input parameters: email: ' . $email . '; type: ' .$emailType . '; language: ' . $lang . '; formId: ' . $formId);
+        }
+        $user = $this->getAllObjects('user', array(0 => array('column' => 'login', 'operand' => $email)));
+        $form = $this->prepareFormForOutput($formId, $user[0]->userId);
+        $body = str_replace('%name%', $user[0]->userName, $template[0]->body);
+        $body = str_replace('%total%', sprintf('$%01.2f', $form['total']), $body);
+        $body = str_replace('%contragent%', $form['contragent']->contragentName, $body);
+        $body = str_replace('%fname%', $form['form']->formName, $body);
+        return $body;
+    }
+
+    public function sendEmail($email, $body, $subject) {
+
+        $mail = new Zend_Mail();
+        $mail->setBodyHtml($body);
+        $mail->setSubject($subject);
+        $mail->addTo($email);
+        $mail->setFrom($this->config->app->default->from);
+        $mail->send();
+
+        return true;
+    }
+
+    public function prepareCommentsForOutput($formId) {
+        $comments = $this->getAllObjects('comment', array(0 => array('column' => 'formId', 'operand' => $formId)));
+        if ($comments) {
             foreach ($comments as $comment) {
                 $author = $this->getObject('user', $comment->userId);
-                $row[] = '<div id="form-item">'. PHP_EOL .
-                            '<div class="row">'. PHP_EOL .
-                                '<div class="float: left"><strong>' . $author->userName. '</strong></div>'. PHP_EOL .
-                                '<div class="float: right">' . $comment->date. '</div>'. PHP_EOL .
-                                '<div class="display: block; clear: both;"></div>' .
-                            '</div>'. PHP_EOL .
-                            '<div class="comment">' . $comment->comment . '</div>' . PHP_EOL .
+                $row[] = '<div id="form-item">' . PHP_EOL .
+                        '<div class="row">' . PHP_EOL .
+                        '<div class="float: left"><strong>' . $author->userName . '</strong></div>' . PHP_EOL .
+                        '<div class="float: right">' . $comment->date . '</div>' . PHP_EOL .
+                        '<div class="display: block; clear: both;"></div>' .
+                        '</div>' . PHP_EOL .
+                        '<div class="comment">' . $comment->comment . '</div>' . PHP_EOL .
                         '</div>' . PHP_EOL;
             }
         }
-        return (isset($row))? $row: false;
+        return (isset($row)) ? $row : false;
     }
-        
-    
-    public function getNumberOfPages($object, $filterArray, $recordsPerPage){
+
+    public function getNumberOfPages($object, $filterArray, $recordsPerPage) {
         return parent::getNumberOfPages($object, $filterArray, $recordsPerPage);
     }
 

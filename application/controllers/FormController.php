@@ -126,9 +126,37 @@ class FormController extends Zend_Controller_Action {
         try {
             $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
             $id = $objectsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'approve');
+            $emails = $objectsManager->getEmailingList($this->_request->getParam('formId'));
+            if (isset($emails['owner'])) {
+                $body = $objectsManager->createEmailBody($emails['owner'], 'approved_owner', $this->session->lang, $this->_request->getParam('formId'));
+                $body = str_replace('%link%',
+                                    $this->_helper->url(array('controller'=>'forms',
+                                                              'action'=>'open-form',
+                                                              'formId'=>$this->_request->getParam('formId')
+                                                             )
+                                                       ),
+                                    $body
+                        );
+                $subject = $objectsManager->createEmailBody($emails['owner'], 'approved_subj_owner', $this->session->lang, $this->_request->getParam('formId'));
+                $objectsManager->sendEmail($emails['owner'], $body, $subject);
+            }
+            if (isset($emails['approve'])) {
+                $body = $objectsManager->createEmailBody($emails['owner'], 'approved_next', $this->session->lang, $this->_request->getParam('formId'));
+                $body = str_replace('%link%',
+                                    $this->_helper->url(array('controller'=>'forms',
+                                                              'action'=>'open-form',
+                                                              'formId'=>$this->_request->getParam('formId')
+                                                             )
+                                                       ),
+                                    $body
+                        );
+                $subject = $objectsManager->createEmailBody($emails['owner'], 'approved_subj_next', $this->session->lang, $this->_request->getParam('formId'));
+                $objectsManager->sendEmail($emails['owner'], $body, $subject);
+            }
+            
             $this->_helper->json(array('error' => 0, 'message' => 'Approved successfully', 'code' => 200, 'recordId' => $id));
         } catch (Exception $e) {
-            $this->_helper->json(array('error' => 1, 'message' => $e->getMessage(), 'code' => $e->getCode()));
+            $this->_helper->json(array('error' => 1, 'message' => $e->getMessage(), 'code' => $e->getCode(), 'trace'=>$e->getTraceAsString()));
         }
         $this->redirector->gotoSimple('index', 'form');
     }
@@ -137,6 +165,8 @@ class FormController extends Zend_Controller_Action {
         try {
             $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
             $id = $objectsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'decline');
+            $emails = $objectsManager->getEmailingList($id);
+            $objectsManager->sendEmails($emails, 'declined');
             $this->_helper->json(array('error' => 0, 'message' => 'Declined successfully', 'code' => 200, 'recordId' => $id));
         } catch (Exception $e) {
             $this->_helper->json(array('error' => 1, 'message' => $e->getMessage(), 'code' => $e->getCode()));
