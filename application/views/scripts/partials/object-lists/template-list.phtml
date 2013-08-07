@@ -1,0 +1,17 @@
+<div>
+    <table width="100%">
+        <?php
+        if (is_array($this->templates)) {
+            foreach ($this->templates as $template) {
+                echo '<tr>' . PHP_EOL;
+                echo '<td><a href="#" onClick="deleteObject(\'template\', ' . $template->templateId . ')">&times</a></td>' . PHP_EOL;
+                echo '<td>' . $template->templateName . '</td>' . PHP_EOL;
+                echo '<td>' . $this->translate($template->type) . '</td>' . PHP_EOL;
+                echo '<td>' . $this->translate($template->language) . '</td>' . PHP_EOL;
+                echo '<td>' . $template->body . '</td>' . PHP_EOL;
+                echo '</tr>' . PHP_EOL;
+            }
+        }
+        ?>
+</div>
+</table>

@@ -36,6 +36,7 @@ class AuthController extends Zend_Controller_Action {
                     $objectsManager = new Application_Model_ObjectsManager($user->domainId);
                     $this->session->role = $objectsManager->getUserGroupRole($user);
                     $this->session->records_per_page = $this->config->records->perpage;
+                    $this->session->lang = $this->config->app->default->locale;
                 }
             }
         }

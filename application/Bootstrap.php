@@ -9,8 +9,8 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
     }
 
     protected function _initTranslate() {
-        // We use the Swedish locale as an example
-        $locale = 'ua';
+        $config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', 'production');
+        $locale = $config->app->default->locale;
 
         // Create Session block and save the locale
         $session = new Zend_Session_Namespace('Auth');

@@ -80,6 +80,10 @@ class ObjectsController extends Zend_Controller_Action {
             case 'user':
                 $this->subobjects = array('positions' => $this->objectManager->getAllObjects('Position'));
                 break;
+            case 'template':
+                $this->subobjects = array('templates' => $this->objectManager->getAllObjects('template'),
+                                          'types'=>$this->config->template->types,
+                                          'locales'=>$this->config->app->locales);
         }
         $this->objectName = strtolower($this->_request->getParam('objectType'));
         $this->setClassAndTableName($this->_request->getParam('objectType'));
