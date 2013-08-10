@@ -256,16 +256,20 @@ class ApprovalTest extends TestCase {
     }
     
     public function testEmailListGeneration() {
-        $emails = $this->objectManager->getEmailingList($this->formId);
+        $emails = $this->objectManager->getEmailingList($this->formId, 'approve');
         $this->assertEquals($emails, array('owner'=>'user login2', 'approval'=>'user login'));
         $appr = $this->objectManager->approveForm($this->formId, $this->userId, 'approve');
-        $emails1 = $this->objectManager->getEmailingList($this->formId);
+        $emails1 = $this->objectManager->getEmailingList($this->formId, 'approve');
         $this->assertEquals($emails1, array('owner'=>'user login2', 'approval'=>'user login2'));
         $appr = $this->objectManager->approveForm($this->formId, $this->userId1, 'approve');
-        $emails2 = $this->objectManager->getEmailingList($this->formId);
+        $emails2 = $this->objectManager->getEmailingList($this->formId, 'approve');
         $this->assertEquals($emails2, array('owner'=>'user login2', 'approval'=>'user login3'));
+
+        $emails2_c = $this->objectManager->getEmailingList($this->formId, 'comment');
+        $this->assertEquals($emails2_c, array('owner'=>'user login2', ''));
+        
         $appr = $this->objectManager->approveForm($this->formId, $this->userId2, 'approve');
-        $emails3 = $this->objectManager->getEmailingList($this->formId);
+        $emails3 = $this->objectManager->getEmailingList($this->formId, 'approve');
         $this->assertEquals($emails3, array('owner'=>'user login2', 'approval'=>'user login4'));
     }
 
