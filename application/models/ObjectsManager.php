@@ -461,25 +461,34 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     /**
      * 
      * @param int $formId
+     * @param string $actionType approve | decline | comment
      * @return array of string Return array of email which should be notified about 
      *                         last action with form
      */
-    public function getEmailingList($formId) {
+    public function getEmailingList($formId, $actionType) {
         $approvalList = array_reverse($this->getApprovalStatus($formId));
         $owner = $this->getFormOwner($formId);
         $email['owner'] = $owner->login;
-        foreach ($approvalList as $entry) {
-            if ('decline' == $entry['decision']) {
-                break;
+        if ('approve' == $actionType || 'decline' == $actionType) {
+            foreach ($approvalList as $entry) {
+                if ('decline' == $entry['decision']) {
+                    break;
+                }
+                if (null == $entry['decision']) {
+                    $newlist[] = $this->getObject('user', $entry['userId']);
+                    break;
+                }
             }
-            if (null == $entry['decision']) {
-                $newlist[] = $this->getObject('user', $entry['userId']);
-                break;
+        } elseif ('comment' == $actionType){
+            foreach ($approvalList as $entry) {
+                if (null != $entry['decision']) {
+                    $newlist[] = $this->getObject('user', $entry['userId']);
+                }
             }
         }
         if (is_array($newlist)) {
             foreach ($newlist as $item) {
-                $email['approval'] = $item->login;
+                $email['other'][] = $item->login;
             }
         }
         return $email;
@@ -494,13 +503,21 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
      * @return string HTML code with body of email with %link% for further link addition
      */
     public function createEmailBody($email, $emailType, $lang, $formId) {
-        $template = $this->getAllObjects('template', array(0 => array('column' => 'language', 'operand' => $lang), 1 => array('column' => 'type', 'operand' => $emailType)));
+        $templateArray = $this->getAllObjects('template', array(0 => array('column' => 'language', 'operand' => $lang), 1 => array('column' => 'type', 'operand' => $emailType)));
+        if (!$templateArray) {
+            $template = $this->config->template->default->$emailType;
+        } else {
+            $template = $templateArray[0]->body;
+        }
         if (!$template) {
-            throw new UnableToLoadMessageTemplate('Input parameters: email: ' . $email . '; type: ' .$emailType . '; language: ' . $lang . '; formId: ' . $formId);
+            $template = file_get_contents(APPLICATION_PATH . '/../library/Capex/lang/' . $lang . '/templates/' . $emailType . '.html');
+        }
+        if (!$template) {
+            throw new UnableToLoadMessageTemplate('Input parameters: email: ' . $email . '; type: ' . $emailType . '; language: ' . $lang . '; formId: ' . $formId);
         }
         $user = $this->getAllObjects('user', array(0 => array('column' => 'login', 'operand' => $email)));
         $form = $this->prepareFormForOutput($formId, $user[0]->userId);
-        $body = str_replace('%name%', $user[0]->userName, $template[0]->body);
+        $body = str_replace('%name%', $user[0]->userName, $template);
         $body = str_replace('%total%', sprintf('$%01.2f', $form['total']), $body);
         $body = str_replace('%contragent%', $form['contragent']->contragentName, $body);
         $body = str_replace('%fname%', $form['form']->formName, $body);
