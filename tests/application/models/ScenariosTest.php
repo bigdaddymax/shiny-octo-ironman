@@ -14,16 +14,18 @@ class ScenarioTest extends TestCase {
     private $nodeId1;
     private $nodeId2;
     private $objectManager;
+    private $dataMapper;
 
     public function setUp() {
         parent::setUp();
         $this->objectManager = new Application_Model_ObjectsManager(1);
-        $this->objectManager->dbLink->delete('scenario_assignment');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('scenario');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper->dbLink->delete('scenario_assignment');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
 
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
@@ -50,12 +52,12 @@ class ScenarioTest extends TestCase {
     }
 
     public function tearDown() {
-        $this->objectManager->dbLink->delete('scenario_assignment');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('scenario');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('scenario_assignment');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
 
         parent::tearDown();
     }
@@ -72,7 +74,7 @@ class ScenarioTest extends TestCase {
         $scenarioEntryArray = array('domainId' => 1, 'orderPos' => 1, 'userId' => 1);
         $scenarioEntry = new Application_Model_ScenarioEntry($scenarioEntryArray);
 //        $this->assertTrue($scenarioEntry->isValid());
-        $scenarioArray = array('scenarioName' => 'eName', 'active' => false, 'domainId' => 5, 'entries' => array(0 => $scenarioEntry));
+        $scenarioArray = array('scenarioName' => 'eName', 'active' => 0, 'domainId' => 5, 'entries' => array(0 => $scenarioEntry));
         $scenario = new Application_Model_Scenario($scenarioArray);
         $this->assertTrue($scenario->isValid());
         $scenarioArray1 = $scenario->toArray();
@@ -138,11 +140,10 @@ class ScenarioTest extends TestCase {
         $scenarioEntry = 77777;
         $scenarioArray = array('scenarioName' => 'eName', 'active' => false, 'domainId' => 5, 'entries' => array(0 => $scenarioEntry));
         $scenario = new Application_Model_Scenario($scenarioArray);
-//        Zend_Debug::dump($scenario);
     }
 
     public function testScenarioToArray() {
-        $scenarioArray = array('scenarioName' => 'eName', 'scenarioId' => 3, 'active' => false, 'domainId' => 5);
+        $scenarioArray = array('scenarioName' => 'eName', 'scenarioId' => 3, 'active' => 0, 'domainId' => 5);
         $scenario = new Application_Model_Scenario($scenarioArray);
         $scenarioArray2 = $scenario->toArray();
         unset($scenarioArray['date']);
@@ -161,7 +162,9 @@ class ScenarioTest extends TestCase {
         $this->assertTrue($user->isValid());
         $scenarioId = $this->objectManager->saveObject($scenario);
         $this->assertTrue(is_int($scenarioId));
+        $scenario->scenarioId = $scenarioId;
         $entry = $this->objectManager->getAllObjects('scenarioEntry',array(0=>array('column'=>'scenarioId', 'operand'=>$scenarioId)));
+        $entry[0]->scenarioEntryId = 0;
         $this->assertEquals($scenarioEntry, $entry[0]);
         $scenarioGot = $this->objectManager->getObject('scenario', $scenarioId);
         $scenario = new Application_Model_Scenario($scenarioArray);

@@ -20,10 +20,10 @@ class FormController extends Zend_Controller_Action {
     public function indexAction() {
         $access = new Application_Model_AccessMapper($this->session->userId, $this->session->domainId);
         $allowedObjects = $access->getAllowedObjectIds();
-        $objectManager = new Application_Model_ObjectsManager($this->session->domainId);
-        $accessFilter = $objectManager->createAccessFilterArray($this->session->userId);
+        $formManager = new Application_Model_FormsManager($this->session->domainId);
+        $accessFilter = $formManager->createAccessFilterArray($this->session->userId);
         if ($accessFilter) {
-            $this->view->pages = $objectManager->getNumberOfPages('form', $accessFilter, $this->session->records_per_page);
+            $this->view->pages = $formManager->getNumberOfPages('form', $accessFilter, $this->session->records_per_page);
             if ($this->_request->getParam('page')) {
                 $accessFilter['LIMIT']['start'] = ((int) $this->_request->getParam('page') - 1) * $this->session->records_per_page;
                 $accessFilter['LIMIT']['number'] = $this->session->records_per_page;
@@ -35,14 +35,19 @@ class FormController extends Zend_Controller_Action {
             if (!$this->view->currentPage) {
                 $this->view->currentPage = 1;
             }
-            $forms = $objectManager->getAllForms($accessFilter);
+            $res = $formManager->getAllObjects('form', $accessFilter);
+            if (is_array($res)) {
+                foreach ($res as $form) {
+                    $forms[] = $formManager->prepareFormForOutput($form->formId, $this->session->userId);
+                }
+            }
         } else {
             $forms = false;
         }
         ($forms === false) ? $this->view->forms = 'No forms' : $this->view->forms = $forms;
-        $this->view->elements = $objectManager->getAllObjects('Element');
+        $this->view->elements = $formManager->getAllObjects('Element');
         if (!empty($allowedObjects['write'])) {
-            $this->view->nodes = $objectManager->getAllObjects('Node', array(0 => array('column' => 'nodeId',
+            $this->view->nodes = $formManager->getAllObjects('Node', array(0 => array('column' => 'nodeId',
                     'condition' => 'IN',
                     'operand' => $allowedObjects['write'])));
         }
@@ -50,24 +55,24 @@ class FormController extends Zend_Controller_Action {
     }
 
     public function editFormAction() {
-        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+        $formsManager = new Application_Model_FormsManager($this->session->domainId);
         if (null != $this->_request->getParam('formId')) {
-            $this->view->form = $objectsManager->prepareFormForOutput($this->_request->getParam('formId'), $this->session->userId);
+            $this->view->form = $formsManager->prepareFormForOutput($this->_request->getParam('formId'), $this->session->userId);
         }
         $access = new Application_Model_AccessMapper($this->session->userId, $this->session->domainId);
         $allowedObjects = $access->getAllowedObjectIds();
-        $this->view->elements = $objectsManager->getAllObjects('Element');
+        $this->view->elements = $formsManager->getAllObjects('Element');
         $this->view->expgroup = $this->config->expences->group->toArray();
         if (!empty($allowedObjects['write'])) {
-            $this->view->nodes = $objectsManager->getAllObjects('Node', array(0 => array('column' => 'nodeId',
+            $this->view->nodes = $formsManager->getAllObjects('Node', array(0 => array('column' => 'nodeId',
                     'condition' => 'IN',
                     'operand' => $allowedObjects['write'])));
         }
     }
 
     public function previewFormAction() {
-        $objectManager = new Application_Model_ObjectsManager($this->session->domainId);
-        $this->view->form = $objectManager->prepareFormForOutput((int) $this->getRequest()->getParam('formId'), $this->session->userId);
+        $formManager = new Application_Model_FormsManager($this->session->domainId);
+        $this->view->form = $formManager->prepareFormForOutput((int) $this->getRequest()->getParam('formId'), $this->session->userId);
     }
 
     public function addFormAction() {
@@ -75,11 +80,11 @@ class FormController extends Zend_Controller_Action {
         $params['userId'] = $this->session->userId;
         $params['domainId'] = $this->session->domainId;
         $contragent = new Application_Model_Contragent(array('contragentName' => $this->_request->getParam('contragentName'), 'domainId' => $this->session->domainId));
-        $objectManager = new Application_Model_ObjectsManager($this->session->domainid);
-        $params['contragentId'] = $objectManager->saveObject($contragent);
+        $formManager = new Application_Model_FormsManager($this->session->domainId);
+        $params['contragentId'] = $formManager->saveObject($contragent);
         $form = new Application_Model_Form($params);
         if ($form->isValid()) {
-            $this->_helper->json(array('error' => 0, 'message' => 'Form created', 'formId' => $objectManager->saveObject($form)), true);
+            $this->_helper->json(array('error' => 0, 'message' => 'Form created', 'formId' => $formManager->saveObject($form)), true);
         } else {
             $this->_helper->json(array('error' => 1, 'message' => 'Form is not valid'), true);
         }
@@ -89,15 +94,15 @@ class FormController extends Zend_Controller_Action {
 
     public function publishFormAction() {
         if (null != $this->_request->getParam('formId')) {
-            $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+            $formsManager = new Application_Model_FormsManager($this->session->domainId);
             try {
-                $form = $objectsManager->getObject('form', $this->_request->getParam('formId'), $this->session->userId);
+                $form = $formsManager->getObject('form', $this->_request->getParam('formId'), $this->session->userId);
                 $form->public = 1;
-                $id = $objectsManager->saveObject($form);
+                $id = $formsManager->saveObject($form);
                 $this->_helper->json(array('error' => 0,
                     'message' => 'Form published successfully',
                     'code' => 200,
-                    'recordId' => $id));
+                    'formId' => $id));
             } catch (Exception $e) {
                 $this->_helper->json(array('error' => 1,
                     'message' => $e->getMessage(),
@@ -109,11 +114,15 @@ class FormController extends Zend_Controller_Action {
 
     public function openFormAction() {
         if ($this->_request->isGet()) {
-            $objectManager = new Application_Model_ObjectsManager($this->session->domainId);
-            $this->view->form = $objectManager->prepareFormForOutput((int) $this->getRequest()->getParam('formId'), $this->session->userId);
-            $this->view->approved = $objectManager->getApprovalStatus((int) $this->getRequest()->getParam('formId'));
-            $this->view->showApproval = $objectManager->isApprovalAllowed((int) $this->getRequest()->getParam('formId'), $this->session->userId);
-            $this->view->comments = $objectManager->prepareCommentsForOutput((int) $this->getRequest()->getParam('formId'));
+            $formManager = new Application_Model_FormsManager($this->session->domainId);
+            $this->view->form = $formManager->prepareFormForOutput((int) $this->getRequest()->getParam('formId'), $this->session->userId);
+            $this->view->approved = $formManager->getApprovalStatus((int) $this->getRequest()->getParam('formId'));
+            try {
+                $this->view->showApproval = $formManager->isApprovalAllowed((int) $this->getRequest()->getParam('formId'), $this->session->userId);
+            } catch (Exception $e) {
+                $this->view->showApproval = false;
+            }
+            $this->view->comments = $formManager->prepareCommentsForOutput((int) $this->getRequest()->getParam('formId'));
             $this->_helper->layout()->disableLayout();
 //            $this->_helper->viewRenderer->setNoRender(true);
 //            $this->_helper->json(array('form'=>$this->view->form,
@@ -124,49 +133,45 @@ class FormController extends Zend_Controller_Action {
 
     public function approveAction() {
         try {
-            $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-            $id = $objectsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'approve');
-            $emails = $objectsManager->getEmailingList($this->_request->getParam('formId'), 'approve');
+            $formsManager = new Application_Model_FormsManager($this->session->domainId);
+            $id = $formsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'approve');
+            $emails = $formsManager->getEmailingList($this->_request->getParam('formId'), 'approve');
             if (isset($emails['owner'])) {
-                $body = $objectsManager->createEmailBody($emails['owner'], 'approved_owner', $this->session->lang, $this->_request->getParam('formId'));
-                $body = str_replace('%link%',
-                                    $this->_helper->url(array('controller'=>'forms',
-                                                              'action'=>'open-form',
-                                                              'formId'=>$this->_request->getParam('formId')
-                                                             )
-                                                       ),
-                                    $body
-                        );
-                $subject = $objectsManager->createEmailBody($emails['owner'], 'approved_owner_subj', $this->session->lang, $this->_request->getParam('formId'));
-                $objectsManager->sendEmail($emails['owner'], $body, $subject);
+                $body = $formsManager->createEmailBody($emails['owner'], 'approved_owner', $this->session->lang, $this->_request->getParam('formId'));
+                $body = str_replace('%link%', $this->_helper->url(array('controller' => 'forms',
+                            'action' => 'open-form',
+                            'formId' => $this->_request->getParam('formId')
+                                )
+                        ), $body
+                );
+                $subject = $formsManager->createEmailBody($emails['owner'], 'approved_owner_subj', $this->session->lang, $this->_request->getParam('formId'));
+                $formsManager->sendEmail($emails['owner'], $body, $subject);
             }
             if (isset($emails['other'])) {
-                $body = $objectsManager->createEmailBody($emails['other'][0], 'approved_next', $this->session->lang, $this->_request->getParam('formId'));
-                $body = str_replace('%link%',
-                                    $this->_helper->url(array('controller'=>'forms',
-                                                              'action'=>'open-form',
-                                                              'formId'=>$this->_request->getParam('formId')
-                                                             )
-                                                       ),
-                                    $body
-                        );
-                $subject = $objectsManager->createEmailBody($emails['other'][0], 'approved_next_subj', $this->session->lang, $this->_request->getParam('formId'));
-                $objectsManager->sendEmail($emails['other'][0], $body, $subject);
+                $body = $formsManager->createEmailBody($emails['other'][0], 'approved_next', $this->session->lang, $this->_request->getParam('formId'));
+                $body = str_replace('%link%', $this->_helper->url(array('controller' => 'forms',
+                            'action' => 'open-form',
+                            'formId' => $this->_request->getParam('formId')
+                                )
+                        ), $body
+                );
+                $subject = $formsManager->createEmailBody($emails['other'][0], 'approved_next_subj', $this->session->lang, $this->_request->getParam('formId'));
+                $formsManager->sendEmail($emails['other'][0], $body, $subject);
             }
-            
+
             $this->_helper->json(array('error' => 0, 'message' => 'Approved successfully', 'code' => 200, 'recordId' => $id));
         } catch (Exception $e) {
-            $this->_helper->json(array('error' => 1, 'message' => $e->getMessage(), 'code' => $e->getCode(), 'trace'=>$e->getTraceAsString()));
+            $this->_helper->json(array('error' => 1, 'message' => $e->getMessage(), 'code' => $e->getCode(), 'trace' => $e->getTraceAsString()));
         }
         $this->redirector->gotoSimple('index', 'form');
     }
 
     public function declineAction() {
         try {
-            $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-            $id = $objectsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'decline');
-            $emails = $objectsManager->getEmailingList($id);
-            $objectsManager->sendEmails($emails, 'declined');
+            $formsManager = new Application_Model_FormsManager($this->session->domainId);
+            $id = $formsManager->approveForm($this->_request->getParam('formId'), $this->session->userId, 'decline');
+            $emails = $formsManager->getEmailingList($id);
+            $formsManager->sendEmails($emails, 'declined');
             $this->_helper->json(array('error' => 0, 'message' => 'Declined successfully', 'code' => 200, 'recordId' => $id));
         } catch (Exception $e) {
             $this->_helper->json(array('error' => 1, 'message' => $e->getMessage(), 'code' => $e->getCode()));
@@ -175,20 +180,20 @@ class FormController extends Zend_Controller_Action {
     }
 
     function addCommentAction() {
-        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+        $formsManager = new Application_Model_FormsManager($this->session->domainId);
         $params = $this->_request->getParams();
         $params['userId'] = $this->session->userId;
         $params['parentCommentId'] = -1;
         $comment = new Application_Model_Comment($params);
         $comment->date = date('Y-m-d H:i');
         $comment->domainId = $this->session->domainId;
-        $commentId = $objectsManager->saveObject($comment);
+        $commentId = $formsManager->saveObject($comment);
     }
 
     function updateElementsAction() {
         $expGroup = $this->_request->getParam('expgroup');
-        $objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
-        $this->view->elements = $objectsManager->getAllObjects('element', array(0 => array('column' => 'expgroup', 'operand' => $expGroup)));
+        $formsManager = new Application_Model_FormsManager($this->session->domainId);
+        $this->view->elements = $formsManager->getAllObjects('element', array(0 => array('column' => 'expgroup', 'operand' => $expGroup)));
         $this->_helper->layout()->disableLayout();
     }
 

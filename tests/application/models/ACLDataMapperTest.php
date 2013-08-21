@@ -38,16 +38,18 @@ class PrivilegeDataMapperTest extends TestCase {
     
     public function testPrivilegeDataMapperSaveNew()
     {
+        // Create and save privilege
         $objectManagerArray = array('userId'=>$this->userId,'aclId'=>3,'objectId'=>4, 'objectType' =>'node', 'domainId' => 1, 'privilege' => 'approve');
-        $objectManager = new Application_Model_Privilege($objectManagerArray);
-        $this->assertTrue($objectManager instanceof Application_Model_Privilege);
-        $id = $this->objectManager->saveObject($objectManager);
+        $privilege = new Application_Model_Privilege($objectManagerArray);
+        $this->assertTrue($privilege instanceof Application_Model_Privilege);
+        $id = $this->objectManager->saveObject($privilege);
         $this->assertTrue(is_int($id));
-        $objectManager2 = $this->objectManager->getObject('privilege', $id);
-        $this->assertTrue($objectManager2 instanceof Application_Model_Privilege);
-        $objectManagerArray2 = $objectManager2->toArray();
-        $objectManagerArray1 = $objectManager->toArray();
-        $this->assertEquals($objectManagerArray1, $objectManagerArray2);
+        $privilege->privilegeId = $id;
+        
+        // Retrive privilege from DB and check its consistancy
+        $privilege2 = $this->objectManager->getObject('privilege', $id);
+        $this->assertTrue($privilege2 instanceof Application_Model_Privilege);
+        $this->assertEquals($privilege, $privilege2);
     }
     
 
@@ -79,7 +81,7 @@ class PrivilegeDataMapperTest extends TestCase {
         $objectManagerArray = array('aclName'=>'oName','aclId'=>3,'nodeId'=>$nodeId, 'domainId' => 4);
         $objectManager = new Application_Model_Privilege($objectManagerArray);
         $objectManagerId = $this->objectManager->saveObject($objectManager);
-        $objectManager = new Application_Model_DataMapper();
+        $objectManager = new Application_Model_ObjectsManager(4);
         $objectManager->deleteObject($nodeId, 'Application_Model_Node');
     }
 }

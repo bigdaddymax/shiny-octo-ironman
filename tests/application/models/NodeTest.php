@@ -34,7 +34,7 @@ class NodeTest extends TestCase {
     
     public function testNodeToArray()
     {
-        $nodeArray = array('nodeName'=> 'lName', 'parentNodeId' => 0, 'nodeId' => 2, 'active'=>false, 'domainId' => 2);
+        $nodeArray = array('nodeName'=> 'lName', 'parentNodeId' => 0, 'nodeId' => 2, 'active'=>0, 'domainId' => 2);
         $node = new Application_Model_Node($nodeArray);
         $nodeArray1 = $node->toArray();
         $this->assertEquals($nodeArray, $nodeArray1);

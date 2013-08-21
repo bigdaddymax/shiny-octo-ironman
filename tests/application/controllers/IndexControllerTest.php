@@ -3,36 +3,38 @@
 class IndexControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     private $objectManager;
+    private $dataMapper;
 
     public function setUp() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
-        $this->objectManager = new Application_Model_ObjectsManager(-1);
-        $this->objectManager->dbLink->delete('domain_owner');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('approval_entry');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('domain_owner');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
-        $this->objectManager->dbLink->delete('resource');
-        $this->objectManager->dbLink->delete('domain');
+        $this->objectManager = new Application_Model_ObjectsManager(1);
+        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('domain');
         parent::setUp();
     }
 
     public function tearDown() {
-        $this->objectManager = new Application_Model_DataMapper(-1);
-        $this->objectManager->dbLink->delete('domain_owner');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('approval_entry');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('domain_owner');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
-        $this->objectManager->dbLink->delete('resource');
-        $this->objectManager->dbLink->delete('domain');
-        $this->objectManager->dbLink->insert('domain', array('domainId' => 1, 'domainName' => 'Domain1', 'active' => 1));
+        $this->dataMapper = new Application_Model_DataMapper(-1);
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('domain');
+        $this->dataMapper->dbLink->insert('domain', array('domainId' => 1, 'domainName' => 'Domain1', 'active' => 1));
     }
 
     public function testIndexAction() {

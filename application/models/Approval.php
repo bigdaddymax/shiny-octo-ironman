@@ -16,14 +16,9 @@ class Application_Model_Approval {
     private $_domainId;
 
     public function __construct(array $approvalArray = null) {
-        foreach ($approvalArray as $property => $value) {
-            if (strpos($property, 'Id')) {
-                $this->{$property} = (int) $value;
-            }elseif ('active' == $property) {
-                $property = (bool) $value;
-            }
-            else {
-                $this->{$property} = $value;
+        if (is_array($approvalArray)) {
+            foreach ($approvalArray as $key => $item) {
+                $this->{$key} = (strpos($key, 'Id') || 'active' == $key) ? (int) $item : $item;
             }
         }
     }
@@ -33,18 +28,16 @@ class Application_Model_Approval {
             echo 'Cannot set value for "valid" property';
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
-        } else {
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name) ? (int) $value : $value;
         }
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
+            return (strpos($name, 'Id')) ? (int) $this->$name : $this->$name;
         } else {
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
     }
 
@@ -71,7 +64,7 @@ class Application_Model_Approval {
         foreach ($this as $key => $value) {
             if ('_valid' != $key) {
                 if (isset($value)) {
-                    $output[str_replace('_', '', $key)] = $value;
+                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id') || 'active' == $key) ? (int) $value : $value;
                 }
             }
         }

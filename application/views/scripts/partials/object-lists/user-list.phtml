@@ -13,7 +13,8 @@ if (is_array($this->users)){
         echo '<td>' . $user->login . '</td>' . PHP_EOL;
         echo '<td><a href="' . $this->url(array('controller' => 'objects',
                                                 'action' => 'user-privileges',
-                                                'userId' => $user->userId)) .
+                                                'userId' => $user->userId,
+                                                'objectType'=>'privilege'), NULL, true) .
              '">Privileges </td>' . PHP_EOL;
         echo '</tr>' . PHP_EOL;
     }

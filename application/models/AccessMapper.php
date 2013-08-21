@@ -75,7 +75,7 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
             // Retrieve parent privilege group fo user. If no group, user's base group is 'guest'
             $userRole = $objectManager->getAllObjects('userGroup', array(0 => array('column' => 'userId',
                     'operand' => $userId)));
-            if (!($userRole[0] instanceof Application_Model_UserGroup)) {
+            if (empty($userRole[0]) || !($userRole[0] instanceof Application_Model_UserGroup)) {
                 $role = 'guest';
             } else {
                 $role = $userRole[0]->role;

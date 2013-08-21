@@ -52,7 +52,7 @@ class IndexController extends Zend_Controller_Action {
         $emailValidator = new Zend_Validate_Callback(
                 array('callback' => function($email) {
                 $objectManager = new Application_Model_ObjectsManager(-1);
-                $emailTest = $objectManager->checkEmailExistance($email);
+                $emailTest = $objectManager->checkLoginExistance($email);
                 if ($emailTest) {
                     return false;
                 } else {
@@ -122,16 +122,20 @@ class IndexController extends Zend_Controller_Action {
             if ($objectManager->checkLoginExistance($this->getRequest()->getParam('email'))) {
                 throw new Exception('User with such email is already registered', 500);
             }
+            // Create new domain
             $domain = new Application_Model_Domain(array('domainName' => $this->getRequest()->getParam('companyName') . ' domain', 'hash' => md5(time())));
             $domainId = $objectManager->saveObject($domain);
+            
+            // Update $objectManager with new domainId
             $objectManager->setDomainId($domainId);
             $node = new Application_Model_Node(array('nodeName' => $this->getRequest()->getParam('companyName'), 'domainId' => $domainId, 'parentNodeId' => -1));
             $nodeId = $objectManager->saveObject($node);
             $position = new Application_Model_Position(array('positionName' => 'administrator', 'nodeId' => $nodeId, 'domainId' => $domainId));
             $positionId = $objectManager->saveObject($position);
+            $auth = new Application_Model_Auth();
             $user = new Application_Model_User(array('userName' => $this->getRequest()->getParam('userName'),
                 'login' => $this->getRequest()->getParam('email'),
-                'password' => $this->getRequest()->getParam('password'),
+                'password' => $auth->hashPassword($this->getRequest()->getParam('password')),
                 'positionId' => $positionId,
                 'domainId' => $domainId));
             $userId = $objectManager->saveObject($user);

@@ -13,12 +13,49 @@
  */
 require_once APPLICATION_PATH . '/models/DataMapper.php';
 
-class Application_Model_ObjectsManager extends Application_Model_DataMapper {
+class Application_Model_ObjectsManager {
+
+    protected $domainId;
+    protected $dataMapper;
+    private $objectType;
+    protected $className;
+    protected $tableName;
+    protected $objectName;
+    protected $objectIdName;
+    protected $objectParentIdName;
 
     public function __construct($domainId, $objectType = null) {
-        parent::__construct($domainId, $objectType);
+        $this->dataMapper = new Application_Model_DataMapper();
         $this->domainId = $domainId;
-//        $this->dataMapper = new Application_Model_DataMapper($this->domainId);
+        $this->setClassAndTableName($objectType);
+    }
+
+    /**
+     * Helper function, creates names of properties, tables etc for particular object.
+     * 
+     * @param class $object
+     * @param string $object
+     */
+    protected function setClassAndTableName($object) {
+        if (is_object($object))
+            $this->className = get_class($object);
+        elseif (is_string($object))
+            $this->className = 'Application_Model_' . ucfirst($object);
+        $this->objectName = substr($this->className, strrpos($this->className, '_') + 1);
+
+        // Transforming camelCase names of classes to underscored_names for MySQL tables
+        if (preg_match_all('/[A-Z]/', substr($this->className, strrpos($this->className, '_') + 1), $matches, PREG_OFFSET_CAPTURE)) {
+            if (2 == count($matches[0])) {
+                $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $matches[0][1][1]) .
+                        '_' .
+                        substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), $matches[0][1][1]);
+            } else {
+                $this->tableName = strtolower($this->objectName);
+            }
+        }
+
+        $this->objectIdName = lcfirst(substr($this->className, strrpos($this->className, '_') + 1)) . 'Id';
+        $this->objectParentIdName = 'parent' . ucwords($this->objectIdName);
     }
 
     /**
@@ -36,7 +73,15 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
             throw new InvalidArgumentException('Object ID is not set.', 417);
         }
         $this->setClassAndTableName($objectName);
-        $object = parent::_getObject($objectId);
+
+        // Add domainId to filter just in case...
+        $filterArray = array(0 => array('column' => $this->objectIdName, 'operand' => $objectId), 1 => array('column' => 'domainId', 'operand' => $this->domainId));
+
+        $objectArray = $this->dataMapper->getData($this->tableName, $filterArray);
+        if (empty($objectArray)) {
+            throw new InvalidArgumentException('Cannot find any data');
+        }
+        $object = new $this->className($objectArray[0]);
         switch ($this->objectName) {
             case 'Scenario': $entries = $this->getAllObjects('scenarioEntry', array(0 => array('column' => 'scenarioId',
                         'operand' => $object->scenarioId)));
@@ -71,14 +116,41 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
      * @return array of objects
      */
     public function getAllObjects($objectName = null, $filter = null) {
-        parent::setClassAndTableName($objectName);
-        switch ($objectName) {
-            case 'scenario': return parent::getAllScenarios($filter);
-                break;
-            case 'form': return $this->getAllForms($filter);
-                break;
-            default : return parent::getAllObjects($objectName, $filter);
+        $this->setClassAndTableName($objectName);
+        $objectArrays = $this->dataMapper->getData($this->tableName, $filter);
+        $objects = array();
+        if (!empty($objectArrays)) {
+            foreach ($objectArrays as $objectArray) {
+                $objects[] = new $this->className($objectArray);
+            }
         }
+        switch ($objectName) {
+            case 'scenario':
+                if (!empty($objects)) {
+                    for ($i = 0; $i < count($objects); $i++) {
+                        $objects[$i]->entries = $this->getAllObjects('scenarioEntry', array(0 => array('column' => 'domainId',
+                                'operand' => $objects[$i]->domainId),
+                            1 => array('column' => 'scenarioId',
+                                'operand' => $objects[$i]->scenarioId)
+                                )
+                        );
+                    }
+                }
+                break;
+            case 'form': if (!empty($objects)) {
+                    for ($i = 0; $i < count($objects); $i++) {
+                        $objects[$i]->items = $this->getAllObjects('item', array(0 => array('column' => 'domainId',
+                                'operand' => $objects[$i]->domainId),
+                            1 => array('column' => 'formId',
+                                'operand' => $objects[$i]->formId)
+                                )
+                        );
+                    }
+                }
+                break;
+            default :
+        }
+        return $objects;
     }
 
     /**
@@ -107,22 +179,35 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
             $object = new $this->className($inputData);
         }
 
-        // Do we deal with existing object?
-//        if (!$object->{$this->objectIdName}) {
-        $object->{$this->objectIdName} = $this->checkObjectExistance($object);
+        // Override object's domainId with one that came from application
+        $object->domainId = $this->domainId;
+
+        if (!$object->isValid()) {
+            throw new SaveObjectException($object);
+        }
+
+        $object->{$this->objectIdName} = $this->dataMapper->checkObjectExistance($this->tableName, $object->toArray());
+
 //        }
         // Form and Scenario are special case - they contain 
         // a property that is array of other simple objects.
         // So we have to treat these arrays separately later
         if ('scenario' == strtolower($this->objectName)) {
             $entries = $object->entries;
+            $object->entries = null;
         }
         if ('form' == strtolower($this->objectName)) {
             $entries = $object->items;
+            $object->items = null;
         }
 
+
         // Save main object
-        $mainObjectId = parent::saveObject($object);
+        try {
+        $mainObjectId = $this->dataMapper->saveData($this->tableName, $object->toArray());
+        } catch (Exception $e) {
+            throw new SaveObjectException($object);
+        }
         $mainObjectIdName = $this->objectIdName;
         // Save objects that are included in main object
         if (isset($entries)) {
@@ -138,71 +223,10 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
             foreach ($entries as $entry) {
                 $entry->{$mainObjectIdName} = $mainObjectId;
                 $entry->{$this->objectIdName} = NULL;
-                parent::saveObject($entry);
+                $this->saveObject($entry);
             }
         }
         return $mainObjectId;
-    }
-
-    /**
-     * Return array of objects if there are any, false otherwise
-     * @todo FILTER Functionality Use filter to limit forms in selection
-     * @param type $filter
-     */
-    public function getAllForms($filter = null) {
-        $formArray = $this->dbLink->fetchAll('SELECT * FROM form ' . $this->prepareFilter($filter));
-        if (!empty($formArray) && is_array($formArray)) {
-            foreach ($formArray as $form) {
-                $form['items'] = $this->getAllObjects('Item', array(0 => array('column' => 'formId',
-                        'operand' => $form['formId'])));
-                $f = new Application_Model_Form($form);
-                $decisions = $this->getApprovalStatus($form['formId']);
-                if (!empty($decisions)) {
-                    $f->final = (null === $decisions[0]['decision']) ? false : true;
-                    $dec = array_reverse($decisions);
-                    foreach ($dec as $decision) {
-                        if (!empty($decision['decision'])) {
-                            $f->decision = $decision['decision'];
-                        }
-                    }
-                }
-                $forms[$f->formId]['form'] = $f;
-                $forms[$f->formId]['owner'] = $this->getFormOwner($f->formId);
-                $forms[$f->formId]['contragent'] = $this->getObject('contragent', $f->contragentId);
-                $forms[$f->formId]['node'] = $this->getObject('node', $f->nodeId);
-                if (-1 <> $forms[$f->formId]['node']->parentNodeId) {
-                    $forms[$f->formId]['parentNode'] = $this->getObject('node', $forms[$f->formId]['node']->parentNodeId);
-                }
-                $forms[$f->formId]['total'] = 0;
-                foreach ($f->items as $item) {
-                    $forms[$f->formId]['total'] += $item->value;
-                }
-            }
-            return $forms;
-        } else {
-            return false;
-        }
-    }
-
-    public function prepareFormForOutput($formId, $userId) {
-        if (!empty($formId)) {
-            $form['form'] = $this->getObject('form', $formId, $userId);
-            $form['owner'] = $this->getObject('User', $form['form']->userId);
-            $form['node'] = $this->getObject('Node', $form['form']->nodeId);
-            $form['contragent'] = $this->getObject('Contragent', $form['form']->contragentId);
-            if (-1 != $form['node']->parentNodeId) {
-                $form['parentNode'] = $this->getObject('Node', $form['node']->parentNodeId);
-            }
-            $form['total'] = 0;
-            foreach ($form['form']->items as $item) {
-                $item->element = $this->getObject('Element', $item->elementId);
-                $form['items'][] = $item;
-                $form['total'] += $item->value;
-            }
-        } else {
-            throw new InvalidArgumentException('No $formId provided.');
-        }
-        return $form;
     }
 
     public function ChangeUserPassword($user) {
@@ -226,7 +250,8 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     }
 
     public function grantPrivilege($privilege) {
-        $id = $this->checkObjectExistance($privilege);
+        $this->setClassAndTableName($privilege);
+        $id = $this->dataMapper->checkObjectExistance($this->tableName,$privilege->toArray());
         if ($id) {
             // This privilege is already granted
             return array('error' => 0, 'message' => 'This privilege is already granted', 'code' => 200);
@@ -238,7 +263,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     }
 
     public function revokePrivilege($privilege) {
-        $id = $this->checkObjectExistance($privilege);
+        $id = $this->dataMapper->checkObjectExistance('privilege', $privilege->toArray());
         if ($id) {
             // This privilege is already granted
             $this->deleteObject('Privilege', $id);
@@ -310,65 +335,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     }
 
     public function deleteScenario($scenarioId) {
-        $entries = $this->getAllObjects('ScenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $scenarioId)));
-        if (is_array($entries)) {
-            foreach ($entries as $entry) {
-                $this->dbLink->delete('scenario_entry', $this->dbLink->quoteinto('scenarioEntryId =?', $entry->scenarioEntryId));
-            }
-        }
-        $this->dbLink->delete('scenario', $this->dbLink->quoteinto('scenarioId =?', $scenarioId));
-    }
-
-    public function isApprovalAllowed($formId, $userId) {
-        // If this form was already approved by somebody?
-        $existingApprovals = $this->getAllObjects('ApprovalEntry', array(0 => array('column' => 'formId',
-                'operand' => $formId)));
-        // Get this form
-        $form = $this->getObject('form', $formId, $userId);
-        if (!$form->isValid()) {
-            // The form is not valid, probably wrong formId. No sense to continue
-            throw new Exception('Form ' . $formId . ' is not valid, cannot approve');
-        }
-        // Lets retrieve all possible scenarios for this form (this node)
-        $assignments = $this->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId',
-                'operand' => $form->nodeId)));
-        if ($assignments) {
-            foreach ($assignments as $assignment) {
-                $scenarios[] = $this->getScenario($assignment->scenarioId);
-            }
-        } else {
-            // No scenarios found, nothing to do here
-            return false;
-        }
-
-        // Lets check if we deal with conditional scenarios or not
-        if (count($scenarios) > 1) {
-            throw new Exception('We cannot deal with conditional approval scenarios yet. Please come later.');
-        } else {
-            // Lets go
-            // Are there any other approvals yet? 
-            if (empty($existingApprovals)) {
-                // No one approved this form yet
-                // Lets check if we are the first in line
-                if (1 == $scenarios[0]->getUserOrder($userId)) {
-                    // Yes, we are the number one, we can approve
-                    return true;
-                } else {
-                    // No, we have to wait for our turn
-                    return false;
-                }
-            } else {
-                //OK, there are approvals already
-                // Did we make last decision but now changing it?
-                if ((count($existingApprovals) == $scenarios[0]->getUserOrder($userId)) ||
-                        (count($existingApprovals) + 1 == $scenarios[0]->getUserOrder($userId))) {
-                    // Yes
-                    return true;
-                }
-                // There are other approvals after ours
-                return false;
-            }
-        }
+        
     }
 
     /**
@@ -377,7 +344,7 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
      * @return type
      */
     public function getNodesAssigned() {
-        $scenarios = parent::getNodesAssigned();
+        $scenarios = $this->dataMapper->getNodesAssigned($this->domainId);
 
         $assignedNodes = array();
         foreach ($scenarios as $key => $scenario) {
@@ -388,178 +355,12 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
         return $assignedNodes;
     }
 
-    /**
-     * approveForm() method is used to approve/decline forms
-     * @param type $formId
-     * @param type $userId
-     * @param type $decision
-     * @return boolean|null
-     */
-    public function approveForm($formId, $userId, $decision) {
-        $entryId = false;
-        $form = $this->getObject('form', $formId, $userId);
-        // Lets find what scenarios are assigned to this form (node)
-        $assignments = $this->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $form->nodeId)));
-        if ($assignments) {
-            foreach ($assignments as $assignment) {
-                $scenarios[] = $this->getObject('scenario', $assignment->scenarioId);
-            }
-        } else {
-            // No scenarios found, we cannot process approvement for this form
-            throw new Exception('There is no approval scenario, dont know how did you get here', 500);
-            ;
-        }
-
-        // Lets check if this user already performed any approve/decline actions on this form
-        $entryArray = array('formId' => $formId, 'userId' => $userId, 'decision' => $decision, 'domainId' => $this->domainId);
-        $entry = new Application_Model_ApprovalEntry($entryArray);
-        $myApproval = $this->getAllObjects('ApprovalEntry', array(0 => array('column' => 'formId',
-                'operand' => $formId),
-            1 => array('column' => 'userId',
-                'operand' => $userId)));
-        // If yes, we just modify previous entry. If user changed his mind about this form new decision should overwrite old one.
-        // +++++++++ FIXME FIXME ++++++ 
-        // We have to check also if form was approved by user that is next in scenario. If so - we cannot touch the decision.
-        // Otherwise we would have to cancel all following decisions and start process again
-        // ++++++++++++++++++++++++++++
-        $existingApprovals = $this->getAllObjects('ApprovalEntry', array(0 => array('column' => 'formId',
-                'operand' => $formId)));
-        if ($myApproval && (count($existingApprovals) == $scenarios[0]->getUserOrder($userId))) {
-            $entry->approvalEntryId = $myApproval[0]->approvalEntryId;
-            $entryId = $this->saveObject($entry);
-            return $entryId;
-        } else {
-            // If not, we have to determine if this is user's turn to do approval.
-            // Lets check if there are other approvals
-            if ($existingApprovals) {
-                // There are
-                if ((count($existingApprovals) + 1) == $scenarios[0]->getUserOrder($userId)) {
-                    $entryId = $this->saveObject($entry);
-                } else {
-                    throw new Exception('It is not user ' . $userId . ' turn to approve the form', 403);
-                }
-            } else {
-                // No others. Lets see if we are first in the line
-                if ($scenarios[0]->getUserOrder($userId) == 1) {
-                    // Yes, we are.
-                    $entryId = $this->saveObject($entry);
-                } else {
-                    throw new Exception('It is not user ' . $userId . ' turn to approve the form', 403);
-                }
-            }
-        }
-        return $entryId;
-    }
-
-    public function getFormOwner($formId) {
-        if (!$formId) {
-            throw new InvalidArgumentException('Form ID not provided.', 417);
-        }
-        return parent::getFormOwner($formId);
-    }
-
-    /**
-     * 
-     * @param int $formId
-     * @param string $actionType approve | decline | comment
-     * @return array of string Return array of email which should be notified about 
-     *                         last action with form
-     */
-    public function getEmailingList($formId, $actionType) {
-        $approvalList = array_reverse($this->getApprovalStatus($formId));
-        $owner = $this->getFormOwner($formId);
-        $email['owner'] = $owner->login;
-        if ('approve' == $actionType || 'decline' == $actionType) {
-            foreach ($approvalList as $entry) {
-                if ('decline' == $entry['decision']) {
-                    break;
-                }
-                if (null == $entry['decision']) {
-                    $newlist[] = $this->getObject('user', $entry['userId']);
-                    break;
-                }
-            }
-        } elseif ('comment' == $actionType){
-            foreach ($approvalList as $entry) {
-                if (null != $entry['decision']) {
-                    $newlist[] = $this->getObject('user', $entry['userId']);
-                }
-            }
-        }
-        if (is_array($newlist)) {
-            foreach ($newlist as $item) {
-                $email['other'][] = $item->login;
-            }
-        }
-        return $email;
-    }
-
-    /**
-     * Create email HTML body according to input parameters from template that is stared in database.
-     * @param type $email Destination email (user)
-     * @param type $emailType approved_next | declined_next | commented_next | approved_owner | declined_owner | commented_owner
-     * @param type $lang
-     * @param type $formId
-     * @return string HTML code with body of email with %link% for further link addition
-     */
-    public function createEmailBody($email, $emailType, $lang, $formId) {
-        $templateArray = $this->getAllObjects('template', array(0 => array('column' => 'language', 'operand' => $lang), 1 => array('column' => 'type', 'operand' => $emailType)));
-        if (!$templateArray) {
-            $template = $this->config->template->default->$emailType;
-        } else {
-            $template = $templateArray[0]->body;
-        }
-        if (!$template) {
-            $template = file_get_contents(APPLICATION_PATH . '/../library/Capex/lang/' . $lang . '/templates/' . $emailType . '.html');
-        }
-        if (!$template) {
-            throw new UnableToLoadMessageTemplate('Input parameters: email: ' . $email . '; type: ' . $emailType . '; language: ' . $lang . '; formId: ' . $formId);
-        }
-        $user = $this->getAllObjects('user', array(0 => array('column' => 'login', 'operand' => $email)));
-        $form = $this->prepareFormForOutput($formId, $user[0]->userId);
-        $body = str_replace('%name%', $user[0]->userName, $template);
-        $body = str_replace('%total%', sprintf('$%01.2f', $form['total']), $body);
-        $body = str_replace('%contragent%', $form['contragent']->contragentName, $body);
-        $body = str_replace('%fname%', $form['form']->formName, $body);
-        return $body;
-    }
-
-    public function sendEmail($email, $body, $subject) {
-
-        $mail = new Zend_Mail();
-        $mail->setBodyHtml($body);
-        $mail->setSubject($subject);
-        $mail->addTo($email);
-        $mail->setFrom($this->config->app->default->from);
-        $mail->send();
-
-        return true;
-    }
-
-    public function prepareCommentsForOutput($formId) {
-        $comments = $this->getAllObjects('comment', array(0 => array('column' => 'formId', 'operand' => $formId)));
-        if ($comments) {
-            foreach ($comments as $comment) {
-                $author = $this->getObject('user', $comment->userId);
-                $row[] = '<div id="form-item">' . PHP_EOL .
-                        '<div class="row">' . PHP_EOL .
-                        '<div class="float: left"><strong>' . $author->userName . '</strong></div>' . PHP_EOL .
-                        '<div class="float: right">' . $comment->date . '</div>' . PHP_EOL .
-                        '<div class="display: block; clear: both;"></div>' .
-                        '</div>' . PHP_EOL .
-                        '<div class="comment">' . $comment->comment . '</div>' . PHP_EOL .
-                        '</div>' . PHP_EOL;
-            }
-        }
-        return (isset($row)) ? $row : false;
-    }
-
-    public function getNumberOfPages($object, $filterArray, $recordsPerPage) {
-        return parent::getNumberOfPages($object, $filterArray, $recordsPerPage);
-    }
-
     public function setDomainId($domainId) {
-        parent::setDomainId($domainId);
+        $this->domainId = $domainId;
+    }
+
+    public function getDomainId() {
+        return $this->domainId;
     }
 
     public function checkObjectDependencies($class, $id) {
@@ -567,11 +368,29 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     }
 
     public function getObjectsCount($class, $filter = null) {
-        return parent::getObjectsCount($class, $filter);
+        $this->setClassAndTableName($class);
+        $filter[] = array('column' => 'domainId', 'operand' => $this->domainId);
+        return $this->dataMapper->getObjectsCount($this->tableName, $filter);
     }
 
     public function deleteObject($class, $id) {
-        return parent::deleteObject($class, $id);
+        $this->setClassAndTableName($class);
+        switch ($this->tableName) {
+            case 'form':
+                $entries = $this->getAllObjects('item', array(0 => array('column' => 'formId', 'operand' => $id)));
+                break;
+            case 'scenario':
+                $entries = $this->getAllObjects('ScenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $id)));
+                break;
+            default: $entries = null;
+        }
+        if (is_array($entries)) {
+            $this->setClassAndTableName($entries[0]);
+            foreach ($entries as $entry) {
+                $this->deleteObject($this->className, $entry->{$this->objectIdName});
+            }
+        }
+        return $this->dataMapper->deleteData($this->tableName, $id);
     }
 
     public function createAccessFilterArray($userId) {
@@ -579,11 +398,11 @@ class Application_Model_ObjectsManager extends Application_Model_DataMapper {
     }
 
     public function checkLoginExistance($login) {
-        return parent::checkLoginExistance($login);
+        return $this->dataMapper->checkEmailExistance($login);
     }
 
-    public function getApprovalStatus($formId) {
-        return parent::getApprovalStatus($formId);
+    public function checkUserExistance($userName) {
+        return $this->dataMapper->checkUserExistance($userName);
     }
 
 }

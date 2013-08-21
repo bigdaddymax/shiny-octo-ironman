@@ -8,150 +8,61 @@ class DataMapperTest extends TestCase {
     private $positionId;
 
     public function setUp() {
-        $this->markTestSkipped('Cannot test protected method.');
-        $this->dataMapper = new Application_Model_DataMapper(1);
+        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('form');
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario');
         $this->dataMapper->dbLink->delete('privilege');
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('contragent');
-        $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
-        $node = new Application_Model_Node($nodeArray);
-        $nodeId = $this->dataMapper->saveObject($node);
-        $positionArray = array('positionName' => 'First position', 'nodeId' => $nodeId, 'domainId' => 1);
-        $position = new Application_Model_Position($positionArray);
-        $this->positionId = $this->dataMapper->saveObject($position);
-        $session = new Zend_Session_Namespace('Auth');
-        $session->domainId = 1;
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
     }
 
     public function tearDown() {
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('form');
         $this->dataMapper->dbLink->delete('element');
-
         $this->dataMapper->dbLink->delete('scenario_entry');
         $this->dataMapper->dbLink->delete('scenario');
         $this->dataMapper->dbLink->delete('privilege');
         $this->dataMapper->dbLink->delete('user');
         $this->dataMapper->dbLink->delete('contragent');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
         parent::tearDown();
     }
 
-    /**
-     * 
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Class name is not set.
-     */
-    public function testCheckDeleteObjectNoClass() {
-        $dataMapper = new Application_Model_DataMapper(1);
-        $dataMapper->deleteObject(1);
+    public function testSaveData() {
+        $nodeArray = array('nodeName' => 'testNode', 'parentNodeId' => -1, 'active' => 1, 'domainId' => 1);
+        $nodeId = $this->dataMapper->saveData('node', $nodeArray);
+        $this->assertTrue(is_int($nodeId));
     }
 
-    /**
-     * 
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Class name is not set.
-     */
-    public function testCheckObjectDependenciesNoClass() {
-        $this->markTestSkipped('Cannot test protected method.');
-        $dataMapper = new Application_Model_DataMapper(1);
-        $dataMapper->checkObjectDependencies(1, null);
+    public function testGetData() {
+        $nodeArray = array('nodeName' => 'testNode', 'parentNodeId' => -1, 'active' => 1, 'domainId' => 1);
+        $nodeId = $this->dataMapper->saveData('node', $nodeArray);
+        $nodeArray1 = $this->dataMapper->getData('node', array(0 => array('column' => 'domainId', 'operand' => 1)));
+        $nodeArray['nodeId'] = $nodeId;
+        $this->assertEquals($nodeArray, $nodeArray1[0]);
     }
 
-    /**
-     * 
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Class name is not set.
-     */
-    public function testCheckGetAllObjectsNoClass() {
-        $this->markTestSkipped('Cannot test protected method.');
-        $dataMapper = new Application_Model_DataMapper(1);
-        $dataMapper->getAllObjects();
+    public function testGetFilteredData() {
+        $nodeArray = array('nodeName' => 'testNode', 'parentNodeId' => -1, 'active' => 1, 'domainId' => 1);
+        $nodeId = $this->dataMapper->saveData('node', $nodeArray);
+        $nodeArray1 = $this->dataMapper->getData('node', array(0 => array('column' => 'domainId', 'operand' => 1), 1=>array('column'=>'nodeName', 'operand'=>'testNode')));
+        $nodeArray['nodeId'] = $nodeId;
+        $this->assertEquals($nodeArray, $nodeArray1[0]);
+        
     }
+    
+    
 
-    public function testCheckObjectExistance() {
-        $this->markTestSkipped('Cannot test protected method.');
-        $this->dataMapper->dbLink->insert('user', array('userName' => 'uName',
-            'login' => 'uLogin',
-            'password' => 'uPassword',
-            'domainId' => 1,
-            'active' => 1,
-            'positionId' => $this->positionId));
-        $userArray = array('userName' => 'uName',
-            'login' => 'uLogin',
-            'password' => 'uPassword',
-            'domainId' => 1,
-            'active' => 1,
-            'positionId' => $this->positionId);
-        $userId = $this->dataMapper->dbLink->lastInsertId();
-        $user = new Application_Model_User($userArray);
-        $userIdGot = $this->dataMapper->checkObjectExistance($user, true);
-        $this->assertEquals($userId, $userIdGot);
+    public function testGetNonExistingData() {
+        $node = $this->dataMapper->getData('node', array(0=>array('column'=>'domainId', 'operand'=>-1)));
+        $this->assertFalse($node instanceof Application_Model_Node);
+        $this->assertTrue(is_array($node));
+        $this->assertTrue(empty($node));
     }
-
-    public function testPrepareFilter() {
-        $this->markTestSkipped('Cannot test protected method.');
-        $dataMapper = new Application_Model_DataMapper(1);
-        $filter = $dataMapper->prepareFilter(array(0 => array('column' => 'nodeId', 'operand' => 44)));
-        $this->assertEquals($filter, ' WHERE domainId = 1 AND nodeId = 44 ');
-    }
-
-    /**
-     * @ignore
-     */
-    public function testSaveExisting() {
-        $this->markTestSkipped('Cannot test protected method.');
-
-        $this->dataMapper->dbLink->insert('user', array('userName' => 'uName',
-            'login' => 'uLogin',
-            'password' => 'uPassword',
-            'domainId' => 1,
-            'active' => 1,
-            'positionId' => $this->positionId));
-        $userId = $this->dataMapper->dbLink->lastInsertId();
-        $this->dataMapper->dbLink->insert('user', array('userName' => 'uName1',
-            'login' => 'uLogin1',
-            'password' => 'uPassword1',
-            'domainId' => 1,
-            'active' => 1,
-            'positionId' => $this->positionId));
-        $userArray = array('userName' => 'uName',
-            'login' => 'uLogin',
-            'password' => 'uPassword',
-            'domainId' => 1,
-            'active' => 1,
-            'positionId' => $this->positionId);
-        $userId1 = $this->dataMapper->dbLink->lastInsertId();
-        $user = new Application_Model_User($userArray);
-        $user1 = $this->dataMapper->getObject($userId, 'Application_Model_User');
-        $user->userId = $userId;
-        $this->assertEquals($user, $user1);
-        $user->userName = 'testName';
-        $userGotId = $this->dataMapper->saveObject($user);
-        $this->assertEquals($userGotId, $userId);
-        $user2 = $this->dataMapper->getObject($userId, 'Application_Model_User');
-        $user5 = $this->dataMapper->getObject($userGotId, 'Application_Model_User');
-        $this->assertEquals($user2, $user5);
-        $user3 = $this->dataMapper->getObject($userId1, 'Application_Model_User');
-        $this->assertEquals($user2->userName, 'testName');
-        $this->assertEquals($user3->toArray(), array('userName' => 'uName1',
-            'userId' => $userId1,
-            'login' => 'uLogin1',
-            'password' => 'uPassword1',
-            'domainId' => 1,
-            'active' => true,
-            'positionId' => $this->positionId));
-        $this->assertEquals($userGotId, $userId);
-
-        $contragentArray = array('contragentName' => 'cName', 'domainId' => 1);
-        $contragent = new Application_Model_Contragent($contragentArray);
-        $this->assertTrue($contragent->isValid());
-        $contragentId = $this->dataMapper->saveObject($contragent);
-
-        $contragentArray1 = array('contragentName' => 'cName', 'domainId' => 1);
-        $contragent1 = new Application_Model_Contragent($contragentArray1);
-        $this->assertTrue($contragent1->isValid());
-        $contragentId1 = $this->dataMapper->saveObject($contragent1);
-        $this->assertEquals($contragentId, $contragentId1);
-    }
-
 }

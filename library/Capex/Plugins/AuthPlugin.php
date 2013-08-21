@@ -40,18 +40,21 @@ class Capex_Plugins_AuthPlugin extends Zend_Controller_Plugin_Abstract {
     }
 
     public function getResource(Zend_Controller_Request_Abstract $request) {
+        // Get request parameters
         $controller = $request->getControllerName();
         $action = $request->getActionName();
         $objectType = $request->getParam('objectType', false);
 
-        $pages = $this->navigation->findBy('controller', $controller);
-
+        // Try to find pages in navigation by controller used
+//        $pages = $this->navigation->findBy('controller', $controller);
+        // If we have general request served by Objects controller check if objectType is correct
         if ($objectType && $controller == 'objects') {
             $page = $this->navigation->findByresource($objectType);
             if (!($page instanceof Zend_Navigation_Page_Mvc)) {
                 return false;
             }
         } else {
+            // Other pages, other controllers
             $pages = $this->navigation->findAllBy('controller', $controller);
 //                Zend_Debug::dump($page);
             if (count($pages) == 1) {

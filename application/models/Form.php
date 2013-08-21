@@ -11,56 +11,25 @@ class Application_Model_Form {
     private $_formName;
     private $_formId;
     private $_userId;
-    private $_projectId;
+//    private $_projectId;
     private $_active = 1;
     private $_domainId;
     private $_date;
     private $_items;
     private $_nodeId;
-    private $_final;
-    private $_decision;
+    private $_final = 0;
+    private $_decision = '';
     private $_public = 0;
     private $_contragentId;
     private $_expgroup;
 
     public function __construct(array $formArray = null) {
-        if (isset($formArray['formName'])) {
-            $this->_formName = $formArray['formName'];
+        if (is_array($formArray)) {
+            foreach ($formArray as $key => $item) {
+                $this->{$key} = (strpos($key, 'Id') || 'active' == $key || 'public' == $key) ? (int) $item : $item;
+            }
         }
-        if (isset($formArray['domainId'])) {
-            $this->domainId = (int) $formArray['domainId'];
-        }
-        if (isset($formArray['active'])) {
-            $this->_active = (int) $formArray['active'];
-        }
-        if (isset($formArray['expgroup'])) {
-            $this->_expgroup = $formArray['expgroup'];
-        }
-        if (isset($formArray['public'])) {
-            $this->_public = (int) $formArray['public'];
-        }
-        if (isset($formArray['userId'])) {
-            $this->_userId = (int) $formArray['userId'];
-        }
-        if (isset($formArray['projectId'])) {
-            $this->_projectId = (int) $formArray['projectId'];
-        }
-        if (isset($formArray['nodeId'])) {
-            $this->_nodeId = (int) $formArray['nodeId'];
-        }
-        if (isset($formArray['formId'])) {
-            $this->_formId = (int) $formArray['formId'];
-        }
-        if (isset($formArray['contragentId'])) {
-            $this->_contragentId = (int) $formArray['contragentId'];
-        }
-        // Items are set from normal array
-        if (isset($formArray['items'])) {
-            $this->setItems($formArray['items']);
-        }
-        if (isset($formArray['date'])) {
-            $this->_date = $formArray['date'];
-        } else {
+        if (!$this->_date) {
             $this->_date = date('Y-m-d H:i:s');
         }
         // If items were not set from array, we assume that this is HTTP _POST array
@@ -104,7 +73,7 @@ class Application_Model_Form {
                     if ($item->isValid()) {
                         $checkedItems[] = $item;
                     } else {
-                        throw new InvalidArgumentException('Cannot create item from array within Form. Item is now valid');
+                        throw new InvalidArgumentException('Cannot create item from array within Form. Item is not valid');
                     }
                 }
                 // Item is array, try to create valid Item from this array
@@ -135,22 +104,16 @@ class Application_Model_Form {
             $this->setItems($value);
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            if ('active' == $name || 'public' == $name) {
-                $this->$name1 = (int) $value;
-            } else {
-                $this->$name1 = $value;
-            }
-        } else {
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name || 'public' == $name) ? (int) $value : $value;
         }
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
+            return (strpos($name, 'Id')) ? (int) $this->$name : $this->$name;
         } else {
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
     }
 
@@ -161,12 +124,7 @@ class Application_Model_Form {
      */
     public function isValid() {
         $this->_valid = true;
-        if (isset($this->_formName) && isset($this->_domainId) 
-                && isset($this->_contragentId) 
-                && isset($this->_userId) 
-                && isset($this->_nodeId) 
-                && isset($this->_items)
-                && isset($this->_expgroup)) {
+        if (isset($this->_formName) && isset($this->_domainId) && isset($this->_contragentId) && isset($this->_userId) && isset($this->_nodeId) && isset($this->_items) && isset($this->_expgroup)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;
@@ -185,10 +143,8 @@ class Application_Model_Form {
         foreach ($this as $key => $value) {
             if (('_valid' != $key) && ('_decision' != $key) && ('_final' != $key)) {
                 if (isset($value)) {
-                    if ('_active' == $key || '_public' == $key) {
-                        $output[str_replace('_', '', $key)] = (int) $value;
-                    } else {
-                        $output[str_replace('_', '', $key)] = $value;
+                    if (isset($value)) {
+                        $output[str_replace('_', '', $key)] = (strpos($key, 'Id') || 'active' == $key || 'public' == $key) ? (int) $value : $value;
                     }
                 }
             }

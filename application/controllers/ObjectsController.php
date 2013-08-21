@@ -14,6 +14,7 @@
 class ObjectsController extends Zend_Controller_Action {
 
     private $objectManager;
+    private $tableName;
     private $redirector;
     private $className;
     private $objectIdName;
@@ -107,14 +108,17 @@ class ObjectsController extends Zend_Controller_Action {
 //        Zend_Debug::dump($params);
         $object = new $this->className($this->params);
         if ($object->isValid()) {
-            $this->objectManager->saveObject($object);
-            $this->view->objects = $this->objectManager->getAllObjects($this->objectName);
-            $this->view->objectType = $this->objectName;
-            $this->view->subobjects = $this->subobjects;
-            $this->_helper->layout()->disableLayout();
+            $objectId = $this->objectManager->saveObject($object);
+            $this->_helper->json(array('error'=>0,
+                                       'message'=>'Object created successfully',
+                                       'code'=>200,
+                                       'objectType'=> $this->tableName,
+                                       'objectId'=>$objectId), true);
+
         } else {
-            //      Zend_Debug::dump($params);
-            //    Zend_Debug::dump($object);
+            $this->_helper->json(array('error'=>1,
+                                       'message'=>'Object is not valid',
+                                       'code'=>406), true);
         }
     }
 
@@ -152,7 +156,6 @@ class ObjectsController extends Zend_Controller_Action {
         }
 
         $this->_helper->json($result, true);
-        exit;
     }
 
     public function openObjectAction() {

@@ -79,7 +79,7 @@
                     if (!$form['form']->public) {
                         $class.=' private ';
                     }
-                    echo '<tr onClick="openForm(\'form_' . $form['form']->formId . '\')" >' . PHP_EOL .
+                    echo '<tr id = "form_'.$form['form']->formId.'" onClick="openForm(\'form_' . $form['form']->formId . '\')" >' . PHP_EOL .
                     '<td>' . PHP_EOL .
                     (!empty($form['parentNode']) ? $form['parentNode']->nodeName : '') . PHP_EOL .
                     '</td><td>' . $form['node']->nodeName . '</td>' . PHP_EOL .

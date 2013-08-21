@@ -3,32 +3,34 @@
 class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     private $objectManager;
+    private $dataMapper;
     private $scenarioId;
 
     public function setUp() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
         parent::setUp();
         // Lets create new user
-        $this->objectManager = new Application_Model_ObjectsManager(-1);
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('form');
-        $this->objectManager->dbLink->delete('scenario_assignment');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('scenario');
-        $this->objectManager->dbLink->delete('privilege');
-        $this->objectManager->dbLink->delete('resource');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('approval_entry');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
-        $this->objectManager->dbLink->delete('element');
-        $this->objectManager->dbLink->delete('domain_owner');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('domain_owner');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('contragent');
-        $this->objectManager->dbLink->delete('domain');
+        $this->objectManager = new Application_Model_ObjectsManager(1);
+        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('form');
+        $this->dataMapper->dbLink->delete('scenario_assignment');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('element');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('contragent');
+        $this->dataMapper->dbLink->delete('domain');
         $inputArray = array('userName'=>'testName', 'email'=>'test@domain', 'password'=>'test_pwd', 'companyName'=>'New node name');
         $params = array('controller'=>'index', 'action'=>'new-domain');
         $this->request->setMethod('post');
@@ -42,23 +44,23 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function tearDown() {
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('form');
-        $this->objectManager->dbLink->delete('scenario_assignment');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('scenario');
-        $this->objectManager->dbLink->delete('privilege');
-        $this->objectManager->dbLink->delete('resource');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('domain_owner');
-        $this->objectManager->dbLink->delete('approval_entry');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
-        $this->objectManager->dbLink->delete('element');
-        $this->objectManager->dbLink->delete('contragent');
-        $this->objectManager->dbLink->delete('domain');
-        $this->objectManager->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('form');
+        $this->dataMapper->dbLink->delete('scenario_assignment');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('element');
+        $this->dataMapper->dbLink->delete('contragent');
+        $this->dataMapper->dbLink->delete('domain');
+        $this->dataMapper->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
     }
 
     public function testIndexAction() {
@@ -82,6 +84,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testAddObject() {
+//Login via web
         $user = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
@@ -89,6 +92,8 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->resetRequest();
         $this->resetResponse();
+        
+        // Imitate brouser request
         $session = new Zend_Session_Namespace('Auth');
         $params = array('controller' => 'objects', 'action' => 'add-object');
         $objectArray = array('objectType' => 'element', 'elementName' => 'testAddObject',
@@ -96,8 +101,17 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setMethod('post');
         $this->request->setPost($objectArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
-        $this->assertController('objects');
+//        $this->assertController('objects');
+        
+        // Analyze response
+        $response = $this->getResponse();
+        echo $response->outputBody();
+        $response = json_decode($response->outputBody());
 
+        $this->assertEquals($response->code, 200);
+        $this->assertTrue(!empty($response->objectId));
+        
+        //Check, what we have
         $objectManager = new Application_Model_ObjectsManager($session->domainId);
         $elements = $objectManager->getAllObjects('Element');
         $element = new Application_Model_Element(array('elementName' => 'testAddObject', 'elementCode' => 44, 'domainId' => $session->domainId, 'expgroup'=>'CAPEX'));
@@ -309,6 +323,8 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testAddDeleteObjects() {
+        
+        // Login via the web
         $user = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
@@ -344,11 +360,12 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setMethod('post');
         $this->request->setPost($objectArray2);
         $this->dispatch($this->url($this->urlizeOptions($params2)));
-//        $this->assertEquals($output2, 'tt');
 
+// Check, what we have in DB
         $nodes2 = $objectManager->getAllObjects('Node');
         $this->assertEquals(4, count($nodes2));
 
+// Try to delete node if there are other dependent nodes        
         $params3 = array('controller' => 'objects', 'action' => 'delete',
             'objectType' => 'node', 'nodeId' => $nodeId);
         $this->resetResponse();
@@ -357,6 +374,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $nodes3 = $objectManager->getAllObjects('Node');
         $this->assertEquals(4, count($nodes3));
 
+        // Try to delete independent node
         $params4 = array('controller' => 'objects', 'action' => 'delete',
             'objectType' => 'node', 'id' => $nodeId1);
         $this->resetResponse();
@@ -375,7 +393,6 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $session = new Zend_Session_Namespace('Auth');
         $objectManager = new Application_Model_ObjectsManager($session->domainId);
-        
         // Lets prepare everything we need
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => $session->domainId);
         $node = new Application_Model_Node($nodeArray);
@@ -392,11 +409,11 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $entryArray = array( 'domainId'=>$session->domainId, 'userId'=>$userId, 'orderPos'=>1);
         $scenarioArray = array('scenarioName'=>'scenario 1', 'domainId'=>$session->domainId, 'entries'=>array(0=>$entryArray));
         $scenario = new Application_Model_Scenario($scenarioArray);
-        $objectsManager = new Application_Model_ObjectsManager($session->domainId);
-        $scenarioId = $objectsManager->saveObject($scenario);
+        $scenarioId = $objectManager->saveObject($scenario);
         $assignmentArray = array('nodeId'=>$nodeId, 'scenarioId'=>$scenarioId, 'domainId'=>$session->domainId);
         $assignment = new Application_Model_ScenarioAssignment($assignmentArray);
-        $assignmentId = $this->objectManager->saveObject($assignment);
+        $this->assertTrue($assignment->isValid());
+        $assignmentId = $objectManager->saveObject($assignment);
         $this->assertTrue(is_int($assignmentId));
                 
         // Check if we are in
@@ -443,6 +460,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testOpenUser(){
+        // Login via weeb
         $userArray = array('login' => 'test@domain', 'password' => 'test_pwd');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
@@ -451,13 +469,73 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetRequest();
         $this->resetResponse();
         $session=new Zend_Session_Namespace('Auth');
+        
+        // Try to open user by "clicking" its link
         $this->objectManager = new Application_Model_ObjectsManager($session->domainId);
         $users = $this->objectManager->getAllObjects('user');
         $this->assertTrue($users[0] instanceof Application_Model_User);
         $params = array('controller'=>'objects', 'action'=>'open-object', 'objectType'=>'user', 'userId'=>$users[0]->userId);
         $this->dispatch($this->url($this->urlizeOptions($params)));
+        
+        // Check what we got
         $this->assertController('objects');
         $this->assertAction('open-object');
+    }
+    
+    public function testOpenPrivilegePage(){
+        // Login via weeb
+        $userArray = array('login' => 'test@domain', 'password' => 'test_pwd');
+        $params = array('controller' => 'auth', 'action' => 'auth');
+        $this->request->setMethod('post');
+        $this->request->setPost($userArray);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+        
+        // Try to open privileges page for user
+        $users = $this->objectManager->getAllObjects('user');
+        $this->dispatch($this->url(array('controller'=>'objects', 'action'=>'user-privileges', 'userId'=>$users[0]->userId, 'objectType'=>'privilege')));
+        $this->assertController('objects');
+        $this->assertAction('user-privileges');
+        
+        // Check content of the page
+        $node = $this->objectManager->getAllObjects('node');
+        $this->assertQuery('#expList_' . $node[0]->nodeId);
+        $this->assertQuery('#read_node_' . $node[0]->nodeId);
+        $this->assertQuery('#write_node_' . $node[0]->nodeId);
+        $this->assertQuery('#approve_node_' . $node[0]->nodeId);
+    }
+    
+    public function testChangePrivilege() {
+         // Login via weeb
+        $userArray = array('login' => 'test@domain', 'password' => 'test_pwd');
+        $params = array('controller' => 'auth', 'action' => 'auth');
+        $this->request->setMethod('post');
+        $this->request->setPost($userArray);
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        $this->resetRequest();
+        $this->resetResponse();
+        
+        // Try to open privileges page for user
+        $users = $this->objectManager->getAllObjects('user');
+        $this->dispatch($this->url(array('controller'=>'objects', 'action'=>'user-privileges', 'userId'=>$users[0]->userId, 'objectType'=>'privilege')));
+        $this->assertController('objects');
+        $this->assertAction('user-privileges');       
+        
+        // Try to set some privileges
+        $node = $this->objectManager->getAllObjects('node');
+        $privArray = array('userId' => $users[0]->userId,
+                'object' => 'node',
+                'objectId' => $node[0]->nodeId,
+                'privilege' => 'read',
+                'state' => 1);
+        $this->request->setMethod('post');
+        $this->request->setPost($privArray);
+        $this->dispatch($this->url(array('controller'=>'objects', 'action'=>'edit-privileges')));
+        $response = $this->getResponse();
+        $response = json_decode($response->outputBody());
+        $this->assertEquals($response->error, 0);
+        $this->assertEquals($response->code, 200);
     }
 }
 

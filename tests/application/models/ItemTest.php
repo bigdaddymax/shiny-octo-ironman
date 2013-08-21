@@ -18,9 +18,9 @@ class ItemTest extends TestCase {
     }
 
     public function testItemConstructCorrect() {
-        $itemArray = array('itemName' => 'eName', 'itemId' => 3, 'formId' => 4, 'elementId' => 5, 'active' => false, 'domainId' => 5, 'value' => 100);
+        $itemArray = array('itemName' => 'eName', 'itemId' => 3, 'formId' => 4, 'elementId' => 5, 'active' => 0, 'domainId' => 5, 'value' => 100);
         $item = new Application_Model_Item($itemArray);
-        $this->assertFalse($item->active);
+        $this->assertEquals($item->active, 0);
         $this->assertEquals('eName', $item->itemName);
         $this->assertEquals(5, $item->elementId);
         $this->assertEquals(3, $item->itemId);
@@ -50,7 +50,7 @@ class ItemTest extends TestCase {
     }
 
     public function testItemToArray() {
-        $itemArray = array('itemName' => 'eName', 'formId' => 12, 'itemId' => 3, 'elementId' => 4, 'active' => false, 'domainId' => 5, 'value' => 100.5);
+        $itemArray = array('itemName' => 'eName', 'formId' => 12, 'itemId' => 3, 'elementId' => 4, 'active' => 0, 'domainId' => 5, 'value' => 100.5);
         $item = new Application_Model_Item($itemArray);
         $itemArray2 = $item->toArray();
         $this->assertEquals($itemArray, $itemArray2);

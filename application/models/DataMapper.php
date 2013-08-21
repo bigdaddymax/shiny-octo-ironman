@@ -22,175 +22,88 @@ require_once APPLICATION_PATH . '/models/ExceptionsMapper.php';
 
 class Application_Model_DataMapper extends BaseDBAbstract {
 
-    protected $className;
-    protected $tableName;
-    protected $objectName;
-    protected $objectIdName;
-    protected $objectParentIdName;
-    protected $domainId;
-
-    public function __construct($domainId, $object = null) {
+    public function __construct() {
         parent::__construct();
-        $this->domainId = $domainId;
-        if ($object) {
-            $this->setClassAndTableName($object);
-        }
     }
 
-    protected function setDomainId($domainId) {
-        if ($domainId) {
-            $this->domainId = $domainId;
+    /**
+     * Helper function to generate tableId or tableNameId column name from table or table_name argumments.
+     * @param type $tableName table | table_name
+     * @return string $objectIdName tableId | tableNameId
+     */
+    private function createObjectIdName($tableName) {
+        if (strpos($tableName, '_')) {
+            return substr($tableName, 0, strpos($tableName, '_')) . ucfirst(substr($tableName, strpos($tableName, '_') + 1)) . 'Id';
         } else {
-            throw new InvalidArgumentException('DomainID cannot be NULL');
+            return $tableName . 'Id';
         }
     }
 
     /**
-     * Helper function, creates names of properties, tables etc for particular object.
+     *  Save data to DB, return ID  of the entry
      * 
-     * @param class $object
-     * @param string $object
+     * @param string $tableName
+     * @param array $data Data to be saved
+     * @return int ID of saved object
      */
-    protected function setClassAndTableName($object) {
-        if (is_object($object))
-            $this->className = get_class($object);
-        elseif (is_string($object))
-            $this->className = 'Application_Model_' . ucfirst($object);
-        $this->objectName = substr($this->className, strrpos($this->className, '_') + 1);
-
-        // Transforming camelCase names of classes to underscored_names for MySQL tables
-        if (preg_match_all('/[A-Z]/', substr($this->className, strrpos($this->className, '_') + 1), $matches, PREG_OFFSET_CAPTURE)) {
-            if (2 == count($matches[0])) {
-                $this->tableName = substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), 0, $matches[0][1][1]) .
-                        '_' .
-                        substr(strtolower(substr($this->className, strrpos($this->className, '_') + 1)), $matches[0][1][1]);
-            } else {
-                $this->tableName = strtolower($this->objectName);
-            }
+    public function saveData($tableName, $data) {
+        $objectIdName = $this->createObjectIdName($tableName);
+        if (array_key_exists($objectIdName, $data) && !empty($data[$objectIdName])) {
+            $this->dbLink->update($tableName, $data, array($objectIdName . ' = ?' => $data[$objectIdName]));
+            return $data[$objectIdName];
         }
-
-        $this->objectIdName = lcfirst(substr($this->className, strrpos($this->className, '_') + 1)) . 'Id';
-        $this->objectParentIdName = 'parent' . ucwords($this->objectIdName);
+        $this->dbLink->insert($tableName, $data);
+        return (int) $this->dbLink->lastInsertId();
     }
 
     /**
-     * 
-     * saveObject($object) If object is new - save it in DB, if object exists - update it in DB
-     * 
-     * @param type $object
-     * @return type
-     * @throws InvalidArgumentException
-     * 
-     */
-    protected function saveObject($object) {
-        if ($object->isValid()) {
-            // Prepare data for inserting to DB
-            $objectArray = $object->toArray();
-
-            unset($objectArray[$this->objectIdName]);
-            $objectArray['active'] = (int) $objectArray['active'];
-            if ('scenario' == strtolower($this->objectName)) {
-                unset($objectArray['entries']);
-            }
-            if ('form' == strtolower($this->objectName)) {
-                unset($objectArray['items']);
-            }
-
-            // For User we have to treat password property
-            if (isset($objectArray['password'])) {
-                $auth = new Application_Model_Auth();
-                $objectArray['password'] = $auth->hashPassword($objectArray['password']);
-            }
-            if ($object->{$this->objectIdName}) {
-                // Object exists, so we will update it
-                $this->dbLink->update($this->tableName, $objectArray, array($this->objectIdName . ' = ?' => $object->{$this->objectIdName}));
-            } else {
-                // Object doesnt exist, so we are creating new
-                $this->dbLink->insert($this->tableName, $objectArray);
-                $object->{$this->objectIdName} = (int) $this->dbLink->lastInsertId();
-            }
-            return (int) $object->{$this->objectIdName};
-        }
-        else
-            throw new InvalidArgumentException($this->objectName . ' data are not valid', 417);
-    }
-
-    /**
-     * 
-     * @param int $id
-     * @param string $class Contains Class name for object to be searched and returned. If null than instance of DataDBMapper 
-     *                      should be initialized with required class name at creation time.
-     * @return object of type $this->className
+     * Retrive data from DB, for particular table and satisfying search criterias
+     * @param string $tableName
+     * @param array $filter Description of filter array you can find below at the prepareFilter() function
+     * @return array
      * @throws InvalidArgumentException
      */
-    protected function _getObject($id) {
-        $objectArray = $this->dbLink->fetchRow('SELECT * FROM ' .
-                $this->tableName . ' WHERE ' .
-                $this->dbLink->quoteinto($this->objectIdName . '=?', $id) .
-                $this->dbLink->quoteinto(' AND domainId = ?', $this->domainId));
-        if (is_array($objectArray)) {
-            $object = new $this->className($objectArray);
-            return $object;
-        } else {
-            throw new InvalidArgumentException("Cannot find $this->objectName in table '$this->tableName' whith ID=$id and domainId=$this->domainId", 417);
-        }
+    public function getData($tableName, $filter) {
+        $filterString = $this->prepareFilter($filter);
+        $objectArray = $this->dbLink->fetchAll('SELECT * FROM ' .
+                $tableName . $filterString);
+        return $objectArray;
     }
 
     /**
-     * Searches in DB for particular object (basically for object with specified ID)
-     * @param type $object
-     * @return true if record exists, false otherwise
+     * Searches in DB for particular object (row with data equal to supplied $data)
+     * @param string $table Where to look
+     * @data array | int Either array of values that we will look for in table or particular ID
+     * @return true if record exists, false otherwise. If ID is not supplied we will look for 100% equivalent of $data and row data.
      */
-    public function checkObjectExistance($object) {
-
-        if (is_object($object)) {
-            // We have object supplied
-            $this->setClassAndTableName($object);
-            $id = $object->{$this->objectIdName};
+    public function checkObjectExistance($tableName, $data) {
+        $objectIdName = $this->createObjectIdName($tableName);
+        if (is_array($data)) {
+            $id = (!empty($data[$objectIdName])) ? $data[$objectIdName] : NULL;
             if (!empty($id)) {
-                // We have object with ID, JUST CHECK THIS id IN DATABASE
-                $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $object->{$this->objectIdName}));
+                // We have object with ID, just quick and simple search
+                $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT ' . $objectIdName . ' FROM ' . $tableName . ' WHERE ' . $objectIdName . '=?', $data[$objectIdName]));
             } else {
                 // We have object whithout ID, lets have a look if database contains data for similar object
                 $filter = ' WHERE 1=1 ';
-                $parameters = $object->toArray();
-                foreach ($parameters as $key => $parameter) {
+                foreach ($data as $key => $parameter) {
                     if ($parameter === null || is_array($parameter)) {
                         continue;
                     }
                     $filter.=$this->dbLink->quoteinto(" AND $key = ? ", $parameter);
                 }
-//                echo $this->tableName;
-                //             Zend_Debug::dump($filter);
-                $stmt = $this->dbLink->query("SELECT $this->objectIdName FROM $this->tableName " . $filter);
-                $id = $stmt->fetchColumn();
-                return (($id != 0) ? $id : false);
+                try {
+                    $stmt = $this->dbLink->query('SELECT ' . $objectIdName . ' FROM ' . $tableName . $filter);
+                } catch (Exception $e) {
+                    throw new Exception('SELECT ' . $objectIdName . ' FROM ' . $tableName . $filter . PHP_EOL);
+                }
             }
-        } elseif (is_int($object) && !empty($object)) {
+        } elseif (is_int($data) && !empty($data)) {
             // We have object ID set up so we just check this ID in database
-            $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT ' . $this->objectIdName . ' FROM ' . $this->tableName . ' WHERE ' . $this->objectIdName . '=?', $object));
+            $stmt = $this->dbLink->query($this->dbLink->quoteinto('SELECT ' . $tableName . 'Id FROM ' . $tableName . ' WHERE ' . $objectIdName . '=?', $data));
         }
-        $row = $stmt->fetchColumn();
-        return (($row != 0) ? (int) $row : false);
-    }
-
-    /**
-     * createAccessFilterArray() function creates preformatted array in form that 
-     *                           prepareFilter() method understands to add to all
-     *                           database requests condition to restrict functions
-     *                           access data that current user is not allowed to.
-     *                              
-     * @return array
-     * 
-     */
-    protected function createAccessFilterArray($userId) {
-        $accessMapper = new Application_Model_AccessMapper($userId, $this->domainId);
-        $accessibleIds = $accessMapper->getAllowedObjectIds();
-        if (!empty($accessibleIds['read'])) {
-            return array(0 => array('condition' => 'IN', 'column' => 'nodeId', 'operand' => $accessibleIds['read']));
-        } else {
-            return false;
-        }
+        $id = $stmt->fetchColumn();
+        return (($id != 0) ? (int) $id : 0);
     }
 
     /**
@@ -207,7 +120,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @throws InvalidArgumentException
      */
     protected function prepareFilter($filterArray) {
-        $result = $this->dbLink->quoteinto(' WHERE domainId = ? ', $this->domainId);
+//        $result = $this->dbLink->quoteinto(' WHERE domainId = ? ', $this->domainId);
+        $result = ' WHERE 1=1 ';
         $limit = '';
         $order = '';
         if (is_array($filterArray)) {
@@ -254,50 +168,14 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         return $result . $limit . $order;
     }
 
-    /**
-     * Returns array of objects of $class. All data from $this->tableName are selected.
-     * If $filter is set in form of array('userId'=>4) return all entries that has userId=4 in their properties
-     * @param string $class
-     * @param array $filter
-     * @return array className
-     * @throws Exception
-     */
-    protected function getAllObjects($class = null, $filter = null) {
-        if (isset($class)) {
-            $this->setClassAndTableName($class);
-        } elseif (!isset($this->className)) {
-            throw new InvalidArgumentException('Class name is not set.');
-        }
-        $objectsArray = $this->dbLink->fetchAll('SELECT * FROM ' . $this->tableName . $this->prepareFilter($filter));
-        $output = array();
-        foreach ($objectsArray as $object) {
-            $output[] = new $this->className($object);
-        }
-        return ((empty($output)) ? false : $output);
-    }
-
-    /**
-     * deleteObject - deletes object permanently from DB. Just brutal delete.
-     * 
-     * @param int $id
-     * @param string $class
-     * @return boolean
-     * @throws InvalidArgumentException
-     * @throws Exception
-     */
-    protected function deleteObject($class, $id) {
-        if (isset($class)) {
-            $this->setClassAndTableName($class);
-        } elseif (!isset($this->className)) {
-            throw new InvalidArgumentException('Class name is not set.');
-        }
-        if ($this->checkParentObjects($class, $id)) {
-            throw new DependantObjectDeletionAttempt('This object is parent to others, cannot delete', 23000);
+    public function deleteData($tableName, $id) {
+        $objecIdName = $this->createObjectIdName($tableName);
+        if ($this->checkParentObjects($tableName, $id)) {
+            throw new DependantObjectDeletionAttempt();
         }
         try {
-            $this->dbLink->delete($this->tableName, array($this->objectIdName . '=?' => $id));
+            $this->dbLink->delete($tableName, array($objecIdName . '=?' => $id));
         } catch (Zend_Db_Exception $e) {
-
             throw new DependantObjectDeletionAttempt($e->getMessage(), $e->getCode(), $e);
         }
     }
@@ -308,21 +186,23 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param type $filter
      * @return integer
      */
-    protected function getObjectsCount($class, $filter = null) {
-        $this->setClassAndTableName($class);
-        return $this->dbLink->fetchOne($this->dbLink->quoteinto("SELECT count($this->objectIdName) FROM $this->tableName WHERE domainId = ?", $this->domainId));
+    public function getObjectsCount($tableName, $filterArray = null) {
+        $objectId = $this->createObjectIdName($tableName);
+        $filter = $this->prepareFilter($filterArray);
+        return $this->dbLink->fetchOne('SELECT count(' . $objectId . ') FROM ' . $tableName . $filter);
     }
 
-    protected function getNodesAssigned() {
-        /**
-         * getNodesAssigned() method is a helper method that returns array of scenarios and node names and Ids 
-         *                    to which these scenarios are assigned (if any).
-         * @return type
-         */
+    /**
+     * getNodesAssigned() method is a helper method that returns array of scenarios and node names and Ids 
+     *                    to which these scenarios are assigned (if any).
+     * @return type
+     */
+    public function getNodesAssigned($domainId) {
+
         return $this->dbLink->fetchAll($this->dbLink->quoteinto('SELECT s.scenarioId, s.scenarioName, n.nodeId, n.nodeName
                                         FROM scenario s 
                                         LEFT JOIN scenario_assignment a ON s.scenarioId = a.scenarioId 
-                                        LEFT JOIN node n ON n.nodeId = a.nodeId WHERE n.domainId = ?', $this->domainId));
+                                        LEFT JOIN node n ON n.nodeId = a.nodeId WHERE n.domainId = ?', $domainId));
     }
 
     protected function checkLoginExistance($login) {
@@ -335,17 +215,20 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param type $formId
      * @return array 
      */
-    protected function getApprovalStatus($formId) {
+    public function getApprovalStatus($formId) {
         return $this->dbLink->fetchAll($this->dbLink->quoteinto('select 
                                                 ss.userId, ae.decision, ss.formId, ss.userName, ss.login, ss.orderPos,ae.date
                                             from
-                                                (select se.userId, se.orderPos, f.formId, u.userName, u.login from scenario_entry se
+                                                (select se.userId, se.orderPos, f.formId, u.userName, u.login, p.privilege 
+                                            from scenario_entry se
                                             join scenario_assignment sa on se.scenarioId = sa.scenarioId
                                             join form f on f.nodeId=sa.nodeId 
                                             join user u on u.userId=se.userId
+                                            join privilege p on u.userId=p.userId
+                                            where p.objectId=f.nodeId
                                              ) ss
-                                                    left join
-                                                approval_entry ae ON ss.userId = ae.userId and ss.formId=ae.formId where ss.formId=? ORDER BY ss.orderPos DESC', $formId));
+                                               left join
+                                                approval_entry ae ON ss.userId = ae.userId and ss.formId=ae.formId where ss.formId=? AND ss.privilege="approve" ORDER BY ss.orderPos DESC', $formId));
     }
 
     protected function getScenario($scenarioId) {
@@ -377,22 +260,20 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         return $result;
     }
 
-    protected function getFormOwner($formId) {
-        $userId = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT userId FROM form WHERE formId = ?', $formId));
-        $this->setClassAndTableName('user');
-        return $this->_getObject($userId);
+    public function getFormOwner($formId) {
+        return $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT userId FROM form WHERE formId = ?', $formId));
     }
 
-    protected function getNumberOfPages($object, $filterArray, $recordsPerPage) {
-        $this->setClassAndTableName($object);
+    public function getNumberOfPages($tableName, $filterArray, $recordsPerPage) {
         $filter = $this->prepareFilter($filterArray);
-        $count = $this->dbLink->fetchOne('SELECT count(' . $this->objectIdName . ') FROM ' . $this->tableName . ' ' . $filter);
+        $objectIdName = $this->createObjectIdName($tableName);
+        $count = $this->dbLink->fetchOne('SELECT count(' . $objectIdName . ') FROM ' . $tableName . ' ' . $filter);
         return ceil($count / $recordsPerPage);
     }
 
     /**
      * In some cases we have parent - child relation between objects but cannot set these 
-     * dependancies on database level. For exmple, when an object may have or may have not a parent.
+     * dependencies on database level. For exmple, when an object may have or may have not a parent.
      * In this case if we set foreign key for columns and we will want to create a record for
      * object that doesn't have parent we receive MySQL error about constrains violation.
      * For some objects that might have parents or be parent to other objects we will perform
@@ -402,25 +283,26 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param integer $id
      * @return true | false Result of check
      */
-    protected function checkParentObjects($class, $id) {
-        $this->setClassAndTableName($class);
-        $columns = $this->dbLink->fetchOne($this->dbLink->quoteinto('SHOW COLUMNS FROM ' . $this->tableName . ' WHERE field LIKE ?', $this->objectParentIdName));
+    protected function checkParentObjects($tableName, $id) {
+        $objectIdName = $this->createObjectIdName($tableName);
+        $columns = $this->dbLink->fetchOne($this->dbLink->quoteinto('SHOW COLUMNS FROM ' . $tableName . ' WHERE field LIKE ?', 'parent' . $objectIdName));
         if ($columns) {
-            $objects = $this->getAllObjects($this->objectName, array(0 => array('column'=>$this->objectParentIdName, 'operand' => $id)));
-            if ($objects) {
+            $objects = $this->getData($tableName, array(0 => array('column' => 'parent' . $objectIdName, 'operand' => $id)));
+            if (!empty($objects)) {
                 return true;
             }
         }
         return false;
     }
-    
+
     public function checkUserExistance($userName) {
-        return $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT * FROM user WHERE username=?', $userName));
+        return (int) $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT userId FROM user WHERE username=?', $userName));
     }
 
     public function checkEmailExistance($email) {
-        return $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT * FROM user WHERE login=?', $email));
+        return (int) $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT userId FROM user WHERE login=?', $email));
     }
+
 }
 
 ?>

@@ -16,11 +16,11 @@ class PrivilegeTest extends TestCase {
 
     public function testPrivilegeConstructor()
     {
-        $privilegeArray = array('userId'=>2,  'active' => false, 'objectId' =>5, 'privileges'=>'read');
+        $privilegeArray = array('userId'=>2,  'active' => 0, 'objectId' =>5, 'privileges'=>'read');
         $privilege = new Application_Model_privilege($privilegeArray);
         $this->assertTrue($privilege instanceof Application_Model_privilege);
         $this->assertEquals($privilege->userId, 2);
-        $this->assertEquals($privilege->active, false);
+        $this->assertEquals($privilege->active, 0);
         $this->assertEquals($privilege->objectId, 5);
     }
     
@@ -28,7 +28,7 @@ class PrivilegeTest extends TestCase {
     
     public function testprivilegeToArray()
     {
-        $privilegeArray = array('privilegeId' => 3, 'userId' => 2,  'active' => false, 'domainId' => 4, 'objectId' => 6, 'privilege' => 'read', 'objectType' => 'level');
+        $privilegeArray = array('privilegeId' => 3, 'userId' => 2,  'active' => 0, 'domainId' => 4, 'objectId' => 6, 'privilege' => 'read', 'objectType' => 'level');
         $privilege = new Application_Model_privilege($privilegeArray);
         $privilegeArray2 = $privilege->toArray();
         $this->assertEquals($privilegeArray, $privilegeArray2);
@@ -36,7 +36,7 @@ class PrivilegeTest extends TestCase {
     
     public function testObjectValidation()
     {
-        $privilegeArray = array('userId' => 2, 'active' => true, 'privilegeId' => 1);
+        $privilegeArray = array('userId' => 2, 'active' => 1, 'privilegeId' => 1);
         $privilege = new Application_Model_privilege($privilegeArray);
         $this->assertFalse($privilege->isValid());
         $privilegeArray2 = $privilege->toArray();

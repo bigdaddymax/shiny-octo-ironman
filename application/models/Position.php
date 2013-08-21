@@ -10,27 +10,15 @@ class Application_Model_Position {
     private $_valid = true;
     private $_positionName;
     private $_nodeId;
-    private $_positionId;
-    private $_active = true;
+    private $_positionId = 0;
+    private $_active = 1;
     private $_domainId;
 
     public function __construct(array $positionArray = null) {
-        if (isset($positionArray['positionName'])) {
-            $this->_positionName = $positionArray['positionName'];
-        }
-
-        if (isset($positionArray['domainId'])) {
-            $this->domainId = $positionArray['domainId'];
-        }
-        if (isset($positionArray['active'])) {
-            $this->_active = (bool) $positionArray['active'];
-        }
-
-        if (isset($positionArray['positionId'])) {
-            $this->_positionId = (int) $positionArray['positionId'];
-        }
-        if (isset($positionArray['nodeId'])) {
-            $this->_nodeId = (int) $positionArray['nodeId'];
+        if (is_array($positionArray)) {
+            foreach ($positionArray as $key => $item) {
+                $this->{$key} = (strpos($key, 'Id')  || 'active' == $key) ? (int) $item : $item;
+            }
         }
     }
 
@@ -39,18 +27,16 @@ class Application_Model_Position {
             echo 'Cannot set value for "valid" property';
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
-        } else {
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name) ? (int) $value : $value;
         }
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
+            return (strpos($name, 'Id')) ? (int) $this->$name : $this->$name;
         } else {
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
     }
 
@@ -77,7 +63,7 @@ class Application_Model_Position {
         foreach ($this as $key => $value) {
             if ('_valid' != $key) {
                 if (isset($value)) {
-                    $output[str_replace('_', '', $key)] = $value;
+                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id')  || 'active' == $key) ? (int) $value : $value;
                 }
             }
         }
