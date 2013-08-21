@@ -18,45 +18,31 @@ class Application_Model_ScenarioEntry {
     private $_domainId;
 
     public function __construct(array $scenarioEntryArray = null) {
-        if (isset($scenarioEntryArray['domainId'])) {
-            $this->domainId = (int) $scenarioEntryArray['domainId'];
-        }
-        if (isset($scenarioEntryArray['active'])) {
-            $this->_active = (int) $scenarioEntryArray['active'];
-        }
-        if (isset($scenarioEntryArray['orderPos'])) {
-            $this->_orderPos = (int)$scenarioEntryArray['orderPos'];
-        }
-        if (isset($scenarioEntryArray['userId'])) {
-            $this->_userId = (int) $scenarioEntryArray['userId'];
-        }
-        if (isset($scenarioEntryArray['scenarioEntryId'])) {
-            $this->_scenarioEntryId = (int) $scenarioEntryArray['scenarioEntryId'];
-        }
-        if (isset($scenarioEntryArray['scenarioId'])) {
-            $this->_scenarioId = (int) $scenarioEntryArray['scenarioId'];
+        if (is_array($scenarioEntryArray)) {
+            foreach ($scenarioEntryArray as $key => $item) {
+                $this->{$key} = (strpos($key, 'Id') || 'active' == $key) ? (int) $item : $item;
+            }
         }
     }
 
-    public function __set($name, $order) {
+    public function __set($name, $value) {
         if ('valid' == $name) {
-            echo 'Cannot set order for "valid" property';
+            echo 'Cannot set value for "valid" property';
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $order;
-        } else {
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name) ? (int) $value : $value;
         }
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
+            return (strpos($name, 'Id')) ? (int) $this->$name : $this->$name;
         } else {
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
     }
+
 
     /**
      *  Function that returns status of ScenarioEntry instance. We consider ScenarioEntry as valid if scenarioEntry 
@@ -79,10 +65,10 @@ class Application_Model_ScenarioEntry {
      */
     public function toArray() {
         $output = array();
-        foreach ($this as $key => $order) {
+        foreach ($this as $key => $value) {
             if ('_valid' != $key) {
-                if (isset($order)) {
-                    $output[str_replace('_', '', $key)] = $order;
+                if (isset($value)) {
+                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id') || 'active' == $key) ? (int) $value : $value;
                 }
             }
         }

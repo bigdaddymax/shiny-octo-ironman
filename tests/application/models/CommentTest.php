@@ -10,6 +10,7 @@ require_once TESTS_PATH . '/application/TestCase.php';
 class CommentTest extends TestCase {
 
     public $objectManager;
+    private $dataMapper;
     public $userId;
     public $formId;
     public $nodeId;
@@ -20,14 +21,15 @@ class CommentTest extends TestCase {
     public function setUp() {
         parent::setUp();
         $this->objectManager = new Application_Model_ObjectsManager(1);
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('element');
-        $this->objectManager->dbLink->delete('comment');
-        $this->objectManager->dbLink->delete('form');
-        $this->objectManager->dbLink->delete('contragent');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('element');
+        $this->dataMapper->dbLink->delete('comment');
+        $this->dataMapper->dbLink->delete('form');
+        $this->dataMapper->dbLink->delete('contragent');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
         $this->nodeId = $this->objectManager->saveObject($node);
@@ -75,15 +77,14 @@ class CommentTest extends TestCase {
     }
 
     public function tearDown() {
-        $this->objectManager = new Application_Model_ObjectsManager(1);
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('element');
-        $this->objectManager->dbLink->delete('comment');
-        $this->objectManager->dbLink->delete('form');
-        $this->objectManager->dbLink->delete('contragent');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('element');
+        $this->dataMapper->dbLink->delete('comment');
+        $this->dataMapper->dbLink->delete('form');
+        $this->dataMapper->dbLink->delete('contragent');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
 
         parent::tearDown();
     }
@@ -131,11 +132,12 @@ class CommentTest extends TestCase {
         $commentArray = array('comment' => 'eName', 'commentId' => 3, 'active' => 0, 'domainId' => 5);
         $comment = new Application_Model_Comment($commentArray);
         $commentArray2 = $comment->toArray();
+        unset($commentArray2['date']);
         $this->assertEquals($commentArray, $commentArray2);
     }
 
     public function testSaveComment() {
-        $objectManager = new Application_Model_ObjectsManager(5);
+        $objectManager = new Application_Model_ObjectsManager(1);
         $commentArray = array('comment' => 'eName', 'parentCommentId' => -1, 'commentId' => 3, 'active' => 0, 'userId' => $this->userId, 'formId' => $this->formId, 'domainId' => 1, 'date' => date('Y-m-d H:i:s'));
         $comment = new Application_Model_Comment($commentArray);
         $this->assertTrue($comment instanceof Application_Model_Comment);

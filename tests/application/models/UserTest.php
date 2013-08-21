@@ -23,7 +23,7 @@ class UserTest extends TestCase {
         $User = new Application_Model_User($UserArray);
         $this->assertTrue($User instanceof Application_Model_User);
         $this->assertEquals($User->userName, 'oName');
-        $this->assertEquals($User->active, false);
+        $this->assertEquals($User->active, 0);
         $this->assertEquals($User->userId, 5);
     }
     
@@ -39,7 +39,7 @@ class UserTest extends TestCase {
  */    
     public function testUserToArray()
     {
-        $userArray = array('userId' => 3, 'userName' => 'oName',  'active' => false, 'domainId' => 4, 'login' => 'tLogin', 'positionId' => 4, 'password' => 'testp');
+        $userArray = array('userId' => 3, 'userName' => 'oName',  'active' => 0, 'domainId' => 4, 'login' => 'tLogin', 'positionId' => 4, 'password' => 'testp');
         $user = new Application_Model_User($userArray);
         $userArray2 = $user->toArray();
         $this->assertEquals($userArray, $userArray2);
@@ -51,12 +51,11 @@ class UserTest extends TestCase {
  */    
     public function testObjectValidation()
     {
-        $userArray = array('userName' => 'oName', 'active' => true, 'userId' => 1);
+        $userArray = array('userName' => 'oName', 'active' => 1, 'userId' => 1);
         $user = new Application_Model_User($userArray);
         $this->assertFalse($user->isValid());
         $userArray2 = $user->toArray();
-//        unset($userArray2['userId']);
-        
+//        unset($userArray2['userId']);      
         $this->assertEquals($userArray, $userArray2);
         $user->domainId = 4;
         $user->password = 'tetet';
@@ -64,6 +63,7 @@ class UserTest extends TestCase {
         $user->positionId = 5;
         $this->assertTrue($user->isValid());
         $userArray3 = $user->toArray();
+
         $userArray['domainId'] = 4;
         $userArray['positionId'] = 5;
         $userArray['login'] = 'ttt';

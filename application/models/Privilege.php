@@ -14,39 +14,22 @@
  */
 class Application_Model_Privilege {
 
-    private $_valid = false;
+    private $_valid = 0;
     private $_privilegeId;
     private $_userId;
     private $_objectId;
     private $_objectType;
     private $_privilege;
-    private $_active = true;
+    private $_active = 1;
     private $_domainId;
 
     public function __construct(array $privilegeArray = null) {
-        if (isset($privilegeArray['privilegeId'])) {
-            $this->_privilegeId = (int) $privilegeArray['privilegeId'];
+        if (is_array($privilegeArray)) {
+            foreach ($privilegeArray as $key => $item) {
+                $this->{$key} = (strpos($key, 'Id') || 'active' == $key) ? (int) $item : $item;
+            }
         }
-        if (isset($privilegeArray['domainId'])) {
-            $this->domainId = (int) $privilegeArray['domainId'];
-        }
-        if (isset($privilegeArray['active'])) {
-            $this->_active = (bool) $privilegeArray['active'];
-        }
-        if (isset($privilegeArray['privilege'])) {
-            $this->_privilege = $privilegeArray['privilege'];
-        }
-        if (isset($privilegeArray['objectId'])) {
-            $this->_objectId = (int) $privilegeArray['objectId'];
-        }
-        if (isset($privilegeArray['objectType'])) {
-            $this->_objectType = $privilegeArray['objectType'];
-        }
-
-        if (isset($privilegeArray['userId'])) {
-            $this->_userId = (int) $privilegeArray['userId'];
-        }
-        $this->_valid = $this->isValid();
+        $this->isValid();
     }
 
     public function __set($name, $value) {
@@ -54,18 +37,16 @@ class Application_Model_Privilege {
             echo 'Cannot set value for "valid" property';
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
-        } else {
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name) ? (int) $value : $value;
         }
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
+            return (strpos($name, 'Id')) ? (int) $this->$name : $this->$name;
         } else {
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
     }
 
@@ -95,7 +76,7 @@ class Application_Model_Privilege {
         foreach ($this as $key => $value) {
             if ('_valid' != $key) {
                 if (isset($value)) {
-                    $output[str_replace('_', '', $key)] = $value;
+                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id') || 'active' == $key) ? (int) $value : $value;
                 }
             }
         }

@@ -20,28 +20,16 @@ class Application_Model_Node {
     private $_nodeId;
     private $_nodeName;
     private $_parentNodeId;
-    private $_active = true;
+    private $_active = 1;
     private $_valid = true;
     private $_domainId;
 
     public function __construct(array $node) {
-        if (isset($node['nodeId'])) {
-            $this->_nodeId = (int) $node['nodeId'];
+        if (is_array($node)) {
+            foreach ($node as $key => $item) {
+                $this->{$key} = (strpos($key, 'Id') || 'active' == $key) ? (int) $item : $item;
+            }
         }
-        if (isset($node['nodeName'])) {
-            $this->_nodeName = $node['nodeName'];
-        } else {
-            $this->_valid = false;
-        }
-        if (isset($node['active'])) {
-            $this->_active = (int) $node['active'];
-        }
-        if (isset($node['parentNodeId'])) {
-            $this->_parentNodeId = (int) $node['parentNodeId'];
-        }
-        if (isset($node['domainId'])) {
-            $this->_domainId = (int)$node['domainId'];
-        } 
     }
 
     public function __set($name, $value) {
@@ -49,19 +37,17 @@ class Application_Model_Node {
             echo 'Cannot set value for "valid" property';
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name) ? (int) $value : $value;
         }
-        else
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
+            return (strpos($name, 'Id')) ? (int) $this->$name : $this->$name;
+        } else {
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
-        else
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
     }
 
     /**
@@ -77,8 +63,15 @@ class Application_Model_Node {
     }
 
     public function toArray() {
-        return array('nodeId' => (int) $this->_nodeId, 'nodeName' => $this->_nodeName,
-            'parentNodeId' => $this->_parentNodeId, 'active' => (bool) $this->_active, 'domainId' => $this->_domainId);
+        $output = array();
+        foreach ($this as $key => $value) {
+            if ('_valid' != $key) {
+                if (isset($value)) {
+                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id') || 'active' == $key) ? (int) $value : $value;
+                }
+            }
+        }
+        return $output;
     }
 
 }

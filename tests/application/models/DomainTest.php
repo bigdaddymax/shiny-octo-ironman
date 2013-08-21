@@ -22,9 +22,9 @@ class DomainTest extends TestCase {
     
     public function testDomainConstructCorrect()
     {
-        $domainArray = array('domainName'=>'eName','domainComment'=>'test', 'active'=>false);
+        $domainArray = array('domainName'=>'eName','domainComment'=>'test', 'active'=>0);
         $domain = new Application_Model_Domain($domainArray);
-        $this->assertFalse($domain->active);
+        $this->assertEquals($domain->active, 0);
         $this->assertEquals('eName', $domain->domainName);
         $this->assertEquals('test', $domain->domainComment);
 
@@ -45,7 +45,7 @@ class DomainTest extends TestCase {
     
     public function testDomainToArray()
     {
-        $domainArray = array('domainName'=>'eName', 'domainComment'=>'test', 'active'=>false);
+        $domainArray = array('domainName'=>'eName', 'domainComment'=>'test', 'active'=>0);
         $domain = new Application_Model_Domain($domainArray);
         $domainArray2 = $domain->toArray();
         $this->assertEquals($domainArray, $domainArray2);

@@ -3,6 +3,7 @@
 class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     private $objectManager;
+    private $dataMapper;
     private $object;
     private $userId;
     private $userId1;
@@ -17,19 +18,20 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     public function setUp() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
         $this->objectManager = new Application_Model_ObjectsManager(1);
-//        $this->objectManager = new Application_Model_DataMapper(1);
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('scenario');
-        $this->objectManager->dbLink->delete('privilege');
-        $this->objectManager->dbLink->delete('resource');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('scenario');
-        $this->objectManager->dbLink->delete('approval_entry');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $auth = new Application_Model_Auth();
+        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
         /*  Lets prepare some staff: node, node, position, user, access control 
          *    We have: 
          *    1. One node with ID nodeId
@@ -75,10 +77,10 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $positionId1 = $this->objectManager->saveObject($position1);
 
 // USERS        
-        $userArray = array('userName' => 'user1', 'domainId' => 1, 'login' => 'user login', 'password' => 'user password', 'positionId' => $positionId);
+        $userArray = array('userName' => 'user1', 'domainId' => 1, 'login' => 'user login', 'password' => $auth->hashPassword('user password'), 'positionId' => $positionId);
         $user = new Application_Model_User($userArray);
         $this->userId = $this->objectManager->saveObject($user);
-        $userArray1 = array('userName' => 'user2', 'domainId' => 1, 'login' => 'user login2', 'password' => 'user password', 'positionId' => $positionId1);
+        $userArray1 = array('userName' => 'user2', 'domainId' => 1, 'login' => 'user login2', 'password' => $auth->hashPassword('user password'), 'positionId' => $positionId1);
         $user1 = new Application_Model_User($userArray1);
         $this->userId1 = $this->objectManager->saveObject($user1);
 
@@ -117,16 +119,16 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function tearDown() {
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('element');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('privilege');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('scenario');
-        $this->objectManager->dbLink->delete('approval_entry');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('element');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
     }
 
     public function testIndexAction() {
@@ -139,21 +141,10 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $urlParams = $this->urlizeOptions($params);
         $url = $this->url($urlParams);
         $this->dispatch($url);
-        $responce = $this->getResponse();
-        echo $responce->outputBody();
 
         // assertions
         $this->assertController($urlParams['controller']);
         $this->assertAction($urlParams['action']);
-    }
-
-    /**
-     * 
-     * @expectedException InvalidArgumentException
-     */
-    public function testGetScenarioInvalid() {
-        $objectsManager = new Application_Model_ObjectsManager(1);
-        $scenario = $objectsManager->getObject('scenario', 'r');
     }
 
     public function testAddNewScenario() {

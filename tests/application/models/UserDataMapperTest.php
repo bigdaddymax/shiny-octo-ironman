@@ -5,6 +5,7 @@ require_once TESTS_PATH . '/application/TestCase.php';
 class UserDataMapperTest extends TestCase {
 
     private $objectManager;
+    private $dataMapper;
     private $userId;
     private $userId1;
     private $nodeId10;
@@ -21,17 +22,18 @@ class UserDataMapperTest extends TestCase {
 
     public function setUp() {
         $this->objectManager = new Application_Model_ObjectsManager(1, 'Application_Model_User');
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('form');
-        $this->objectManager->dbLink->delete('privilege');
-        $this->objectManager->dbLink->delete('resource');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('scenario_assignment');
-        $this->objectManager->dbLink->delete('scenario');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('form');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario_assignment');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
         /*  Lets prepare some staff: node, node, position, user, access control 
          *    We have: 
          *    1. One node with ID nodeId
@@ -143,17 +145,17 @@ class UserDataMapperTest extends TestCase {
     }
 
     public function tearDown() {
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('form');
-        $this->objectManager->dbLink->delete('privilege');
-        $this->objectManager->dbLink->delete('resource');
-        $this->objectManager->dbLink->delete('scenario_assignment');
-        $this->objectManager->dbLink->delete('scenario_entry');
-        $this->objectManager->dbLink->delete('scenario');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('form');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('scenario_assignment');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
     }
 
     /**
@@ -161,28 +163,26 @@ class UserDataMapperTest extends TestCase {
      * @group userMapper
      */
     public function testUserSaveNew() {
-        $userArray = array('userName' => 'oName', 'nodeId' => $this->nodeId1, 'active' => false, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $this->positionId, 'password' => 'testp');
+        $userArray = array('userName' => 'oName', 'nodeId' => $this->nodeId1, 'active' => 0, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $this->positionId, 'password' => 'testp');
         $user = new Application_Model_User($userArray);
         $id = $this->objectManager->saveObject($user);
         $this->assertTrue(is_int($id));
-
+        $user->userId = $id;
         $user2 = $this->objectManager->getObject('user', $id);
         $this->assertTrue($user2 instanceof Application_Model_User);
-        $auth = new Application_Model_Auth();
         $userArray2 = $user2->toArray();
         unset($userArray2['password']);
         $userArray1 = $user->toArray();
         unset($userArray1['password']);
         $this->assertEquals($userArray1, $userArray2);
-        $this->assertTrue($auth->checkUserPassword($user2->login, $user->password));
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException SaveObjectException
      * @group userMapper
      */
     public function testUserSaveNonValid() {
-        $userArray = array('userName' => 'lName', 'active' => false);
+        $userArray = array('userName' => 'lName', 'active' => 0);
         $user = new Application_Model_User($userArray);
         $id = $this->objectManager->saveObject($user);
     }
@@ -192,18 +192,15 @@ class UserDataMapperTest extends TestCase {
      * @group userMapper
      */
     public function testUserSaveExisting() {
-        $userArray = array('userName' => 'oName', 'active' => false, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $this->positionId, 'password' => 'testp');
+        $userArray = array('userName' => 'oName', 'active' => 0, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $this->positionId, 'password' => 'testp');
         $user = new Application_Model_User($userArray);
         $id = $this->objectManager->saveObject($user);
         $this->assertTrue(is_int($id));
         $user1 = $this->objectManager->getObject('user', $id);
-        $user1->active = true;
+        $user1->active = 1;
         $user1->password = 'testp';
         $id2 = $this->objectManager->saveObject($user1);
         $this->assertEquals($id, $id2);
-        $auth = new Application_Model_Auth();
-//        $this->assertTrue($auth->checkUserPassword($id, 'testp'));
-        $this->assertTrue($auth->checkUserPassword($user1->login, 'testp'));
         $userArray1 = $user1->toArray();
         unset($userArray1['password']);
         $user2 = $this->objectManager->getObject('user', $id2);
@@ -217,11 +214,10 @@ class UserDataMapperTest extends TestCase {
      * @group userMapper
      */
     public function testUserCheckExistance() {
-        $userArray = array('userName' => 'oName', 'nodeId' => $this->nodeId1, 'active' => false, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $this->positionId, 'password' => 'testp');
+        $userArray = array('userName' => 'oName', 'nodeId' => $this->nodeId1, 'active' => 0, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $this->positionId, 'password' => 'testp');
         $user = new Application_Model_User($userArray);
         $id = $this->objectManager->saveObject($user);
         $this->assertTrue(is_int($id));
-        $this->assertTrue(is_int($this->objectManager->checkObjectExistance($user)));
     }
 
     /**
@@ -229,7 +225,7 @@ class UserDataMapperTest extends TestCase {
      * @group userMapper
      */
     public function testUserGet() {
-        $userArray = array('userName' => 'oName', 'active' => false, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $this->positionId, 'password' => 'testp');
+        $userArray = array('userName' => 'oName', 'active' => 0, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $this->positionId, 'password' => 'testp');
         $user = new Application_Model_User($userArray);
         $id = $this->objectManager->saveObject($user);
         $this->assertTrue(is_int($id));
@@ -237,12 +233,10 @@ class UserDataMapperTest extends TestCase {
         $this->assertEquals($id, $user2->userId);
         $userArray2 = $user2->toArray();
         $userArray3 = $user->toArray();
+        $userArray3['userId'] = $id;
         unset($userArray2['password']);
         unset($userArray3['password']);
         $this->assertEquals($userArray3, $userArray2);
-        $auth = new Application_Model_Auth();
-        $this->assertTrue($auth->checkUserPassword($user2->login, 'testp'));
-        $this->assertTrue($auth->checkUserPassword($user->login, 'testp'));
         $objectManager = new Application_Model_ObjectsManager(1);
         $user3 = $objectManager->getObject('User',$id);
         $userArray4 = $user3->toArray();
@@ -251,7 +245,6 @@ class UserDataMapperTest extends TestCase {
 
         unset($userArray['password']);
         unset($userArray4['password']);
-        $this->assertTrue($auth->checkUserPassword($user3->login, 'testp'));
         $this->assertEquals($userArray, $userArray4);
     }
 

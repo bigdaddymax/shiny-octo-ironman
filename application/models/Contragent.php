@@ -16,49 +16,26 @@ class Application_Model_Contragent {
     public function __construct(array $contragentArray = null) {
         if (is_array($contragentArray)) {
             foreach ($contragentArray as $key => $item) {
-                if (strpos($key, 'Id')) {
-                    $this->{$key} = (int) $item;
-                } else {
-                    $this->{$key} = $item;
-                }
+                $this->{$key} = (strpos($key, 'Id') || 'active' == $key) ? (int) $item : $item;
             }
         }
-
-        // Items are set from normal array
     }
-
-    /**
-     * Take array of items as input. Items could  be of Application_Model_Item type or
-     * array that will allow to create valid item
-     * 
-     * @param array $items
-     * @throws InvalidArgumentException
-     * @throws InvalidArgumentException
-     */
 
     public function __set($name, $value) {
         if ('valid' == $name) {
             echo 'Cannot set value for "valid" property';
-        } elseif ('items' == $name) {
-            $this->setItems($value);
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            if ('active' == $name || 'public' == $name) {
-                $this->$name1 = (bool) $value;
-            } else {
-                $this->$name1 = $value;
-            }
-        } else {
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name) ? (int) $value : $value;
         }
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
+            return (strpos($name, 'Id')) ? (int) $this->$name : $this->$name;
         } else {
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
     }
 
@@ -86,13 +63,9 @@ class Application_Model_Contragent {
     public function toArray() {
         $output = array();
         foreach ($this as $key => $value) {
-            if (('_valid' != $key) && ('_decsion' != $key) && ('_final' != $key)) {
+            if ('_valid' != $key) {
                 if (isset($value)) {
-                    if ('_active' == $key || '_public' == $key) {
-                        $output[str_replace('_', '', $key)] = (int) $value;
-                    } else {
-                        $output[str_replace('_', '', $key)] = $value;
-                    }
+                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id') || 'active' == $key) ? (int) $value : $value;
                 }
             }
         }

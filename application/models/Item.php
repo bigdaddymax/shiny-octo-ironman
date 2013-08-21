@@ -15,31 +15,15 @@ class Application_Model_Item {
     private $_value;
     private $_elementId;
     private $_formId;
-    private $_active = true;
+    private $_active = 1;
     private $_domainId;
     private $_element;
 
     public function __construct(array $itemArray = null) {
-        if (isset($itemArray['itemName'])) {
-            $this->_itemName = $itemArray['itemName'];
-        }
-        if (isset($itemArray['domainId'])) {
-            $this->domainId = (int) $itemArray['domainId'];
-        }
-        if (isset($itemArray['active'])) {
-            $this->_active = (bool) $itemArray['active'];
-        }
-        if (isset($itemArray['value'])) {
-            $this->_value = (float)$itemArray['value'];
-        }
-        if (isset($itemArray['formId'])) {
-            $this->_formId = (int) $itemArray['formId'];
-        }
-        if (isset($itemArray['elementId'])) {
-            $this->_elementId = (int) $itemArray['elementId'];
-        }
-        if (isset($itemArray['itemId'])) {
-            $this->_itemId = (int) $itemArray['itemId'];
+        if (is_array($itemArray)) {
+            foreach ($itemArray as $key => $item) {
+                $this->{$key} = (strpos($key, 'Id') || 'active' == $key) ? (int) $item : $item;
+            }
         }
     }
 
@@ -48,18 +32,16 @@ class Application_Model_Item {
             echo 'Cannot set value for "valid" property';
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
-        } else {
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name) ? (int) $value : $value;
         }
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
-        } else {
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
+            return (strpos($name, 'Id')) ? (int) $this->$name : $this->$name;
+        }  {
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
     }
 
@@ -77,7 +59,7 @@ class Application_Model_Item {
             $this->_valid = false;
         }
         return $this->_valid;
-    }
+     }
 
     /**
      * Returns array of properties of item.

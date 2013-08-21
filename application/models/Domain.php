@@ -20,14 +20,9 @@ class Application_Model_Domain {
     public function __construct(array $domainArray = null) {
         if (is_array($domainArray)) {
             foreach ($domainArray as $key => $item) {
-                if (strpos($key, 'Id')) {
-                    $this->{$key} = (int) $item;
-                } else {
-                    $this->{$key} = $item;
-                }
+                $this->{$key} = (strpos($key, 'Id') || 'active' == $key) ? (int) $item : $item;
             }
         }
-
     }
 
     public function __set($name, $value) {
@@ -35,18 +30,16 @@ class Application_Model_Domain {
             echo 'Cannot set value for "valid" property';
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
-        } else {
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name) ? (int) $value : $value;
         }
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
+            return (strpos($name, 'Id')) ? (int) $this->$name : $this->$name;
         } else {
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
     }
 
@@ -73,7 +66,7 @@ class Application_Model_Domain {
         foreach ($this as $key => $value) {
             if ('_valid' != $key) {
                 if (isset($value)) {
-                    $output[str_replace('_', '', $key)] = $value;
+                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id') || 'active' == $key) ? (int) $value : $value;
                 }
             }
         }

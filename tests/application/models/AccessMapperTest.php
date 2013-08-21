@@ -16,6 +16,7 @@ class AccessMapperTest extends TestCase {
 
     private $object;
     private $objectManager;
+    private $dataMapper;
     private $userId;
     private $userId1;
     private $nodeId;
@@ -35,15 +36,16 @@ class AccessMapperTest extends TestCase {
          */
         $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', 'production');
         $this->objectManager = new Application_Model_ObjectsManager(1);
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('form');
-        $this->objectManager->dbLink->delete('privilege');
-        $this->objectManager->dbLink->delete('resource');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('approval_entry');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $this->dataMapper = new Application_Model_DataMapper();
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('form');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
         /*  Lets prepare some staff: node, node, position, user, access control 
          *    We have: 
          *    1. One node with ID nodeId
@@ -141,15 +143,15 @@ class AccessMapperTest extends TestCase {
     }
 
     public function tearDown() {
-        $this->objectManager->dbLink->delete('item');
-        $this->objectManager->dbLink->delete('form');
-        $this->objectManager->dbLink->delete('privilege');
-        $this->objectManager->dbLink->delete('resource');
-        $this->objectManager->dbLink->delete('user_group');
-        $this->objectManager->dbLink->delete('approval_entry');
-        $this->objectManager->dbLink->delete('user');
-        $this->objectManager->dbLink->delete('position');
-        $this->objectManager->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('form');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
     }
 
     public function testGetAllowedObjectIds() {

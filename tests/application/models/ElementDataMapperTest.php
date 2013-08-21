@@ -25,17 +25,6 @@ class ElementDataMapperTest extends TestCase {
  
         }
 
-/**
- * Testing function that examine existance of element with id = $element['elementId']
- */    
-
-    public function testElementCheckExistance()
-    {
-        $this->object->dbLink->insert('element', array('elementName'=>'cName', 'elementCode'=>12, 'active'=>true, 'domainId'=>1));
-        $id = $this->object->dbLink->lastInsertId();
-        $this->assertTrue(is_int($this->object->checkObjectExistance((int)$id)));
-        $this->assertFalse($this->object->checkObjectExistance(-1));
-    }
     
     
     public function testElementSave()
@@ -67,7 +56,7 @@ class ElementDataMapperTest extends TestCase {
     
     
 /**
- *  @expectedException InvalidArgumentException
+ *  @expectedException SaveObjectException
  */    
     public function testValidateElement()
     {

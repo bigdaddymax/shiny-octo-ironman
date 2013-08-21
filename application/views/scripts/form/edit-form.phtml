@@ -1,54 +1,54 @@
 <script>
 
-    function deleteItem(itemId){
-        item = '#item_'+itemId;
+    function deleteItem(itemId) {
+        item = '#item_' + itemId;
         $(item).remove();
-        inputItem = '#itemName_'+itemId;
+        inputItem = '#itemName_' + itemId;
         $(inputItem).remove();
-        inputValue = '#value_'+itemId;
+        inputValue = '#value_' + itemId;
         $(inputValue).remove();
-        element = '#elementId_'+itemId;
+        element = '#elementId_' + itemId;
         $(element).remove();
     }
-    $(function(){
+    $(function() {
         $("#add-item-btn").button().click(
-        function(){
-            $("#add-item").dialog("open");
-        });
+                function() {
+                    $("#add-item").dialog("open");
+                });
 
         $("#add-form-btn").button().click(
-        function(){
-            $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'add-form'), null, true); ?>",
-            $("#app-form").serialize()+'&'+$("#items-form").serialize(),
-            function(data){
-                if (1 == data.error){
-                    alert(data.message);
-                } else {
-                    window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'preview-form'), null, true); ?>/formId/"+data.formId;
-                }
-            })
-        });
+                function() {
+                    $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'add-form'), null, true); ?>",
+                            $("#app-form").serialize() + '&' + $("#items-form").serialize(),
+                            function(data) {
+                                if (1 == data.error) {
+                                    alert(data.message);
+                                } else {
+                                    window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'preview-form'), null, true); ?>/formId/" + data.formId;
+                                }
+                            })
+                });
 
 
         $("#add-item").dialog({
             autoOpen: false,
-            modal:    true,
+            modal: true,
             buttons: {
-                'Add' :function(){
-                    var counter  = $("#counter").val();
+                'Add': function() {
+                    var counter = $("#counter").val();
                     counter++;
                     $("#counter").val(counter);
-                    $("#items").append('<div id="item_'+counter+'"><div id="item-delete-icon"><a href="#" onClick=deleteItem('+counter+')>x</a></div><div id="item-name">'+$("#itemName").val()+'</div><div id="item-value">'+Number($("#value").val()).toFixed(2)+'</div></div>');
-                    $("#counter").after('<input type="hidden" id="itemName_'+counter+'" name="itemName_'+counter+'" value="'+$("#itemName").val()+'">');
-                    $("#counter").after('<input type="hidden" id="value_'+counter+'" name="value_'+counter+'" value="'+$("#value").val()+'">');
-                    $("#counter").after('<input type="hidden" id="elementId_'+counter+'" name="elementId_'+counter+'" value="'+$("#elementId").val()+'">');
+                    $("#items").append('<div id="item_' + counter + '"><div id="item-delete-icon"><a href="#" onClick=deleteItem(' + counter + ')>x</a></div><div id="item-name">' + $("#itemName").val() + '</div><div id="item-value">' + Number($("#value").val()).toFixed(2) + '</div></div>');
+                    $("#counter").after('<input type="hidden" id="itemName_' + counter + '" name="itemName_' + counter + '" value="' + $("#itemName").val() + '">');
+                    $("#counter").after('<input type="hidden" id="value_' + counter + '" name="value_' + counter + '" value="' + $("#value").val() + '">');
+                    $("#counter").after('<input type="hidden" id="elementId_' + counter + '" name="elementId_' + counter + '" value="' + $("#elementId").val() + '">');
                     $(this).dialog("close");
                 },
-                'Cancel': function(){
+                'Cancel': function() {
                     $(this).dialog("close");
                 }
             }
-            
+
         });
     });
 
@@ -57,16 +57,18 @@
 <div id="add-form" class="object-list">
     <form id="app-form">
 
-        <input type="text" id="formName" name="formName" value="<?php
-echo (isset($this->form['form'])) ? $this->form['form']->formName : '';
-?>"
+        <input type="text" 
+               id="formName" 
+               name="formName" 
+               value="<?php echo (isset($this->form['form'])) ? $this->form['form']->formName : ''; ?>"
                placeholder =" <?php echo $this->translate('form name'); ?>"
                />
 
 
-        <input type="text" id="contragentName" name="contragentName" value="<?php
-               echo (isset($this->form['contragent'])) ? $this->form['contragent']->contragentName : '';
-?>"
+        <input type="text" 
+               id="contragentName" 
+               name="contragentName" 
+               value="<?php echo (isset($this->form['contragent'])) ? $this->form['contragent']->contragentName : ''; ?>"
                placeholder="<?php echo $this->translate('contragent'); ?>"
                />
                <?php
@@ -90,9 +92,9 @@ echo (isset($this->form['form'])) ? $this->form['form']->formName : '';
                echo '</select>' . PHP_EOL;
                ?>
         <script>
-            $("#expgroup").change(function(){
+            $("#expgroup").change(function() {
                 $("#elements").load("<?php echo $this->url(array('controller' => 'form', 'action' => 'update-elements')); ?>", {'expgroup': $(this).val()});
-            });    
+            });
         </script>
 
         <div id="items">

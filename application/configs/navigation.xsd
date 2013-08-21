@@ -76,6 +76,15 @@
                     <resource>user</resource>
                     <className>User</className>
                 </users>
+                <privileges>
+                    <label>privilege</label>
+                    <title>privilege</title>
+                    <controller>privilege</controller>
+                    <action>index</action>
+                    <subgroup>subadmin</subgroup>
+                    <resource>privilege</resource>
+                    <className>Privilege</className>
+                </privileges>
                 <scenario>
                     <label>scenario</label>
                     <title>scenario</title>

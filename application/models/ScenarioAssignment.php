@@ -23,48 +23,27 @@ class Application_Model_ScenarioAssignment {
     private $_operand;
 
     public function __construct(array $assignmentArray = null) {
-        if (isset($assignmentArray['nodeId'])) {
-            $this->_nodeId = $assignmentArray['nodeId'];
-        }
-
-        if (isset($assignmentArray['domainId'])) {
-            $this->domainId = (int) $assignmentArray['domainId'];
-        }
-        if (isset($assignmentArray['active'])) {
-            $this->_active = (bool) $assignmentArray['active'];
-        }
-
-        if (isset($assignmentArray['scenarioId']))
-            $this->_scenarioId = (int)$assignmentArray['scenarioId'];
-
-        if (isset($assignmentArray['scondition']))
-            $this->_condition = $assignmentArray['condition'];
-
-        if (isset($assignmentArray['operand']))
-            $this->_operand = $assignmentArray['operand'];
-
-        if (isset($assignmentArray['scenarioAssignmentId'])) {
-            $this->_scenarioAssignmentId = (int) $assignmentArray['scenarioAssignmentId'];
-        }
-    }
+        if (is_array($assignmentArray)) {
+            foreach ($assignmentArray as $key => $item) {
+                $this->{$key} = (strpos($key, 'Id') || 'active' == $key) ? (int) $item : $item;
+            }
+        }    }
 
     public function __set($name, $value) {
         if ('valid' == $name) {
             echo 'Cannot set value for "valid" property';
         } elseif (property_exists($this, '_' . $name)) {
             $name1 = '_' . $name;
-            $this->$name1 = $value;
-        } else {
-            echo 'Cannot set value. Property ' . $name . ' doesnt exist';
+            $this->$name1 = (strpos($name, 'Id') || 'active' == $name) ? (int) $value : $value;
         }
     }
 
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
             $name = '_' . $name;
-            return $this->$name;
+            return (strpos($name, 'Id') || 'active' == $name) ? (int) $this->$name: $this->name;
         } else {
-            return 'Cannot get value. Property ' . $name . ' doesnt exist';
+            throw new NonExistingObjectProperty('Trying to get "' . $name . ' Property doesnt exist');
         }
     }
 
@@ -87,11 +66,11 @@ class Application_Model_ScenarioAssignment {
      * @return type
      */
     public function toArray() {
-        $output = array();
+       $output = array();
         foreach ($this as $key => $value) {
             if ('_valid' != $key) {
                 if (isset($value)) {
-                    $output[str_replace('_', '', $key)] = $value;
+                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id') || 'active' == $key) ? (int) $value : $value;
                 }
             }
         }

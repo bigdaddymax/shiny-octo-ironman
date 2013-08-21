@@ -4,32 +4,35 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
     //put your code here
     private $userId;
+    private $objectManager1;
 
     public function setup() {
         $this->bootstrap = new Zend_Application(APPLICATION_ENV, APPLICATION_PATH . '/configs/application.ini');
+        $this->dataMapper = new Application_Model_DataMapper();
         $this->objectManager1 = new Application_Model_ObjectsManager(1);
-        $this->objectManager1->dbLink->delete('item');
-        $this->objectManager1->dbLink->delete('comment');
-        $this->objectManager1->dbLink->delete('approval_entry');
-        $this->objectManager1->dbLink->delete('form');
-        $this->objectManager1->dbLink->delete('privilege');
-        $this->objectManager1->dbLink->delete('resource');
-        $this->objectManager1->dbLink->delete('user_group');
-        $this->objectManager1->dbLink->delete('scenario_entry');
-        $this->objectManager1->dbLink->delete('scenario_assignment');
-        $this->objectManager1->dbLink->delete('scenario');
-        $this->objectManager1->dbLink->delete('domain_owner');
-        $this->objectManager1->dbLink->delete('user');
-        $this->objectManager1->dbLink->delete('position');
-        $this->objectManager1->dbLink->delete('node');
-        $this->objectManager1->dbLink->delete('element');
-        $this->objectManager1->dbLink->delete('domain_owner');
-        $this->objectManager1->dbLink->delete('user_group');
-        $this->objectManager1->dbLink->delete('user');
-        $this->objectManager1->dbLink->delete('contragent');
-        $this->objectManager1->dbLink->delete('template');
-        $this->objectManager1->dbLink->delete('domain');
-        $this->objectManager1->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
+        $auth = new Application_Model_Auth();
+        $this->dataMapper->dbLink->delete('item');
+        $this->dataMapper->dbLink->delete('comment');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('form');
+        $this->dataMapper->dbLink->delete('privilege');
+        $this->dataMapper->dbLink->delete('resource');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario_assignment');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('element');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('contragent');
+        $this->dataMapper->dbLink->delete('template');
+        $this->dataMapper->dbLink->delete('domain');
+        $this->dataMapper->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
 
         $nodeArray = array('nodeName' => 'First node', 'parentNodeId' => -1, 'domainId' => 1);
         $node = new Application_Model_Node($nodeArray);
@@ -41,7 +44,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $positionId = $this->objectManager1->saveObject($position);
         
         
-        $userArray = array('userName' => 'oName', 'active' => false, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $positionId, 'groupId' => 2, 'password' => 'testp');
+        $userArray = array('userName' => 'oName', 'active' => 0, 'domainId' => 1, 'login' => 'tLogin', 'positionId' => $positionId, 'groupId' => 2, 'password' => $auth->hashPassword('testp'));
         $user = new Application_Model_User($userArray);
         $this->userId = $this->objectManager1->saveObject($user);
         $this->assertTrue(is_int($this->userId));
@@ -49,23 +52,23 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function tearDown() {
-        $this->objectManager1->dbLink->delete('scenario_entry');
-        $this->objectManager1->dbLink->delete('scenario_assignment');
-        $this->objectManager1->dbLink->delete('scenario');
-        $this->objectManager1->dbLink->delete('domain_owner');
-        $this->objectManager1->dbLink->delete('approval_entry');
-        $this->objectManager1->dbLink->delete('user_group');
-        $this->objectManager1->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('scenario_entry');
+        $this->dataMapper->dbLink->delete('scenario_assignment');
+        $this->dataMapper->dbLink->delete('scenario');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('approval_entry');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('user');
 
         
-        $this->objectManager1->dbLink->delete('position');
-        $this->objectManager1->dbLink->delete('node');
-        $this->objectManager1->dbLink->delete('domain_owner');
-        $this->objectManager1->dbLink->delete('user_group');
-        $this->objectManager1->dbLink->delete('user');
-        $this->objectManager1->dbLink->delete('contragent');
-        $this->objectManager1->dbLink->delete('domain');
-        $this->objectManager1->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
+        $this->dataMapper->dbLink->delete('position');
+        $this->dataMapper->dbLink->delete('node');
+        $this->dataMapper->dbLink->delete('domain_owner');
+        $this->dataMapper->dbLink->delete('user_group');
+        $this->dataMapper->dbLink->delete('user');
+        $this->dataMapper->dbLink->delete('contragent');
+        $this->dataMapper->dbLink->delete('domain');
+        $this->dataMapper->dbLink->insert('domain', array('domainId'=>1, 'domainName'=>'Domain1', 'active'=>1));
     }
     
 
@@ -75,6 +78,8 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setMethod('post');
         $this->request->setPost($user);
         $this->dispatch($this->url($this->urlizeOptions($params)));
+        $response = $this->getResponse();
+        echo $response->outputBody();
         $session = new Zend_Session_Namespace('Auth');
         $this->assertTrue((bool)$session->auth);
     }
