@@ -155,33 +155,6 @@ class Application_Model_AccessMapper extends BaseDBAbstract {
     }
 
     /**
-     * getAllowedObjectsIds() method returns ids of objects of specified class that 
-     *                        user can read, write or approve.
-     * @param string $class
-     * @param string $privilege
-     * @return array          Array has following format: Array('privilege1'=> array(nodeId1, nodeId2, ....),
-     *                                                          'privilege2'=> array(nodeId3, nodeId4, ....))
-     * 
-     */
-    public function getAllowedObjectIds1() {
-//        Zend_Debug::dump($this->credentials);
-        if (is_array($this->credentials)) {
-            foreach ($this->credentials as $credential) {
-                if ('node' == $credential->objectType) {
-                    if (empty($result[$credential->privilege])) {
-                        $result[$credential->privilege] = $this->getNodeObjects($credential->objectId);
-                    } else {
-                        $result[$credential->privilege] = array_merge($result[$credential->privilege], $this->getNodeObjects($credential->objectId));
-                    }
-                }
-            }
-            return $result;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * getNodeObjects - recursive function that works in connection with getAllowedOrgobjectIds()
      * @param type $nodeId
      * @return type

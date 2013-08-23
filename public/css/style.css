@@ -5,7 +5,7 @@ body {
     /*    background-color: #AAAAAA;*/
     /**    font-size: 16px;
     */
-    font-size: 0.875em;
+ /*   font-size: 0.875em;
     /*   font-family: 'Open Sans', sans-serif, verdana;*/
 
 }
@@ -54,10 +54,6 @@ tr.private td{
     Main page decoration
 */
 
-#container {
-    width: 80%;
-    overflow: hidden;
-}
 
 #header {
     position: relative;
@@ -105,7 +101,7 @@ tr.private td{
     width: 25%;
     margin-left: 10px;
     margin-right: 10px;
-    background-color: #ff5555;
+   /* background-color: #ff5555;*/
     padding-left: 20px;
     padding-right: 20px;
 }

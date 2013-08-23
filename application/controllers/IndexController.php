@@ -78,30 +78,36 @@ class IndexController extends Zend_Controller_Action {
                 ->addElement($password)
                 ->addElement($submit);
         $form->userName->setLabel('name')
+                ->setAttrib('class', 'form-control')
                 ->setAttrib('id', 'userName')
                 ->setAttrib('name', 'userName')
                 ->setAttrib('placeholder', $this->translate->_('name'));
         $form->password->setLabel('password')
+                ->setAttrib('class', 'form-control')
                 ->setAttrib('id', 'password')
                 ->setAttrib('name', 'password')
                 ->setAttrib('placeholder', $this->translate->_('password'));
         $form->email->setLabel('email')
+                ->setAttrib('class', 'form-control')
                 ->setAttrib('id', 'email')
                 ->setAttrib('name', 'email')
                 ->setAttrib('placeholder', $this->translate->_('email'));
         $form->companyName->setLabel('company')
+                ->setAttrib('class', 'form-control')
                 ->setAttrib('id', 'companyName')
                 ->setAttrib('name', 'companyName')
                 ->setAttrib('placeholder', $this->translate->_('company'));
-        $form->signup->setAttrib('class', 'signup-button button');
+        $form->signup->setAttrib('class', 'btn btn-danger');
 
         $form->addElementPrefixPath('Capex_Decorator', 'Capex/decorator', 'decorator');
         $form->setElementDecorators(array('viewHelper',
             array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
-            'label',
-            array('htmlTag', array('tag' => 'div'))));
-        $form->signup->setDecorators(array('viewHelper'));
-
+            array('label', array('class'=>'control-label')),
+            array('MyElement', array('tag' => 'div', 'class'=>'form-group'))));
+        $form->signup->setDecorators(array('viewHelper'))
+                     ->setAttrib('class', 'btn btn-danger');
+        $form->setAttrib('role', 'form')
+             ->setAttrib('class', 'form-horisontal');
         $this->form = $form;
     }
 

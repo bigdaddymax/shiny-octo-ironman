@@ -284,11 +284,11 @@ class Application_Model_ObjectsManager {
     public function getPrivilegesTable($userId) {
         // Start with selecting topmost nodes (that are not dependent)
         $nodes = $this->getAllObjects('Node', array(0 => array('column' => 'parentNodeId', 'operand' => -1)));
-        $output = '';
+        $output = '<div id="listContainer">' . PHP_EOL;
         foreach ($nodes as $node) {
             $output .= '<ul id="expList_' . $node->nodeId . '">' . $this->recursiveHTMLFormer($node, $userId) . '</ul>' . PHP_EOL;
         }
-        return $output;
+        return $output . '</div>' . PHP_EOL;
     }
 
     /**

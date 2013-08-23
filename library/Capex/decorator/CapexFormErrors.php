@@ -1,8 +1,6 @@
 <?php
 
-/**
- * Very basic decorator mainly used to format error messages on the output forms
- */
+
 class Capex_Decorator_CapexFormErrors extends Zend_Form_Decorator_Abstract {
 
     Public function render($content) {
