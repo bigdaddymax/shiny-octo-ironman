@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!--[if IE]><script src="excanvas.compressed.js"></script><![endif]-->
+    <script src="RGraph.common.js" ></script>
+    <script src="RGraph.bar.js" ></script>
+    <script src="RGraph.scatter.js" ></script>
+  </head>
+
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr><td class="title"></td></tr>
+      <tr><td><div align="center"><p><a href="index.html">Back to Code Coverage report</a></p></div></td></tr>
+      <tr><td class="ruler"><img src="glass.png" width="3" height="3" alt=""></td></tr>
+    </table>
+
+    <br />
+
+    <center>
+      <table width="90%" cellpadding="2" cellspacing="1" border="0">
+        <tr>
+          <td valign="top">
+            <h2>Class Coverage Distribution</h2>
+            <canvas id="classCoverageDistribution" width="475" height="200"></canvas>
+            <script>
+            var ccd = new RGraph.Bar('classCoverageDistribution', [5,0,0,0,0,0,1,4,3,7,16,7]);
+            ccd.Set('chart.background.barcolor1', 'white');
+            ccd.Set('chart.background.barcolor2', 'white');
+            ccd.Set('chart.colors', ['blue']);
+            ccd.Set('chart.shadow', true);
+            ccd.Set('chart.shadow.offsetx', 3);
+            ccd.Set('chart.shadow.offsety', 3);
+            ccd.Set('chart.labels', ['0%','0-10%','10-20%','20-30%','30-40%','40-50%','50-60%','60-70%','70-80%','80-90%','90-100%','100%']);
+            ccd.Set('chart.text.size', 5);
+            ccd.Draw();
+            </script>
+          </td>
+
+          <td valign="top">
+            <h2>Class Complexity</h2>
+            <canvas id="classComplexity" width="475" height="200"></canvas>
+            <script>
+            var cc = new RGraph.Scatter('classComplexity', [[0,21,"blue","File_Iterator"],[0,15,"blue","File_Iterator_Factory"],[0,11,"blue","Text_Template"],[0,13,"blue","NetBeansSuite"],[100,3,"blue","Bootstrap"],[100,7,"blue","AuthController"],[63.636363636364,10,"blue","ErrorController"],[85.62091503268,29,"blue","FormController"],[85.087719298246,12,"blue","IndexController"],[80.588235294118,37,"blue","ObjectsController"],[56.410256410256,10,"blue","ScenarioController"],[72.115384615385,29,"blue","Application_Model_AccessMapper"],[91.891891891892,25,"blue","Application_Model_ApprovalEntry"],[84.210526315789,7,"blue","Application_Model_Auth"],[100,1,"blue","BaseDBAbstract"],[97.142857142857,27,"blue","Application_Model_Comment"],[96.969696969697,22,"blue","Application_Model_Contragent"],[75,50,"blue","Application_Model_DataMapper"],[96.774193548387,22,"blue","Application_Model_Domain"],[96.774193548387,24,"blue","Application_Model_Element"],[66.666666666667,3,"blue","JSONExceptions"],[100,1,"blue","DependantObjectDeletionAttempt"],[0,1,"blue","UnableToLoadMessageTemplate"],[100,1,"blue","NonExistingObjectProperty"],[100,1,"blue","WrongApprovalOrder"],[100,2,"blue","SaveObjectException"],[97.530864197531,52,"blue","Application_Model_Form"],[81.34328358209,48,"blue","Application_Model_FormsManager"],[97.058823529412,22,"blue","Application_Model_Item"],[96.551724137931,23,"blue","Application_Model_Node"],[83.700440528634,70,"blue","Application_Model_ObjectsManager"],[96.875,23,"blue","Application_Model_Position"],[97.222222222222,25,"blue","Application_Model_Privilege"],[90.625,22,"blue","Application_Model_Resource"],[88.461538461538,43,"blue","Application_Model_Scenario"],[90.322580645161,24,"blue","Application_Model_ScenarioAssignment"],[93.939393939394,23,"blue","Application_Model_ScenarioEntry"],[96.875,25,"blue","Application_Model_Template"],[97.058823529412,24,"blue","Application_Model_User"],[91.176470588235,24,"blue","Application_Model_UserGroup"],[61.71875,43,"blue","Capex_PasswordHash"],[64.285714285714,15,"blue","Capex_Plugins_AuthPlugin"],[76,8,"blue","Capex_Decorator_CapexFormErrors"]]);
+            cc.Set('chart.xmax', 100);
+            cc.Set('chart.background.barcolor1', 'white');
+            cc.Set('chart.background.barcolor2', 'white');
+            cc.Set('chart.tickmarks', 'plus');
+            cc.Set('chart.ticksize', 5);
+            cc.Set('chart.text.size', 5);
+            cc.Set('chart.ylabels', false);
+            cc.Draw();
+            </script>
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">
+            <h2>Top Project Risks</h2>
+            <ul>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_Resource.php.html#11">Application_Model_Resource</a> (22)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_Item.php.html#10">Application_Model_Item</a> (22)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_Contragent.php.html#8">Application_Model_Contragent</a> (22)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_Domain.php.html#11">Application_Model_Domain</a> (22)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_controllers_ScenarioController.php.html#10">ScenarioController</a> (18)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_controllers_ErrorController.php.html#3">ErrorController</a> (14)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_controllers_IndexController.php.html#10">IndexController</a> (12)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_library_Capex_decorator_CapexFormErrors.php.html#6">Capex_Decorator_CapexFormErrors</a> (8)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_Auth.php.html#9">Application_Model_Auth</a> (7)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_ExceptionsMapper.php.html#3">JSONExceptions</a> (3)</li>
+
+            </ul>
+          </td>
+
+          <td valign="top">
+            <h2>Least Tested Methods</h2>
+            <ul>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_ExceptionsMapper.php.html#44">UnableToLoadMessageTemplate::__construct</a> (0%)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_library_Capex_PasswordHash.php.html#167">Capex_PasswordHash::gensalt_blowfish</a> (0%)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_controllers_ScenarioController.php.html#30">ScenarioController::indexAction</a> (0%)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_controllers_IndexController.php.html#148">IndexController::changeLangAction</a> (0%)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_Scenario.php.html#78">Application_Model_Scenario::getUserOrder</a> (0%)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_ObjectsManager.php.html#396">Application_Model_ObjectsManager::createAccessFilterArray</a> (0%)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_controllers_FormController.php.html#193">FormController::updateElementsAction</a> (0%)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_models_DataMapper.php.html#208">Application_Model_DataMapper::checkLoginExistance</a> (0%)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_controllers_ScenarioController.php.html#67">ScenarioController::openScenarioAction</a> (0%)</li>
+              <li><a href="Users_Public_Documents_web_supercapex_application_controllers_ScenarioController.php.html#79">ScenarioController::deleteScenarioAction</a> (0%)</li>
+
+            </ul>
+          </td>
+        </tr>
+      </table>
+    </center>
+
+    <br />
+
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr><td class="ruler"><img src="glass.png" width="3" height="3" alt=""></td></tr>
+      <tr><td class="versionInfo">Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 1.0.2</a> using <a href="http://www.php.net/" target="_top">PHP 5.3.21</a> and PHPUnit 3.5.15 at Wed Aug 21 4:42:32 BST 2013.</td></tr>
+    </table>
+
+    <br/>
+  </body>
+</html>

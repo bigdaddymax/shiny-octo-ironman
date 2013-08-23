@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>WordPress &#8250; ReadMe</title>
+	<link rel="stylesheet" href="wp-admin/css/install.css?ver=20100228" type="text/css" />
+</head>
+<body>
+<h1 id="logo">
+	<a href="http://wordpress.org/"><img alt="WordPress" src="wp-admin/images/wordpress-logo.png" width="250" height="68" /></a>
+	<br /> Версія 3.5.1
+</h1>
+<p style="text-align: center">Семантична персональна платформа публікації</p>
+
+<h1>По-перше головне</h1>
+<p>Вітаю. WordPress — це дуже важливий проект для мене. Кожний розробник та помічник додає дещо особливе в цю суміш, і разом ми створюємо дещо красиве. І я пишаюсь тим, що я є частниою цього. Тисячі годин було вкладено в  WordPress, і ми присвячуємо себе його покращенню кожного дня. Дякуємо за те, що обрали WordPress частиною свого світу..</p>
+<p style="text-align: right;">&#8212; Метт Мюлєнвеґ (Matt Mullenweg), WordPress.org</p>
+
+<h1>Інсталяція: славетне п’ятихвилинне встановлення</h1>
+<ol>
+	<li>Розпакуйте архів у порожній каталог і завантажте на сервер.</li>
+	<li>Відкрийте <span class="file"><a href="wp-admin/install.php">wp-admin/install.php</a></span> у браузері. Цей скрипт створить файл з налаштуваннями <code>wp-config.php</code>.
+		<ol>
+			<li>Якщо з якоїсь причини автоматична установка не вдалася, не хвилюйтеся. Вона працює не на всіх серверах. Відкрийте <code>wp-config-sample.php</code> в текстовому редакторі на зразок <a href="http://notepad-plus-plus.org/" target="_blank">NotePad++</a> і заповніть параметри доступу до бази даних.</li>
+			<li>Збережіть файл з назвою <code>wp-config.php</code> та завантажте на сервер.</li>
+			<li>Відкрийте <span class="file"><a href="wp-admin/install.php">wp-admin/install.php</a></span> у браузері.</li>
+		</ol>
+	</li>
+	<li>Як тільки файл конфігурації буде створено, скрипт установки створить таблиці, необхідні для Вашого сайту. Якщо сталася помилка, перевірте ваш файл <code>wp-config.php</code> і спробуйте ще раз. Якщо знову не вдалося, зверніться на <a href="http://wordpress.co.ua/support/">форум підтримки</a> з якомога більшою кількістю зібраної інформації.</li>
+	<li><strong>Якщо ви не вводили пароль, запам'ятайте той, який Вам видано.</strong> Якщо Ви не вказали лоґін,то стандартно він  <code>admin</code>.</li>
+	<li>Після завершення встановлення перейдіть на <a href="wp-login.php">сторінку входу в адмінку</a>. Увійдіть з обраним лоґіном та паролем. Якщо пароль було згенеровано автоматично, то при першому візиті його запропонують змінити на більш легший для запам’ятовування.</li>
+</ol>
+
+<h1>Оновлення</h1>
+<h2>Автоматичне оновлення</h2>
+<p>Якщо Ви оновлюєтеся з версії 2.7 або вище, можете скористатися автоматичним оновленням:</p>
+<ol>
+	<li>Відкрийте <span class="file"><a href="wp-admin/update-core.php">wp-admin/update-core.php</a></span> у браузері та слідкуйте за інструкціями.</li>
+	<li>Очікували більшого? Це все!</li>
+</ol>
+
+<h2>Ручне оновлення</h2>
+<ol>
+	<li>Перед оновленням зробіть резервні копії файлів, в які вносили зміни, а також бази даних</li>
+	<li>Видаліть всі файли WordPress, окрім теки <code>wp-content</code> і файлу <code>wp-config.php</code>.</li>
+	<li>Завантажте нові файли.</li>
+	<li>Перейдіть у браузері на <span class="file"><a href="wp-admin/upgrade.php">/wp-admin/upgrade.php</a>.</span></li>
+</ol>
+
+<h2>Зміни в темах</h2>
+<p>Якщо ви налаштовували Ваші шаблони, при переході від однієї версії до іншої може знадобитися зробити деякі зміни.</p>
+
+<h1>Міграція з інших систем</h1>
+<p>WordPress дозволяє <a href="http://codex.wordpress.org/Importing_Content">перехід з інших систем</a>. Спочатку встановіть WordPress, потім скористайтеся <a href="wp-admin/import.php" title="Import to WordPress">засобами для міграції</a>.</p>
+
+<h1>Системні вимоги</h1>
+<ul>
+	<li><a href="http://php.net/">PHP</a> версії <strong>5.2.4</strong> або вище.</li>
+	<li><a href="http://www.mysql.com/">MySQL</a> версії <strong>5.0</strong> або вище.</li>
+</ul>
+
+<h2>Системні рекомендації</h2>
+<ul>
+	<li>Модуль Apache <a href="http://httpd.apache.org/docs/2.2/mod/mod_rewrite.html">mod_rewrite</a>.</li>
+	<li>Посилання на <a href="http://wordpress.org/">http://wordpress.org</a>.</li>
+</ul>
+
+<h1>Мережеві ресурси</h1>
+<p>Якщо у Вас є будь-які питання, які не стосуються цього документу, будь ласка, звертайтесь за допомогою до численних мережевих ресурсів:</p>
+<dl>
+	<dt><a href="http://codex.wordpress.org/">The WordPress Codex </a></dt>
+		<dd>Codex (Кодекс) — це енциклопедія WordPress, найповніше джерело інформації.</dd>
+	<dt><a href="http://wordpress.org/development/">The Development Blog</a></dt>
+		<dd>Блоґ розробників — тут ви знайдете найсвіжіші новини та обговорення.</dd>
+	<dt><a href="http://planet.wordpress.org/">Планета WordPress</a></dt>
+		<dd>Планета WordPress - агрегатор новин, що відображає останні дописи з сайтів WordPress.</dd>
+	<dt><a href="http://wordpress.org/support/">Форуми підтримки WordPress</a></dt>
+		<dd>Якщо в вас виникло питання і ви не знайшли на нього відповідь, то форуми підтримки - саме те що вам необхідно. Тут ви можете задати власні запитання, на які дасть відповідь дуже велика і активна спільнота.</dd>
+	<dt><a href="http://wordpress.co.ua/support/">Українські форуми підтримки WordPress</a></dt>
+		<dd>Якщо в вас виникло питання, можете його задати на наших форумах підтримки.</dd>
+	<dt><a href="http://codex.wordpress.org/IRC">WordPress IRC Channel</a></dt>
+		<dd>Нарешті, є мережевий канал чату, який призначений для обговорення серед людей, які використовують WordPress, і інколи підтримують теми. Wiki сторінка вище повинна скерувати вас в правильному напрямі.(<a href="irc://irc.freenode.net/wordpress">irc.freenode.net #wordpress</a>)</dd>
+</dl>
+
+
+<h1>Інтерфейси <abbr title="eXtensible Markup Language">XML</abbr>-<abbr title="Remote Procedure Call">RPC</abbr> та Atom</h1>
+<p>Тепер ви можете дописувати в Wordpress за допомогою таких програм як <a href="http://windowslivewriter.spaces.live.com/">Windows Live Writer</a>, <a href="http://ecto.kung-foo.tv/">Ecto</a>, <a href="http://bloggar.com/">Bloggar</a>, <a href="http://radio.userland.com">Radio Userland</a> (що означає що ви можете користуватись Radio's email-to-blog), <a href="http://www.newzcrawler.com/">NewzCrawler</a>, та багатьма іншими, що підтримують інтерфейс Blogging APIs! :) Дізнайтесь більше: <a href="http://codex.wordpress.org/XML-RPC_Support">XML-RPC підтримка (Codex)</a>.</p>
+
+<h1>Публікація по Email</h1>
+<p>Ви можете писати навіть за допомогою звичайної електронної пошти! Щоб налаштувати цю можливість, перейдіть до  розділу &quot;Створення&quot; і заповніть параметри з’єднання до вашого секретного акаунту POP3. Потім вам буде потрібно налаштувати <code>wp-mail.php</code> щоб періодично перевіряти цю скриньку. Ви можете робити це за допомогою задач Cron, або якщо це не підтримується, скористуйтесь численними сервісами моніторинґу сайтів — щоб вони періодично викликали <code>wp-mail.php</code> URL.</p>
+<p>Написання легке: Будь-яка пошта, надіслана на цю скриню буде опублікована, тема буде використана як назва. Краще якщо ніхто не знає цієї адреси. Скрипт буде <i>видаляти</i> листи, що вже були опубліковані.</p>
+
+<h1>Ролі користувачів</h1>
+<p>Ми запровадили гнучку систему ролей з версії 2.0. Ви можете <a href="http://codex.wordpress.org/Roles_and_Capabilities">про ролі та можливості у Codex</a>.</p>
+
+<h1>Фінальні примітки</h1>
+<ul>
+	<li>Якщо у вас є пропозиції, питання, зауваження — пишіть на <a href="http://wordpress.co.ua/support/">форумі підтримки</a>.</li>
+	<li>WordPress має потужний <abbr title="application programming interface">API</abbr>, що дозволяє легко створювати плаґіни. Якщо хочете створити плаґін, рекомендуємо почитати <a href="http://codex.wordpress.org/Plugin_API" title="WordPress plugin API">документацію у Codex</a>. Файли ядра вкрай небажано змінювати.</li>
+</ul>
+
+<h1>Поширюйте любов</h1>
+<p>WordPress не має ні багатомільйонної рекламної кампанії, ні відомих спонсорів, але у нас є щось краще &mdash; Ви. Якщо Вам подобається WordPress, розкажіть про нього друзям, встановіть його їм, поділіться знаннями або запропонуйте авторам статей у ЗМІ звернути на нас увагу.</p>
+
+<p>WordPress це офіційне продовження системи <a href="http://cafelog.com/">b2/caf&#233;log</a>, створеної Майклом. Роботу продовжили <a href="http://wordpress.org/about/">розробники WordPress</a>. Якщо бажаєте підтримати WordPress, можете зробити <a href="http://wordpress.org/donate/" title="Donate to WordPress">пожертву</a>.</p>
+
+<h1>Авторські права</h1>
+<p>WordPress розповсюджується за ліцензією <abbr title="GNU Public License">GPL</abbr> другої версії (в даному випадку) або наступних версій (див. <a href="license.txt">license.txt</a>). Переклад виконано <a href="http://skinik.name/">Юрком Червоним</a></p>
+
+
+</body>
+</html>
