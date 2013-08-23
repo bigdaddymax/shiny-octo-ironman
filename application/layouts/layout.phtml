@@ -1,14 +1,10 @@
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width" />
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="<?php echo $this->baseUrl('css/normalize.css'); ?>" />
-    <link rel="stylesheet" href="<?php echo $this->baseUrl('css/foundation.css'); ?>" />
-    <script src="<?php echo $this->baseUrl('js/vendor/custom.modernizr.js'); ?>"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
+    <link href="<?php echo $this->baseUrl('css/bootstrap.min.css'); ?>" rel="stylesheet" media="screen">
     <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+    <script src="<?php echo $this->baseUrl('js/bootstrap.min.js'); ?>"></script>
     <script>
         (function(i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
@@ -27,9 +23,9 @@
 
     </script>
     <link type="text/css" rel="stylesheet" href="<?php echo $this->baseUrl('css/style.css'); ?>" /> 
-<?php
-$session = new Zend_Session_Namespace('Auth');
-?>
+    <?php
+    $session = new Zend_Session_Namespace('Auth');
+    ?>
     <script>
         window.onload = function() {
             var a1 = document.getElementById('signin-link');
@@ -49,113 +45,59 @@ $session = new Zend_Session_Namespace('Auth');
                 }
             }
         }
-<?php
-if (1 <> $session->auth) {
-    ?>
-            $(function() {
-
-                $("#signin").dialog({
-                    autoOpen: false,
-                    modal: true,
-                    buttons: {
-                        '<?php echo $this->translate('login'); ?>': function() {
-                            $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'auth'), null, true); ?>', $('#signin-form').serialize())
-                                    .done(function(data) {
-                                window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");
-                            });
-                            $(this).dialog("close");
-                        },
-                        '<?php echo $this->translate('close'); ?>': function() {
-                            $(this).dialog("close");
-                        }
-                    }
-                });
-            });
-    <?php
-}
-?>
-    </script>    
-
+    </script> 
 </head>
 <body>
-    <script>
-        document.write('<script src=' + '/' +
-                ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
-                '.js><\/script>')
-    </script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.alerts.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.clearing.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.cookie.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.dropdown.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.forms.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.joyride.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.magellan.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.orbit.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.placeholder.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.reveal.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.section.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.tooltips.js'); ?>"></script>
-    <script src="<?php echo $this->baseUrl('js/foundation/foundation.topbar.js'); ?>"></script>
-    <script>
-        $(document).foundation();
-    </script>    
     <div id="container">
         <div id="header">
-            <div id="logo">
-                <a href="<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true); ?>"><img src="<?php echo $this->baseUrl('img/CapexOpex1.jpg'); ?>"></a>
-            </div>
-            <div id="top_menu">
-                <a href="<?php echo $this->url(array('controller'=>'index', 'action'=>'change-lang', 'lang'=>'ua'), null, true);?>">Укр</a> | <a href="<?php echo $this->url(array('controller'=>'index', 'action'=>'change-lang', 'lang'=>'en'), null, true)?>">Eng</a>
-                <?php
-                if (1 == $session->auth) {
-                    echo '<a href="#" id="signoff-link">' . $this->translate('logout') . '</a>';
-                    $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
-                    $navigationConfig = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
-                    $container = new Zend_Navigation($navigationConfig);
-                    $this->navigation($container);
-                    $this->navigation()->setAcl($acl->acl);
-                    $this->navigation()->setRole($session->login);
-                    $this->navigation()->setTranslator(Zend_Registry::get('Zend_Translate'));
-                } else {
-                    ?>
-                    <!-- JQuery template for SIGNIN FORM -->
-                    <div id="signin" title="<?php echo $this->translate('login to system'); ?>">
-                        <form id="signin-form">
-                            <div>
-                                <div><input type="text" id="login" name="login" placeholder="<?php echo $this->translate('email'); ?>">
-                                </div>
-                                <div>
-                                    <input type="password" id="password" name="password" placeholder="<?php echo $this->translate('password'); ?>">
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <!-- END OF SIGNIN FORM -->
-
-                    <?php
-                    echo '<a href="#" id="signin-link">' . $this->translate('login') . '</a>';
-                }
-
-// +++++++++++ FIX ME ++++++++++++++++++ FIX ME ++++++++++++++++++++++++ FIX ME
-                if ('admin' == $session->role) {
-                    $this->navigation()->menu()->setPartial('partials/navigation/adminmenu.phtml');
-                    echo $this->navigation()->menu()->render();
-                }
-                if ($session->auth) {
-                    $this->navigation()->menu()->setPartial('partials/navigation/mainmenu.phtml');
-                    echo $this->navigation()->menu()->render();
-                }
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                ?>
-            </div>
-            <!--  Fixing float collapse  -->
-            <div style="clear: both;"></div>
+            <nav  class="navbar navbar-default" role="navigation">
+                <a class="navbar-brand" href="<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true); ?>"><img  class="img-responsive" src="<?php echo $this->baseUrl('img/CapexOpex1.jpg'); ?>"></a>
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse navbar-ex1-collapse">
+                    <button data-toggle="modal" href="#loginModal" class="btn btn-default navbar-btn pull-right" ><?php echo $this->translate('login'); ?></button>
+                    <ul class="nav navbar-nav pull-right">
+                        <?php
+                        if (1 == $session->auth) {
+                            $acl = new Application_Model_AccessMapper($session->userId, $session->domainId);
+                            $navigationConfig = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navigation.xsd', 'nav');
+                            $container = new Zend_Navigation($navigationConfig);
+                            $this->navigation($container);
+                            $this->navigation()->setAcl($acl->acl);
+                            $this->navigation()->setRole($session->login);
+                            $this->navigation()->setTranslator(Zend_Registry::get('Zend_Translate'));
+                            $this->navigation()->menu()->setPartial('partials/navigation/mainmenu.phtml');
+                            echo $this->navigation()->menu()->render();
+                            if ('admin' == $session->role) {
+                                $this->navigation()->menu()->setPartial('partials/navigation/adminmenu.phtml');
+                                echo $this->navigation()->menu()->render();
+                            }
+                            echo '<li><a href="#" id="signoff-link">' . $this->translate('logout') . '</a></li>';
+                        } else {
+                            echo '';
+                        }
+                        echo '<li class="dropdown">' . PHP_EOL;
+                        echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">Language <b class="caret"></b></a>' . PHP_EOL;
+                        echo '<ul class="dropdown-menu">';
+                        echo '<li><a href="' . $this->url(array('controller' => 'index', 'action' => 'change-lang', 'lang' => 'ua'), null, true) . '">Укр</a></li>' . PHP_EOL;
+                        echo '<li><a href="' . $this->url(array('controller' => 'index', 'action' => 'change-lang', 'lang' => 'en'), null, true) . '">Eng</a></li>' . PHP_EOL;
+                        echo '</ul>';
+                        echo '</li>';
+                        ?>
+                    </ul>
+                </div>
+            </nav>
         </div>
         <div id="main_content">
-<?php
-echo $this->layout()->content;
-?>
+            <?php
+            echo $this->layout()->content;
+            ?>
             <div style="display: block; clear: both"></div>
         </div>
 
@@ -164,4 +106,49 @@ echo $this->layout()->content;
             <center>2013</center>
         </div>
     </div>
+
+
+    <!-- Login form and script -->
+    <script>
+        $('body').on('click', '#signin-btn', function() {
+            $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'auth'), null, true); ?>', $('#signin-form').serialize())
+                    .done(function(data) {
+                window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");
+            });
+            $("#loginModal").modal('hide');
+        });
+    </script>
+
+    <!-- Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><?php echo $this->translate('login to system'); ?></h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form" id="signin-form">
+                        <div class="form-group">
+                            <label for="login" class="col-lg-4 control-label"><?php echo $this->translate('email'); ?></label>
+                            <div class="col-lg-8">
+                                <input type="email" class="form-control"id="login" name="login" placeholder="<?php echo $this->translate('email'); ?>">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="col-lg-4 control-label"><?php echo $this->translate('password'); ?></label>
+                            <div class="col-lg-8">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="<?php echo $this->translate('password'); ?>">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="signin-btn"><?php echo $this->translate('login'); ?></button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->translate('close'); ?></button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- End Login form and script -->
 </body>

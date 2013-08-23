@@ -15,7 +15,7 @@ function prepareList() {
         return false;
     }
     
-    $('ul').find('li:has(ul)')
+    $('#listContainer').find('li:has(ul)')
     .bind('click', toggleList)
     .addClass('collapsed')
     .children('ul').hide();

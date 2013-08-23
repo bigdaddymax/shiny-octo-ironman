@@ -3,7 +3,7 @@ $pages = $this->container->findAllBy('subgroup', 'general');
 if (is_array($pages)){
     foreach($pages as $page){
         if ($this->navigation()->menu()->accept($page)){
-            echo ' | ' . $this->navigation()->menu()->htmlify($page);
+            echo ' <li> ' . $this->navigation()->menu()->htmlify($page) . '</li>' . PHP_EOL;
         }
     }
 }
