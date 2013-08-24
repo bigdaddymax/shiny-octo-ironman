@@ -53,8 +53,13 @@ tr.private td{
 /*
     Main page decoration
 */
-
-
+/*
+.container {
+    margin-right: auto;
+    margin-left: auto;
+}
+*/
+/*
 #header {
     position: relative;
     border-bottom-style: solid;
@@ -73,7 +78,7 @@ tr.private td{
 #logo {
     float: left;
 }
-
+*/
 #top_menu {
     float: right;
     text-align: right;
