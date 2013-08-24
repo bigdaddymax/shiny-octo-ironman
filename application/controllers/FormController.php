@@ -55,19 +55,148 @@ class FormController extends Zend_Controller_Action {
     }
 
     public function editFormAction() {
+
         $formsManager = new Application_Model_FormsManager($this->session->domainId);
-        if (null != $this->_request->getParam('formId')) {
-            $this->view->form = $formsManager->prepareFormForOutput($this->_request->getParam('formId'), $this->session->userId);
+
+        $form = new Zend_Form();
+        $form->addElementPrefixPath('Capex_Decorator', 'Capex/decorator', 'decorator');
+
+        $registry = Zend_Registry::getInstance();
+        $translator = $registry->get('Zend_Translate');
+        $form->setTranslator($translator);
+
+        // Prepare expences group array for Select element creation
+        $expgroupArray = $this->config->expences->group->toArray();
+        $groups = array(-1 => 'expgroup');
+        foreach ($expgroupArray as $exptype) {
+            $groups[$exptype] = $exptype;
         }
+
+        // Prepare allowed nodes array for select element creation
         $access = new Application_Model_AccessMapper($this->session->userId, $this->session->domainId);
         $allowedObjects = $access->getAllowedObjectIds();
-        $this->view->elements = $formsManager->getAllObjects('Element');
-        $this->view->expgroup = $this->config->expences->group->toArray();
         if (!empty($allowedObjects['write'])) {
-            $this->view->nodes = $formsManager->getAllObjects('Node', array(0 => array('column' => 'nodeId',
+            $nodeArray = $formsManager->getAllObjects('Node', array(0 => array('column' => 'nodeId',
                     'condition' => 'IN',
                     'operand' => $allowedObjects['write'])));
         }
+        $nodes = array(-1 => 'deptmnt');
+        if (!empty($nodeArray)) {
+            foreach ($nodeArray as $node) {
+                $nodes[$node->nodeId] = $node->nodeName;
+            }
+        }
+
+        // Creating and setting main form elements
+        $formName = $form->createElement('text', 'formName');
+        $formName->addValidator('alnum')
+                ->addValidator('StringLength', 4)
+                ->setRequired(true)
+                ->setAttrib('class', 'form-control')
+                ->setAttrib('id', 'formName')
+                ->setAttrib('name', 'formName')
+                ->setAttrib('placeholder', $translator->translate('form name'))
+                ->setLabel('form name');
+        $contragentName = $form->createElement('text', 'contragentName');
+        $contragentName->addValidator('alnum')
+                ->addValidator('StringLength', 4)
+                ->setRequired(true)
+                ->setAttrib('class', 'form-control')
+                ->setAttrib('id', 'contragentName')
+                ->setAttrib('name', 'contragentName')
+                ->setAttrib('placeholder', $translator->translate('contragent'))
+                ->setLabel('contragent');
+        $expgroup = $form->createElement('select', 'expgroup', array('multiOptions' => $groups, 'disable' => array(-1)));
+        $expgroup->setAttrib('class', 'form-control')
+                ->setAttrib('id', 'expgroup')
+                ->setAttrib('name', 'expgroup')
+                ->setValue(-1)
+                ->setLabel('expgroup')
+                ->setRequired(true);
+        $nodeId = $form->createElement('select', 'nodeId', array('multiOptions' => $nodes, 'disable' => array(-1)));
+        $nodeId->setAttrib('class', 'form-control')
+                ->setAttrib('id', 'nodeId')
+                ->setAttrib('name', 'nodeId')
+                ->setValue(-1)
+                ->setLabel('deptmnt')
+                ->setRequired(true);
+        $addForm = $form->createElement('submit', 'addForm');
+        $addForm->setIgnore(true)
+                ->setLabel('add form');
+
+        $form->addElement($formName)
+                ->addElement($contragentName)
+                ->addElement($expgroup)
+                ->addElement($nodeId)
+                ->setAttrib('role', 'form');
+
+        $form->setElementDecorators(array('viewHelper',
+            array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
+            array('label', array('class' => 'control-label')),
+            array('MyElement', array('tag' => 'div', 'class' => 'form-group'))));
+
+        // Creating and adding fieldset for Items
+        // Prepare placeholder for Items - we will add items to this table with Javascript
+        $itemsPlace = $form->createElement('text', 'itemsLoc', array('decorators' => array(
+                array('Callback',
+                    array('callback' => function() {
+                            return '<tr><th class="col-lg-2">item name</th><th class="col-lg-2">expence type</th><th class="col-lg-2">value</th><th></th></tr>';
+                        }
+                    )
+                )
+            )
+                )
+        );
+        $itemName = $form->createElement('text', 'itemName', array('Decorators' => array('viewHelper',
+                array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
+                array('label', array('class' => 'control-label')),
+                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-2')))));
+        $itemName->setAttrib('class', 'form-control')
+                ->setAttrib('id', 'itemName')
+                ->setAttrib('name', 'itemName')
+                ->setAttrib('placeholder', 'item');
+        $expType = $form->createElement('select', 'expType', array('Decorators' => array('viewHelper',
+                array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
+                array('label', array('class' => 'control-label')),
+                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-2')))));
+        $expType->setOptions(array('multiOptions' => array('test' => 'test')))
+                ->setAttrib('class', 'form-control');
+        $value = $form->createElement('text', 'value', array('Decorators' => array('viewHelper',
+                array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
+                array('label', array('class' => 'control-label')),
+                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-2')))));
+        $value->setAttrib('class', 'form-control')
+                ->setAttrib('id', 'value')
+                ->setAttrib('name', 'value')
+                ->setAttrib('placeholder', 'value');
+        $addItem = $form->createElement('button', 'addItem', array('decorators'=> array('viewHelper', array('HtmlTag', array('tag'=>'td')))));
+        $form->addDisplayGroup(array($itemsPlace, $itemName, $expType, $value, $addItem), 'items', array('decorators' => array('formElements', array('htmlTag', array('tag'=>'<table>', 'class'=>'table table-hover')),  'fieldset'),
+            'legend' => 'items'));
+
+        // Creating and adding submit button
+        $form->addElement($addForm);
+        $form->addForm->setDecorators(array('viewHelper'))
+                ->setAttrib('class', 'btn btn-primary');
+
+        $form->setMethod('post');
+        $form->setAction($this->view->url(array('controller' => 'form', 'action' => 'edit-form'), null, true));
+        // We edit existion form, populate values
+        if (null != $this->_request->getParam('formId')) {
+//            $this->view->form = $formsManager->prepareFormForOutput($this->_request->getParam('formId'), $this->session->userId);
+        }
+        if ($this->_request->isPost()) {
+            // $form->isValid($this->_request->getParams());
+            foreach ($form->getElements() as $element) {
+                if ($element instanceof Zend_Form_Element) {
+                    if (!$element->isValid($this->_request->getParam($element->getName()))) {
+                        if ($element instanceof Zend_Form_Element_Select) {
+                            $element->setValue(-1);
+                        }
+                    }
+                }
+            }
+        }
+        $this->view->form = $form;
     }
 
     public function previewFormAction() {

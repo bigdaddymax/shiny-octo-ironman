@@ -66,6 +66,9 @@ return array(
     'save changes'      =>'Зберегти зміни',
     "Email '%value%' is already registered" => "Емейл '%value%' вже зареєстровано",
     "User '%value%' is already registered" => "Користувача '%value%' вже зареєстровано",
-    "Value is required and can't be empty" => 'Поле повинно бути заповненим'
+    "Value is required and can't be empty" => 'Поле повинно бути заповненим',
+    'invoice item'=>'Елемент рахунку',
+    'value' => 'Вартість',
+    'items' => 'Елементи рахунку'
 );
 

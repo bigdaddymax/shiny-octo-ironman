@@ -1,72 +1,86 @@
 <script>
-    function addForm(){
+    function addForm() {
         window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'edit-form'), null, true); ?>";
     }
-    
-    function openForm(formId){
-        $('#form-open').load('<?php echo $this->url(array('controller' => 'form', 'action' => 'open-form'), null, true); ?>' + '/formId/' + formId.slice(formId.indexOf('_')+1));
+
+    function openForm(formId) {
+        $('#form-open').load('<?php echo $this->url(array('controller' => 'form', 'action' => 'open-form'), null, true); ?>' + '/formId/' + formId.slice(formId.indexOf('_') + 1));
         //location = url;
     }
 </script>
 <!-- GLOBAL CONTAINER FOR FORMS LIST AND FORM DETAILS -->
 <div>
     <!-- Left part of FORMS page -->
-    <div class="large-8 left">
+    <div class="row">
         <!-- Different controls go here (like filter etc) -->
-        <form class="filter custom">
-            <fieldset class="left form-fieldset"> 
-                <legend>
-                    <div class="switch small round">
-                        <input id="x" name="switch-x" type="radio" checked>
-                        <label for="x" onclick=""><?php echo $this->translate('off'); ?></label>
-
-                        <input id="x1" name="switch-x" type="radio">
-                        <label for="x1" onclick=""><?php echo $this->translate('on'); ?></label>
-
-                        <span></span>
-                    </div>
-                </legend>
-                <div class="left filter-items">
-                    <label for="checkbox1">
-                        <input type="checkbox" id="checkbox1" style="display: none;">
-                        <span class="custom checkbox"></span> <?php echo $this->translate('all'); ?>
-                    </label>
-                    <label for="checkbox2">
-                        <input type="checkbox" id="checkbox2" style="display: none;">
-                        <span class="custom checkbox"></span> <?php echo $this->translate('new'); ?>
-                    </label>
-                </div>
-                <div class="left filter-items">
-                    <label for="checkbox3">
-                        <input type="checkbox" id="checkbox3" style="display: none;">
-                        <span class="custom checkbox"></span> <?php echo $this->translate('approved'); ?>
-                    </label>
-                    <label for="checkbox4">
-                        <input type="checkbox" id="checkbox4" style="display: none;">
-                        <span class="custom checkbox"></span> <?php echo $this->translate('declined'); ?>
-                    </label>
-                </div>
-                <div class="left filter-items">
-                    <label for="checkbox5">
-                        <input type="checkbox" id="checkbox5" style="display: none;">
-                        <span class="custom checkbox"></span> <?php echo $this->translate('progress'); ?>
-                    </label>
-                </div>
-            </fieldset>
-            <div class="large-4 right search">
-                <input type="text" name="search" id="search" placeholder="<?php echo $this->translate('search'); ?>">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <strong>
+                    <?php echo $this->translate('filter'); ?>
+                </strong>
             </div>
-            <div style="display: block; clear: both"></div>
-        </form>
-        <button class ="add-form-button"onclick="addForm()"><?php echo $this->translate('add form'); ?></button>
-
+            <div class="panel-body">
+                <form class="form-inline" role="form">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="filter_switch" id="filter_on" value="on" checked>
+                            <?php echo $this->translate('on'); ?>
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="filter_switch" id="filter_off" value="off">
+                            <?php echo $this->translate('off'); ?>
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="checkbox1">
+                            <?php echo $this->translate('all'); ?>
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="checkbox2">
+                            <?php echo $this->translate('new'); ?>
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="checkbox3">
+                            <?php echo $this->translate('approved'); ?>
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="checkbox4">
+                            <?php echo $this->translate('declined'); ?>
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="checkbox5">
+                            <?php echo $this->translate('progress'); ?>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only">Search</label>
+                        <input type="text" class="form-control" name="search" id="search" placeholder="<?php echo $this->translate('search'); ?>">
+                    </div>
+                    <button class="btn btn-default" type="button"><?php echo $this->translate('Search'); ?></button>
+            </div>
+            </form>
+        </div>
+        <p>
+            <button type="button" class ="btn btn-primary"onclick="addForm()"><?php echo $this->translate('add form'); ?></button>
+        </p>
         <!-- End of different controls go here (like filter etc) -->
 
         <!--  Forms list goes here -->
-        <div class="form-list">
+        <div class="row">
             <?php
             if (is_array($this->forms)) {
-                echo '<table width=100%>';
+                echo '<table class="table table-striped table-hover">';
                 foreach ($this->forms as $form) {
                     $class = '';
                     if ($form['form']->final) {
@@ -79,7 +93,7 @@
                     if (!$form['form']->public) {
                         $class.=' private ';
                     }
-                    echo '<tr id = "form_'.$form['form']->formId.'" onClick="openForm(\'form_' . $form['form']->formId . '\')" >' . PHP_EOL .
+                    echo '<tr id = "form_' . $form['form']->formId . '" onClick="openForm(\'form_' . $form['form']->formId . '\')" >' . PHP_EOL .
                     '<td>' . PHP_EOL .
                     (!empty($form['parentNode']) ? $form['parentNode']->nodeName : '') . PHP_EOL .
                     '</td><td>' . $form['node']->nodeName . '</td>' . PHP_EOL .

@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * Custom error messages decorator. Wraps error messages into <div> tags, allow to add 
+ * classes to these divs and allow to define the placement of error message
+ */
 class Capex_Decorator_CapexFormErrors extends Zend_Form_Decorator_Abstract {
 
     Public function render($content) {

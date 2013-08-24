@@ -54,65 +54,6 @@
 
 </script>
 
-<div id="add-form" class="object-list">
-    <form id="app-form">
-
-        <input type="text" 
-               id="formName" 
-               name="formName" 
-               value="<?php echo (isset($this->form['form'])) ? $this->form['form']->formName : ''; ?>"
-               placeholder =" <?php echo $this->translate('form name'); ?>"
-               />
-
-
-        <input type="text" 
-               id="contragentName" 
-               name="contragentName" 
-               value="<?php echo (isset($this->form['contragent'])) ? $this->form['contragent']->contragentName : ''; ?>"
-               placeholder="<?php echo $this->translate('contragent'); ?>"
-               />
-               <?php
-               echo '<select id="expgroup" name="expgroup">' . PHP_EOL;
-               echo '<option disabled selected=1>' . $this->translate('expgroup') . '</option>';
-               foreach ($this->expgroup as $group) {
-                   echo '<option value="' . $group . '">' . $group . '</option>' . PHP_EOL;
-               }
-               echo '</select>' . PHP_EOL;
-               echo '<select id="nodeId" name="nodeId">' . PHP_EOL;
-               echo '<option disabled>' . $this->translate('deptmnt') . '</option>' . PHP_EOL;
-               foreach ($this->nodes as $node) {
-                   $selected = '';
-                   if (isset($this->form['form'])) {
-                       if ($node->nodeId == $this->form['form']->nodeId) {
-                           $selected = 'selected';
-                       }
-                   }
-                   echo '<option value="' . $node->nodeId . '" ' . $selected . ' >' . $node->nodeName . '</option>' . PHP_EOL;
-               }
-               echo '</select>' . PHP_EOL;
-               ?>
-        <script>
-            $("#expgroup").change(function() {
-                $("#elements").load("<?php echo $this->url(array('controller' => 'form', 'action' => 'update-elements')); ?>", {'expgroup': $(this).val()});
-            });
-        </script>
-
-        <div id="items">
-            <?php
-            if (isset($this->form['form'])) {
-                foreach ($this->form['form']->items as $item) {
-                    echo '<div id="item_' . $item->itemId . '"><div id="item-delete-icon"><a href="#" onClick=deleteItem(' . $item->itemId . ')>x</a></div>' .
-                    '<div id="item-name">' . $item->itemName . '</div><div id="item-value">' . sprintf("%01.2f", $item->value) . '</div></div>';
-                }
-            }
-            ?>
-        </div>
-    </form>
-    <button id="add-item-btn"><?php echo $this->translate('add item'); ?></button>
-
-    <button id="add-form-btn"><?php echo $this->translate('save form'); ?></button>
-</div>
-
 <div id="add-item" title="Add approval item">
     <form id="item-form">
         <div id="elements"></div>
@@ -123,16 +64,6 @@
 
 </div>
 
-
-<form id="items-form">
-    <input type="hidden" id="counter" value="0">
-    <?php
-    if (isset($this->form['form'])) {
-        foreach ($this->form['form']->items as $item) {
-            echo '<input type="hidden" id="itemName_' . $item->itemId . '" name="itemName_' . $item->itemId . '" value="' . $item->itemName . '">' . PHP_EOL;
-            echo '<input type="hidden" id="value_' . $item->itemId . '" name="value_' . $item->itemId . '" value="' . $item->value . '">' . PHP_EOL;
-            echo '<input type="hidden" id="elementId_' . $item->itemId . '" name="elementId_' . $item->itemId . '" value="' . $item->elementId . '">' . PHP_EOL;
-        }
-    }
-    ?>
-</form>
+<?php 
+echo $this->form;
+?>
