@@ -76,15 +76,6 @@
                     <resource>user</resource>
                     <className>User</className>
                 </users>
-                <privileges>
-                    <label>privilege</label>
-                    <title>privilege</title>
-                    <controller>privilege</controller>
-                    <action>index</action>
-                    <subgroup>subadmin</subgroup>
-                    <resource>privilege</resource>
-                    <className>Privilege</className>
-                </privileges>
                 <scenario>
                     <label>scenario</label>
                     <title>scenario</title>
@@ -96,6 +87,47 @@
                 </scenario>
             </pages>
         </admin>
-        
     </nav>
+    <resources>
+        <form>
+            <resource>form</resource>
+        </form>
+        <objects>
+            <objectType>
+                <node>
+                    <resource>node</resource>
+                </node>
+            </objectType>
+
+            <objectType>
+                <position>
+                    <resource>position</resource>
+                </position>
+            </objectType>
+ 
+            <objectType>
+                <template>
+                    <resource>template</resource>
+                </template>
+            </objectType>
+            <objectType>
+                <element>
+                    <resource>element</resource>      
+                </element>
+            </objectType>
+                
+            <objectType>
+                <user>
+                    <resource>user</resource>
+                </user>
+            </objectType>
+                
+        </objects>
+        <privilege>
+            <resource>privilege</resource>
+        </privilege>
+        <scenario>
+            <resource>scenario</resource>
+        </scenario>
+    </resources>
 </config>

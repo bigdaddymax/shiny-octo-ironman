@@ -5,6 +5,7 @@
 
     function openForm(formId) {
         $('#form-open').load('<?php echo $this->url(array('controller' => 'form', 'action' => 'open-form'), null, true); ?>' + '/formId/' + formId.slice(formId.indexOf('_') + 1));
+        $('#form-open').modal('show');
         //location = url;
     }
 </script>
@@ -139,11 +140,9 @@
         <!-- END Forms list -->
     </div>
     <!-- END left part of FORMS page -->
-
-    <!-- Form's details -->
-    <div id="form-open" class="large-4 right"></div>
-    <!-- END Forms details -->
-
-
 </div>
 <!-- END GLOBAL CONTAINER -->
+
+<!-- Form's details -->
+<div id="form-open" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+<!-- END Forms details -->    

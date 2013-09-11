@@ -1,0 +1,8 @@
+<?php
+echo '<option value="-1" disabled="disabled" selected>' . $this->translate('element') . '</option>';
+if (!empty($this->expTypes)) {
+    foreach ($this->expTypes as $type) {
+        echo '<option value="' . $type->elementId . '">' . $type->elementName . '</option>' . PHP_EOL;
+    }
+
+}

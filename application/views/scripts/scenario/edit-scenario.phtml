@@ -5,7 +5,7 @@
         
     }
     $(function(){
-        $("#new-entry-form").dialog({
+        $("#new-entry-").dialog({
             autoOpen: false,
             title: "<?php echo $this->translate('add user to scenario'); ?>",
             buttons: {
@@ -15,7 +15,7 @@
                         '">'+
                         '<td id="href"><a href="#" onClick="deleteEntry(entry_'+
                         $("#userId").val()+pos+
-                        ')">x</a></td><td id="user">'+
+                        ')">&times</a></td><td id="user">'+
                         $("#userId :selected").html()+
                         '<input type="hidden" id="orderPos_' + $("#userId").val() +
                         '" name="orderPos_' + $("#userId").val() +
@@ -30,7 +30,7 @@
         });
     
         $("#add-entry-btn").button().click(function(){
-            $("#new-entry-form").dialog("open");
+            $("#new-entry-form").modal("show");
         });
         $("#add-scenario-btn").button().click(function(){
             $.post("<?php echo $this->url(array('controller' => 'scenario', 'action' => 'save-scenario')); ?>", $("#scenario-data").serialize());
@@ -58,7 +58,7 @@
                 foreach ($this->entries as $key => $entry) {
                     echo '<tr id="entry_' . $entry->userId . $key .
                     '"><td id="href"><a href="#" onclick="deleteEntry(entry_' . $entry->userId . $key .
-                    ')">x</a></td><td id="user">' . $entry->userName . '</td>' . PHP_EOL;
+                    ')">&times</a></td><td id="user">' . $entry->userName . '</td>' . PHP_EOL;
                     echo '<input type="hidden" id="orderPos_' . $entry->userId . '" name="orderPos_' . $entry->userId . '" value="' . $key . '"></td></tr>' . PHP_EOL;
                 }
             }
@@ -79,16 +79,30 @@
 <div class="object-help">
 
 </div>
-<div id="new-entry-form" title="<?php echo $this->translate('add user'); ?>">
-    <?php
-    if ($this->users) {
-        echo "<select id='userId' name='userId'>";
-        foreach ($this->users as $user) {
-            echo "<option value='$user->userId'>$user->userName</option>";
-        }
-        echo "</select>";
-    } else {
-        echo 'No users';
-    }
-    ?>
+<div id="new-entry-form" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4><?php echo $this->translate('add user'); ?> </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body">
+            <?php
+            if ($this->users) {
+                echo '<div class="form-group">' . PHP_EOL;
+                echo '<label for="userId">' . $this->translate('select user') . '</label>' . PHP_EOL;
+                echo "<select id='userId' name='userId' class='form-control'>";
+                foreach ($this->users as $user) {
+                    echo "<option value='$user->userId'>$user->userName</option>";
+                }
+                echo "</select>";
+                echo '</div>';
+                echo '<button class="btn">'. $this->translate('add user'). '</button>' . PHP_EOL;
+            } else {
+                echo 'No users';
+            }
+            ?>
+            </div>
+        </div>
+    </div>
 </div>

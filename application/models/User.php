@@ -11,6 +11,7 @@ class Application_Model_User {
     private $_userName;
     private $_userId;
     private $_positionId;
+    private $_email;
     private $_login;
     private $_password;
     private $_active = 1;
@@ -43,16 +44,15 @@ class Application_Model_User {
         }
     }
 
-        
     /**
      *  Function that returns status of Element instance. We consider Element as valid if user 
      *  has correctly set userName, userCode
      * @return type
      */
     public function isValid() {
-        if (isset($this->_login) && isset($this->_userName) &&
-                isset($this->_domainId) &&
-                 isset($this->_positionId)) {
+        if (!empty($this->_login) && !empty($this->_userName) &&
+                !empty($this->_domainId) &&
+                !empty($this->_positionId)) {
             $this->_valid = true;
         } else {
             $this->_valid = false;

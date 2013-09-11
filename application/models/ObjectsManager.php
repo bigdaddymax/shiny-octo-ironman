@@ -204,7 +204,7 @@ class Application_Model_ObjectsManager {
 
         // Save main object
         try {
-        $mainObjectId = $this->dataMapper->saveData($this->tableName, $object->toArray());
+            $mainObjectId = $this->dataMapper->saveData($this->tableName, $object->toArray());
         } catch (Exception $e) {
             throw new SaveObjectException($object);
         }
@@ -244,22 +244,20 @@ class Application_Model_ObjectsManager {
         $userGroups = $this->getAllObjects('UserGroup', array(0 => array('column' => 'userId', 'operand' => $user->userId)));
         if (!empty($userGroups[0])) {
             return $userGroups[0]->role;
-        } else {
-            return '';
         }
+        return '';
     }
 
     public function grantPrivilege($privilege) {
         $this->setClassAndTableName($privilege);
-        $id = $this->dataMapper->checkObjectExistance($this->tableName,$privilege->toArray());
+        $id = $this->dataMapper->checkObjectExistance($this->tableName, $privilege->toArray());
         if ($id) {
             // This privilege is already granted
             return array('error' => 0, 'message' => 'This privilege is already granted', 'code' => 200);
-        } else {
-            // Save new privilege
-            $id = $this->saveObject($privilege);
-            return array('error' => 0, 'message' => 'Privilege granted', 'recordId' => $id, 'code' => 200);
         }
+        // Save new privilege
+        $id = $this->saveObject($privilege);
+        return array('error' => 0, 'message' => 'Privilege granted', 'recordId' => $id, 'code' => 200);
     }
 
     public function revokePrivilege($privilege) {
@@ -268,10 +266,9 @@ class Application_Model_ObjectsManager {
             // This privilege is already granted
             $this->deleteObject('Privilege', $id);
             return array('error' => 0, 'message' => 'Privilege revoked', 'code' => 200);
-        } else {
-            // This privilege doesnt exist already
-            return array('error' => 0, 'mesage' => 'Was already deleted', 'code' => 200);
         }
+        // This privilege doesnt exist already
+        return array('error' => 0, 'mesage' => 'Was already deleted', 'code' => 200);
     }
 
     /**

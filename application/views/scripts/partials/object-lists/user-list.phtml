@@ -3,7 +3,7 @@
 if (is_array($this->users)){
     foreach ($this->users as $user) {
         echo '<tr>' . PHP_EOL;
-        echo '<td><a href="#" onClick="deleteObject(\'user\', ' . $user->userId . ')">x</a></td>' . PHP_EOL;
+        echo '<td><a href="#" onClick="deleteObject(\'user\', ' . $user->userId . ')">&times</a></td>' . PHP_EOL;
         echo '<td><a href="' .
                 $this->url(array('controller'=>'objects',
                                  'action'=>'open-object',
@@ -11,10 +11,10 @@ if (is_array($this->users)){
                                  'userId'=>$user->userId), null, true).
                 '">' . $user->userName . '</a></td>' . PHP_EOL;
         echo '<td>' . $user->login . '</td>' . PHP_EOL;
-        echo '<td><a href="' . $this->url(array('controller' => 'objects',
-                                                'action' => 'user-privileges',
-                                                'userId' => $user->userId,
-                                                'objectType'=>'privilege'), NULL, true) .
+        echo '<td><a href="' . $this->url(array('controller' => 'privilege',
+                                                'action' => 'index',
+                                                'userId' => $user->userId
+                                                ), NULL, true) .
              '">Privileges </td>' . PHP_EOL;
         echo '</tr>' . PHP_EOL;
     }
