@@ -30,108 +30,113 @@
     });
     
     function addComment(){
-        $.post("<?php echo $this->url(array('controller'=>'form', 'action'=>'add-comment'));?>", {'formId': <?php echo $this->form['form']->formId;?>, 'comment': $("#comment").val()});
+        $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'add-comment')); ?>", {'formId': <?php echo $this->form['form']->formId; ?>, 'comment': $("#comment").val()});
     }
     
 </script> 
 
 <!-- ++++++++ Form data PANEL +++++++ -->
-<div>
-    <!-- FORM NAME -->
-    <div id="form-header" class="row">
-        <?php
-        echo $this->translate('invoice detail') . ' #' . $this->form['form']->formId . PHP_EOL;
-        ?>
-    </div>
-    <!-- END FROM NAME-->
-    
-    <!-- Form approval status-->
-    <div class="row" id="approval_status">
-        <?php
-        echo '<h5><center>' . $this->translate('approval status') . '</center></h5>' . PHP_EOL;
-        if (isset($this->approved)) {
-            foreach ($this->approved as $approver) {
-                echo '<div id="form-item">' . $approver['userName'] . " " . substr($approver['date'], 0, strpos($approver['date'], ' ')) . '</div>';
-            }
-        }
-        ?>
-    </div>
-    <!-- END Form approval status -->
-
-    <!-- Form details (author, invoice type, department etc)-->
-    <div class="row">
-        <?php
-        echo '<div id="form-name"><h5>' . $this->form['form']->expgroup . '</h5></div>' . PHP_EOL;
-        echo '<div id="form-name"><h6>' . $this->form['contragent']->contragentName . '</h6></div>' . PHP_EOL;
-
-        if (!empty($this->form['parentNode']->nodeName))
-            echo '<div id = "form-node">' . $this->translate('company') . ': <strong>' . $this->form['parentNode']->nodeName . '</strong></div>';
-        echo '<div id = "form-node">' . $this->translate('deptmnt') . ': <strong>' . $this->form['node']->nodeName . '</strong></div>';
-        echo '<div id="form-author">' . PHP_EOL;
-        echo '<div id = "form-user">' . $this->translate('owner') . ': <strong>' . $this->form['owner']->userName . '</strong></div>';
-        echo '<div id = "form-date">' . $this->translate('date') . ': <strong>' . substr($this->form['form']->date, 0, strpos($this->form['form']->date, ' ')) . '</strong></div>';
-        echo '<div style="display: block; clear: both;"></div>';
-        echo '</div>';
-        echo '<div id="form-name" class="clear panel"><h6>' . $this->form['form']->formName . '</h6></div>' . PHP_EOL;
-        ?>
-    </div>
-    <!-- END Form details -->
-    
-    <div id="form-descr">
-
-    </div>
-    
-    <!-- Invoice items list -->
-    <div id="items" class="row">
-        <?php
-        foreach ($this->form['items'] as $item) {
-            echo '<div id="form-item" class="row"><div class="float: left">' . $item->itemName . '</div><div class="float: right">' . sprintf("%01.2f", $item->value) . '</div></div>' . PHP_EOL;
-        }
-         echo '<div id="form-total" class="row">' . PHP_EOL;
-         echo '<div  class="float: left">' . $this->translate('total') . '</div>' . PHP_EOL; 
-         echo '<div  class="float: right">' . sprintf("%01.2f", $this->form['total']) . '</div>' . PHP_EOL;
-         echo '</div>' . PHP_EOL; 
-         ?>
-        <!--  Fixing float collapse  -->
-    </div>
-    <!-- END Invoice items list -->
-    
-    <!-- ATTACHMENTS list -->
-    <div id="attachments">
-
-
-    </div>
-    <!-- END ATTACHMENTS -->
-    
-    <!-- Approval buttons -->
-    <div id="form-buttons">
-        <?php
-        if ($this->showApproval && $this->form['form']->public) {
-            echo '<button id="approve" name="approve">' . $this->translate('approve') . '</button>';
-            echo '<button id="decline" name="decline">' . $this->translate('decline') . '</button>';
-        }
-
-        if (!$this->form['form']->public) {
-            echo '<button id="publish">' . $this->translate('publish') . '</button>';
-            echo '<button id="edit">' . $this->translate('edit form') . '</button>';
-        }
-        ?>
-    </div>
-    <!-- END Approval buttons -->
-    
-    <!-- Comments section -->
-    <div id="comments">
-        <h4><?php echo $this->translate('comments');?></h4>
-        <input type="text" id="comment" name="comment">
-        <button id="add-comment" onclick="addComment()"><?php echo $this->translate('add comment');?></button>
-        <?php
-            if ($this->comments){
-                foreach ($this->comments as $comment){
-                    echo $comment;
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">  
+                <?php
+                echo $this->translate('invoice detail') . ' #' . $this->form['form']->formId . PHP_EOL;
+                ?>
+            </h4>
+        </div>       
+        <div class="modal-body">
+            <!-- Form approval status-->
+            <div id="approval_status">
+                <?php
+                echo '<h5><center>' . $this->translate('approval status') . '</center></h5>' . PHP_EOL;
+                if (isset($this->approved)) {
+                    foreach ($this->approved as $approver) {
+                        echo '<div id="form-item">' . $approver['userName'] . " " . substr($approver['date'], 0, strpos($approver['date'], ' ')) . '</div>';
+                    }
                 }
-            }
-        ?>
+                ?>
+            </div>
+            <!-- END Form approval status -->
+
+            <!-- Form details (author, invoice type, department etc)-->
+            <div >
+                <?php
+                echo '<div id="form-name"><h5>' . $this->form['form']->expgroup . '</h5></div>' . PHP_EOL;
+                echo '<div id="form-name"><h6>' . $this->form['contragent']->contragentName . '</h6></div>' . PHP_EOL;
+
+                if (!empty($this->form['parentNode']->nodeName))
+                    echo '<div id = "form-node">' . $this->translate('company') . ': <strong>' . $this->form['parentNode']->nodeName . '</strong></div>';
+                echo '<div id = "form-node">' . $this->translate('deptmnt') . ': <strong>' . $this->form['node']->nodeName . '</strong></div>';
+                echo '<div id="form-author">' . PHP_EOL;
+                echo '<div id = "form-user">' . $this->translate('owner') . ': <strong>' . $this->form['owner']->userName . '</strong></div>';
+                echo '<div id = "form-date">' . $this->translate('date') . ': <strong>' . substr($this->form['form']->date, 0, strpos($this->form['form']->date, ' ')) . '</strong></div>';
+                echo '<div style="display: block; clear: both;"></div>';
+                echo '</div>';
+                echo '<div id="form-name" class="clear panel"><h6>' . $this->form['form']->formName . '</h6></div>' . PHP_EOL;
+                ?>
+            </div>
+            <!-- END Form details -->
+
+            <div id="form-descr">
+
+            </div>
+
+            <!-- Invoice items list -->
+            <div id="items" class="row">
+                <?php
+                foreach ($this->form['items'] as $item) {
+                    echo '<div id="form-item"><div>' . $item->itemName . '</div><div>' . sprintf("%01.2f", $item->value) . '</div></div>' . PHP_EOL;
+                }
+                echo '<div id="form-total" >' . PHP_EOL;
+                echo '<div>' . $this->translate('total') . '</div>' . PHP_EOL;
+                echo '<div>' . sprintf("%01.2f", $this->form['total']) . '</div>' . PHP_EOL;
+                echo '</div>' . PHP_EOL;
+                ?>
+                <!--  Fixing float collapse  -->
+            </div>
+            <!-- END Invoice items list -->
+
+            <!-- ATTACHMENTS list -->
+            <div id="attachments">
+
+
+            </div><!-- END ATTACHMENTS -->
+
+            <!-- Approval buttons -->
+            <div id="form-buttons">
+                <?php
+                if ($this->showApproval && $this->form['form']->public) {
+                    echo '<button id="approve" name="approve" class="btn btn-success">' . $this->translate('approve') . '</button>';
+                    echo '<button id="decline" name="decline" class="btn btn-danger">' . $this->translate('decline') . '</button>';
+                }
+
+                if (!$this->form['form']->public) {
+                    echo '<button type="button" id="publish" class="btn btn-primary">' . $this->translate('publish') . '</button>';
+                    echo '<button type="button" id="edit" class="btn btn-default">' . $this->translate('edit form') . '</button>';
+                }
+                ?>
+            </div><!-- END Approval buttons -->
+
+            <!-- Comments section -->
+            <div id="comments">
+                <h4><?php echo $this->translate('comments'); ?></h4>
+                <input type="text" id="comment" name="comment">
+                <button id="add-comment" onclick="addComment()"><?php echo $this->translate('add comment'); ?></button>
+                <?php
+                if ($this->comments) {
+                    foreach ($this->comments as $comment) {
+                        echo $comment;
+                    }
+                }
+                ?>
+            </div><!-- END Comments section -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
     </div>
-    <!-- END Comments section -->
 </div>
 <!-- END OF PANEL -->

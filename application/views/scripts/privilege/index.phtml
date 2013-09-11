@@ -23,7 +23,7 @@ function prepareList() {
     function checkboxToggle(event){
         var chkbox = event.target.id;
         var items = chkbox.split("_");
-        $.post('<?php echo $this->url(array('controller'=>'objects', 'action'=>'edit-privileges', null, false));?>', 
+        $.post('<?php echo $this->url(array('controller'=>'privilege', 'action'=>'edit-privileges', null, false));?>', 
                {'privilege': items[0],
                 'object': items[1],
                 'objectId': items[2],

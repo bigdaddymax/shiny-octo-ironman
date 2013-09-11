@@ -3,7 +3,7 @@
     $(function(){
         var addUrl;
         addUrl = "<?php echo $this->url(array('controller' => 'scenario', 'action' => 'save-scenario')); ?>";
-        $('#new-scenario-form').dialog({
+        $('#new-scenario-').dialog({
             autoOpen: false,
             modal:    true,
             buttons:  {
@@ -62,6 +62,10 @@ foreach ($this->users as $user) {
                         function openScenario(scenarioId){
                             var url = '<?php echo $this->url(array('controller' => 'scenario', 'action' => 'open-scenario'), null, true); ?>' + '/scenarioId/' + scenarioId.slice(scenarioId.indexOf('_')+1);
                             location = url;
+                        }
+                        
+                        function openAddScenarioForm() {
+                            $("#new-scenario-form").modal('show');
                         }
 </script>
 <div id="main"></div>

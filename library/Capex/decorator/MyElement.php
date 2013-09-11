@@ -9,8 +9,7 @@ class Capex_Decorator_MyElement extends Zend_Form_Decorator_HtmlTag {
         $element = $this->getElement();
         $messages = $element->getMessages();
         $value = $element->getValue();
-        
-        if ($messages) {
+        if ($messages && $element->isRequired()) {
             $class = $this->getOption('class');
             $this->setOption('class', 'has-error '. $class);
         }

@@ -3,13 +3,13 @@
     $(function() {
         var addUrl;
         addUrl = "<?php echo $this->url(array('controller' => 'objects', 'action' => 'add-object'), null, true); ?>";
-        $('#add-object-form').dialog({
+        $('#add-object_form').dialog({
             autoOpen: false,
             modal: true,
             buttons: {
                 'Save': function() {
                     $.post(addUrl, $("#object-form").serialize())
-                            .done(function(data) {
+                    .done(function(data) {
                         $("#add-object-form").dialog("close");
                         location.reload();
                     });
@@ -21,24 +21,30 @@
         });
 
         $("#add-object-btn").button()
-                .click(function() {
-            $("#add-object-form").dialog("open");
+        .click(function() {
+            $("#add-object_form").dialog("open");
         });
     });
-
+    
+    function addObject() {
+        addUrl = "<?php echo $this->url(array('controller' => 'objects', 'action' => 'add-object'), null, true); ?>";
+        $.post(addUrl, $("#object-form").serialize());
+        $("add-object-form").modal("hide");
+    }
+    
     function deleteObject(objType, objId) {
         $.post("<?php echo $this->url(array('controller' => 'objects', 'action' => 'delete'), null, true); ?>",
-                {'objectType': objType, 'id': objId},
-                function(data) {
-                    // Our controller returns JSON
-                    if (1 == data.error) {
-                        $("#result-message").append('<div data-alert class="alert-box"><a href="#" class="close">&times</a>' + data.message + '</div>');
-                    } else {
-                        // If no error just reload the page to reflect changes
-                        location.reload();
-                    }
-                }
-        );
+        {'objectType': objType, 'id': objId},
+        function(data) {
+            // Our controller returns JSON
+            if (1 == data.error) {
+                $("#result-message").append('<div data-alert class="alert-box"><a href="#" class="close">&times</a>' + data.message + '</div>');
+            } else {
+                // If no error just reload the page to reflect changes
+                location.reload();
+            }
+        }
+    );
 
     }
 </script>
@@ -46,7 +52,13 @@
 </div>
 <div class="object-list">
     <?php
-    echo $this->partial('partials/object-forms/' . $this->objectName . '-form.phtml', array('subobjects' => $this->subobjects));
+    // We don't need to display Add button in case of privilege edition
+    if ('privilege' !== $this->objectName) {
+        ?>
+        <button class="btn btn-primary" onClick="javascript:window.location.replace('<?php echo $this->url(array('controller' => 'objects', 'action' => 'add-object', 'objectType' => $this->objectName)); ?>')"><?php echo $this->translate('add new ' . $this->objectName); ?></button>
+        <?php
+    }
+    //    echo $this->partial('partials/object-forms/' . $this->objectName . '-form.phtml', array('subobjects' => $this->subobjects));
     echo $this->partial('partials/object-lists/' . $this->objectName . '-list.phtml', array($this->objectName . 's' => $this->objects, 'subobjects' => $this->subobjects));
     ?>
 </div>

@@ -56,3 +56,8 @@ General guide for AJAX implementation in the project:
         Error codes:
             
     e) we use 
+
+5. Form handling guide.
+
+Controllers have addForm/addObject actions to add data from web to database; editForm/editObject
+to edit data, openForm/openObject to show existing data.

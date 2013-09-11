@@ -227,6 +227,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
     }
 
     public function testEditScenario() {
+        // Log in
         $user = array('login' => 'user login', 'password' => 'user password');
         $params = array('controller' => 'auth', 'action' => 'auth');
         $this->request->setMethod('post');
@@ -234,10 +235,11 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->resetRequest();
         $this->resetResponse();
+        
+        // Create scenario
         $scenarioArray1 = array('scenarioName' => 'test', 'nodeId' => $this->nodeId1, 'domainId' => 1,
             'orderPos_' . $this->userId1 => 1, 'orderPos_' . $this->userId => 2);
         $params = array('controller' => 'scenario', 'action' => 'save-scenario');
-//        Zend_Debug::dump($scenarioArray1);
         $this->request->setMethod('post');
         foreach ($scenarioArray1 as $key => $value) {
             if ($value === null) {
@@ -245,9 +247,13 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
             }
             $this->request->setPost($key, $value);
         }
+        $this->dispatch($this->url($this->urlizeOptions($params)));
+        
+        
+        // Check what was saved to DB
         $entryArray0 = array('orderPos' => 2, 'userId' => $this->userId, 'domainId' => 1, 'active' => 1);
         $entryArray1 = array('orderPos' => 1, 'userId' => $this->userId1, 'domainId' => 1, 'active' => 1);
-        $this->dispatch($this->url($this->urlizeOptions($params)));
+
         $objectManager = new Application_Model_ObjectsManager(1);
         $scenarios = $objectManager->getAllObjects('scenario');
         $scenario = $objectManager->getObject('scenario', $scenarios[0]->scenarioId);
@@ -265,6 +271,8 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
 
         $this->resetRequest();
         $this->resetResponse();
+        
+        // Save another scenario
         $scenarioArray2 = array('scenarioName' => 'test', 'nodeId' => $this->nodeId1, 'domainId' => 1,
             'orderPos_' . $this->userId1 => 1, 'scenarioId' => $scenario->scenarioId);
         $params = array('controller' => 'scenario', 'action' => 'save-scenario');
@@ -289,13 +297,18 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetRequest();
         $this->resetResponse();
 
+        // Goto edit-scenario web page
         $params = array('controller' => 'scenario', 'action' => 'edit-scenario', 'scenarioId' => $scenarios1[0]->scenarioId);
-//        Zend_Debug::dump($scenarioArray1);
         $this->request->setMethod('post');
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->assertController('scenario');
         $this->assertAction('edit-scenario');
         $this->assertQuery('#entries');
+        
+        // We are on the edit scenario page
+        // Lets edit this scenario
+        
+        
     }
 
     /**

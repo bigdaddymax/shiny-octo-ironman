@@ -23,6 +23,7 @@ class ObjectsController extends Zend_Controller_Action {
     private $session;
     private $params;
     private $config;
+    private $form;
 
     /**
      * init() performs all preparations needed to complete requested action. Its main task
@@ -49,7 +50,7 @@ class ObjectsController extends Zend_Controller_Action {
         $params = $this->getRequest()->getParams();
         foreach ($params as $key => $param) {
             if (!$param) {
-                $param = -1;
+//                $param = -1;
             }
             $prms[$key] = $param;
         }
@@ -66,31 +67,32 @@ class ObjectsController extends Zend_Controller_Action {
         $this->redirector = $this->_helper->getHelper('Redirector');
         switch ($this->_request->getParam('objectType')) {
             case 'node':
-                $this->subobjects = array('nodes' => $this->objectManager->getAllObjects('node'));
+                $this->form = new Application_Form_NewNode(array('nodes' => $this->objectManager->getAllObjects('node')));
                 break;
             case 'element':
-                $this->subobjects = array('expgroup' => $this->config->expences->group);
+                $this->form = new Application_Form_NewElement(array('expgroup' => $this->config->expences->group));
                 break;
             case 'position':
-                $nodes = $this->objectManager->getAllObjects('Node');
-                foreach ($nodes as $node) {
-                    $nodeArray['nodes'][$node->nodeId] = $node;
-                }
-                $this->subobjects = $nodeArray;
+                $this->form = new Application_Form_NewPosition($this->objectManager->getAllObjects('Node'));
                 break;
             case 'user':
-                $this->subobjects = array('positions' => $this->objectManager->getAllObjects('Position'));
+                $this->form = new Application_Form_NewUser(array('position' => $this->objectManager->getAllObjects('Position')));
                 break;
             case 'template':
-                $this->subobjects = array('templates' => $this->objectManager->getAllObjects('template'),
-                                          'types'=>$this->config->template->types,
-                                          'locales'=>$this->config->app->locales);
+                $this->form = new Application_Form_NewTemplate(array('templates' => $this->objectManager->getAllObjects('template'),
+                            'types' => $this->config->template->types,
+                            'locales' => $this->config->app->locales));
+                break;
         }
         $this->objectName = strtolower($this->_request->getParam('objectType'));
         $this->setClassAndTableName($this->_request->getParam('objectType'));
         $this->params['domainId'] = $this->session->domainId;
     }
 
+    /**
+     * Kinda helper, takes object name and convert it to according table name, class name etc
+     * @param string $object
+     */
     private function setClassAndTableName($object) {
         $this->className = 'Application_Model_' . ucfirst($object);
         $this->tableName = $this->objectName;
@@ -101,24 +103,25 @@ class ObjectsController extends Zend_Controller_Action {
 
     public function indexAction() {
         $this->view->objects = $this->objectManager->getAllObjects($this->objectName);
-        $this->view->subobjects = $this->subobjects;
     }
 
+    /**
+     * Action that is invoked when user clicks submit button on Add object form
+     */
     public function addObjectAction() {
-//        Zend_Debug::dump($params);
-        $object = new $this->className($this->params);
-        if ($object->isValid()) {
-            $objectId = $this->objectManager->saveObject($object);
-            $this->_helper->json(array('error'=>0,
-                                       'message'=>'Object created successfully',
-                                       'code'=>200,
-                                       'objectType'=> $this->tableName,
-                                       'objectId'=>$objectId), true);
+        $this->form->setAction($this->view->url(array('controller' => 'objects', 'action' => 'add-object')));
 
-        } else {
-            $this->_helper->json(array('error'=>1,
-                                       'message'=>'Object is not valid',
-                                       'code'=>406), true);
+        $this->view->form = $this->form;
+        if ($this->_request->isPost()) {
+            if ($this->form->isValid($this->_request->getParams())) {
+                $params = $this->_request->getParams();
+                if (isset($params['password'])) {
+                    $auth = new Application_Model_Auth();
+                    $params['password'] = $auth->hashPassword($params['password']);
+                }
+                $this->objectManager->saveObject($params);
+                $this->_forward('index', 'objects', null, array('objectType' => $params['objectType']));
+            }
         }
     }
 
@@ -131,31 +134,6 @@ class ObjectsController extends Zend_Controller_Action {
             // We catch only DependantObjectDeletionAttempt. All other (?) exceptions will be handled default way
             $this->_helper->json($e->errorToArray());
         }
-    }
-
-    public function userPrivilegesAction() {
-        $userId = (int) $this->_request->getParam('userId');
-        if ($userId /* && $this->_request->isPost */) {
-            $this->view->user = $this->objectManager->getObject('User', $userId);
-            $this->view->userPrivileges = $this->objectManager->getPrivilegesTable($userId);
-        }
-    }
-
-    public function editPrivilegesAction() {
-        if ($this->_request->isPost()) {
-            $privilege = new Application_Model_Privilege(array('userId' => $this->_request->getParam('userId'),
-                'objectType' => $this->_request->getParam('object'),
-                'objectId' => $this->_request->getParam('objectId'),
-                'privilege' => $this->_request->getParam('privilege'),
-                'domainId' => $this->session->domainId));
-            if ((bool) $this->_request->getParam('state')) {
-                $result = $this->objectManager->grantPrivilege($privilege);
-            } else {
-                $result = $this->objectManager->revokePrivilege($privilege);
-            }
-        }
-
-        $this->_helper->json($result, true);
     }
 
     public function openObjectAction() {
@@ -232,6 +210,7 @@ class ObjectsController extends Zend_Controller_Action {
         }
         $this->_helper->json($result);
     }
+
 }
 
 ?>

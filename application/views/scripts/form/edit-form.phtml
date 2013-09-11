@@ -12,58 +12,41 @@
     }
     $(function() {
         $("#add-item-btn").button().click(
-                function() {
-                    $("#add-item").dialog("open");
-                });
+        function() {
+            $("#add-item").dialog("open");
+        });
 
         $("#add-form-btn").button().click(
-                function() {
-                    $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'add-form'), null, true); ?>",
-                            $("#app-form").serialize() + '&' + $("#items-form").serialize(),
-                            function(data) {
-                                if (1 == data.error) {
-                                    alert(data.message);
-                                } else {
-                                    window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'preview-form'), null, true); ?>/formId/" + data.formId;
-                                }
-                            })
-                });
-
-
-        $("#add-item").dialog({
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                'Add': function() {
-                    var counter = $("#counter").val();
-                    counter++;
-                    $("#counter").val(counter);
-                    $("#items").append('<div id="item_' + counter + '"><div id="item-delete-icon"><a href="#" onClick=deleteItem(' + counter + ')>x</a></div><div id="item-name">' + $("#itemName").val() + '</div><div id="item-value">' + Number($("#value").val()).toFixed(2) + '</div></div>');
-                    $("#counter").after('<input type="hidden" id="itemName_' + counter + '" name="itemName_' + counter + '" value="' + $("#itemName").val() + '">');
-                    $("#counter").after('<input type="hidden" id="value_' + counter + '" name="value_' + counter + '" value="' + $("#value").val() + '">');
-                    $("#counter").after('<input type="hidden" id="elementId_' + counter + '" name="elementId_' + counter + '" value="' + $("#elementId").val() + '">');
-                    $(this).dialog("close");
-                },
-                'Cancel': function() {
-                    $(this).dialog("close");
+        function() {
+            $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'add-form'), null, true); ?>",
+            $("#app-form").serialize() + '&' + $("#items-form").serialize(),
+            function(data) {
+                if (1 == data.error) {
+                    alert(data.message);
+                } else {
+                    window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'preview-form'), null, true); ?>/formId/" + data.formId;
                 }
-            }
-
+            })
         });
     });
-
+    
+    function AddItem(){
+        var counter = $("#counter").val();
+        counter++;
+        $("#counter").val(counter);
+        $("#itemsLoc").before('<tr id="item_' + counter + '"><td id="item-name">' + $("#itemName").val() + '</td><td>'+$('#expType option:selected').text()+'</td><td id="item-value">' + Number($("#value").val()).toFixed(2) + '</td><td id="item-delete-icon"><a href="#" onClick=deleteItem(' + counter + ')>&times</a></td></tr>');
+        $("#counter").after('<input type="hidden" id="itemName_' + counter + '" name="itemName_' + counter + '" value="' + $("#itemName").val() + '">');
+        $("#counter").after('<input type="hidden" id="value_' + counter + '" name="value_' + counter + '" value="' + $("#value").val() + '">');
+        $("#counter").after('<input type="hidden" id="elementId_' + counter + '" name="elementId_' + counter + '" value="' + $("#expType").val() + '">');
+    
+    }
+    
+    function setExpTypes() {
+        $("#expType").load("<?php echo $this->url(array('controller'=>'form', 'action'=>'set-exp-types')); ?>", {expGroup: $("#expgroup").val()});
+    }
+        
 </script>
 
-<div id="add-item" title="Add approval item">
-    <form id="item-form">
-        <div id="elements"></div>
-        <input type="text" id="itemName" name="itemName" placeholder="<?php echo $this->translate('description'); ?>">
-        <input type="text" id="value" name="value" placeholder="<?php echo $this->translate('value'); ?>">
-
-    </form>
-
-</div>
-
-<?php 
+<?php
 echo $this->form;
 ?>

@@ -1,22 +1,36 @@
-<div id="new-scenario-form" title="<?php echo $this->translate('add new scenario'); ?>">
-    <form id="scenario-data">
-        <div>
-            <label for="scenarioName"><?php echo $this->translate('scenario name'); ?></label>
+<div id="new-scenario-form"class="modal" role="dialog">
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4><?php echo $this->translate('new scenario'); ?></h4>
+            </div>
+            <div class="modal-body">
+                <form id="scenario-data">
+                    <div class="form-group">
+                        <label for="scenarioName"><?php echo $this->translate('scenario name'); ?></label>
+                        <input type="text" class="form-control" id="scenarioName" name="scenarioName" placeholder="<?php echo $this->translate('scenario name'); ?>"/>
+                    </div>
+                    <table width="100%">
+                        <tr  id="scenario-tbl"></tr>
+                    </table>
+                </form>
+                <input type="hidden" id="orderPos" value="0">
+            </div>
+            <div class="modal-footer">
+                <button id="add-entry-btn" class="btn btn-info"><?php echo $this->translate('add user'); ?></button>
+            </div>
         </div>
-        <div>
-            <input type="text" id="scenarioName" name="scenarioName" placeholder="<?php echo $this->translate('scenario name'); ?>"/>
-        </div>
-        <table width="100%">
-            <tr  id="scenario-tbl"></tr>
-        </table>
-    </form>
-    <input type="hidden" id="orderPos" value="0">
-    <button id="add-entry-btn"><?php echo $this->translate('add user');?></button>
+    </div>
 </div>
-<button id="add-scenario-btn"><?php echo $this->translate('add new scenario'); ?></button>
-<div id="new-entry-form" title="<?php echo $this->translate('add user');?>">
+<button id="add-scenario-btn" class="btn" onClick="openAddScenarioForm()"><?php echo $this->translate('add new scenario'); ?></button>
+<div id="new-entry-form" class="modal fade" role="dialog">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <?php echo $this->translate('add user'); ?>
+    </div>
     <div>
-        <label for="userId"><?php echo $this->translate('select user');?></label>
+        <label for="userId"><?php echo $this->translate('select user'); ?></label>
     </div>
     <?php
     if ($this->users) {
