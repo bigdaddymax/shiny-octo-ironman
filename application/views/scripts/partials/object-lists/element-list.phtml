@@ -5,7 +5,13 @@
             foreach ($this->elements as $element) {
                 echo '<tr>' . PHP_EOL;
                 echo '<td><a href="#" onClick="deleteObject(\'element\', ' . $element->elementId . ')">&times</a></td>' . PHP_EOL;
-                echo '<td>' . $element->elementName . '</td>' . PHP_EOL;
+                echo '<td><a href="'.
+                        $this->url(array(
+                            'controller'=>'objects',
+                            'action'=>'open-object',
+                            'objectType'=>'element',
+                            'elementId'=>$element->elementId)).
+                        '">' . $element->elementName . '</a></td>' . PHP_EOL;
                 echo '<td>' . $element->elementCode . '</td>' . PHP_EOL;
                 echo '<td>' . $element->expgroup . '</td>' . PHP_EOL;
                 echo '<td>' . $element->elementComment . '</td>' . PHP_EOL;
@@ -13,5 +19,6 @@
             }
         }
         ?>
+
+    </table>
 </div>
-</table>
