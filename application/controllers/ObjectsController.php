@@ -138,44 +138,56 @@ class ObjectsController extends Zend_Controller_Action {
 
     public function openObjectAction() {
         $objectId = (int) $this->params[$this->objectIdName];
+        $this->form->setAction($this->view->url(array('controller' => 'objects', 'action' => 'add-object')));
         switch ($this->_request->getParam('objectType')) {
             case 'node':
                 $node = $this->objectManager->getObject($this->_request->getParam('objectType'), $objectId);
                 $scenarios = $this->objectManager->getAllObjects('scenario');
                 $assignment = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
-                $nodes = $this->objectManager->getAllObjects('Node');
-                $this->view->objects = array('node' => $node,
+                $this->view->objects = array(
+                    'node' => $node,
                     'scenarios' => $scenarios,
-                    'nodes' => $nodes, 'assignment' => ($assignment) ? $assignment[0] : NULL);
+                    'assignment' => ($assignment) ? $assignment[0] : NULL);
+                $this->form->setDefaults(array(
+                    'nodeName'=>$node->nodeName,
+                    'parentNodeId'=>$node->parentNodeId
+                ));
+                $nodeId = $this->form->createElement('hidden', 'nodeId');
+                $nodeId->setValue($node->nodeId);
+                $this->form->addElement($nodeId);
+                $this->view->form = $this->form;
                 $this->view->partialFile = 'open-node.phtml';
                 break;
             case 'element':
                 $element = $this->objectManager->getObject($this->_request->getParam('objectType'), $objectId);
-                $this->view->objects = array('element' => $element);
+                $this->form->setDefaults(array('elementName' => $element->elementName,
+                    'expgroup' => $element->expgroup
+                ));
+                $this->view->form = $this->form;
                 $this->view->partialFile = 'open-element.phtml';
                 break;
             case 'position':
                 $position = $this->objectManager->getObject('position', $objectId);
-                $nodes = $this->objectManager->getAllObjects('node');
-                if ($nodes) {
-                    foreach ($nodes as $node) {
-                        $nodesArray[$node->nodeId] = $node;
-                    }
-                }
-                $this->view->objects = array('position' => $position, 'nodes' => $nodesArray);
+                $this->form->setDefaults(array(
+                    'positionName' => $position->positionName,
+                    'nodeId' => $position->nodeId
+                ));
+                $positionId = $this->form->createElement('hidden', 'positionId');
+                $positionId->setValue($position->positionId);
+                $this->form->addElement($positionId);
+                $this->view->form = $this->form;
                 $this->view->partialFile = 'open-position.phtml';
                 break;
             case 'user':
                 $user = $this->objectManager->getObject('user', $this->_request->getParam('userId'));
-                $positions = $this->objectManager->getAllObjects('position');
-                $nodes = $this->objectManager->getAllObjects('node');
-                $position = $this->objectManager->getObject('position', $user->positionId);
-                $node = $this->objectManager->getObject('node', $position->nodeId);
-                $this->view->objects = array('user' => $user,
-                    'positions' => $positions,
-                    'nodes' => $nodes,
-                    'positionId' => $position->positionId,
-                    'nodeId' => $node->nodeId);
+                $this->form->setDefaults(array(
+                    'userName' => $user->userName,
+                    'login' => $user->login,
+                    'positionId' => $user->positionId
+                ));
+                $userId = $this->form->createElement('hidden', 'userId');
+                $this->form->addElement($userId);
+                $this->view->form = $this->form;
                 $this->view->partialFile = 'open-user.phtml';
                 break;
         }

@@ -17,28 +17,6 @@
     
 </script>
 
-<div class="panel">
-    <form id="position-form">
-    <?php
-    if (!empty($this->objects['position'])) {
-        echo '<div class="row">' . PHP_EOL;
-        echo '<lable for="_positionName">' . $this->translate('position name') . '</label>';
-        echo '<input type="text" id="_positionName" name="_positionName" value="' .
-        $this->objects['position']->positionName .
-        '" placeholder="' . $this->translate('position name') . '">' . PHP_EOL;
-        if ($this->objects['nodes']) {
-            echo '<label  for="_nodeId">' . $this->translate('deptmnt') . '</label>' . PHP_EOL;
-            echo '<select id="_nodeId" name="_nodeId">';
-            echo '<option disabled>' . $this->translate('deptmnt') . '</option>';
-            foreach ($this->objects['nodes'] as $node) {
-                echo '<option value="'. $node->nodeId.'">' . $node->nodeName . '</option>' . PHP_EOL;
-            }
-            echo '</select>';
-        }
-    }
-    ?>
-        <input type="hidden" id="objectType" name="objectType" value="position">
-        <input type="hidden" id="_positionId" name="_positionId" value="<?php echo $this->objects['position']->positionId;?>">
-    </form>
-</div>
-<button id="update-position-btn"><?php echo $this->translate('save'); ?></button>
+<?php 
+echo $this->form;
+?>
