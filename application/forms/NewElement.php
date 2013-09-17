@@ -29,14 +29,19 @@ class Application_Form_NewElement extends Zend_Form {
         $elementName->addValidator('alnum')
                 ->addValidator($elementValidator)
                 ->setRequired(true);
+        
+        $elementCode = $this->createElement('text', 'elementCode');
+        $elementCode->addValidator('digits')
+                ->setRequired(true);
 
         $objectType = $this->createElement('hidden', 'objectType');
         $objectType->setValue('element');
         $submit = $this->createElement('submit', 'signup');
         $submit->setIgnore(true);
         $this->addElement($expgroup)
-                ->addElement($elementName)
                 ->addElement($objectType)
+                ->addElement($elementName)
+                ->addElement($elementCode)
                 ->addElement($submit);
 
         $this->expgroup->setLabel('expgroup')
@@ -45,9 +50,11 @@ class Application_Form_NewElement extends Zend_Form {
                 ->setOptions(array('disable'=>array(-1)));
         $this->elementName->setLabel('name')
                 ->setAttrib('class', 'form-control')
-                ->setAttrib('id', 'userName')
-                ->setAttrib('name', 'userName')
                 ->setAttrib('placeholder', $translate->_('element'));
+        
+        $this->elementCode->setLabel('element code')
+                ->setAttrib('class', 'form-control')
+                ->setAttrib('placeholder', $translate->_('element code'));
 
         $this->signup->setAttrib('class', 'btn btn-danger');
 
