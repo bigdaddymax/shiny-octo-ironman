@@ -13,7 +13,7 @@ class Application_Form_NewNode extends Zend_Form {
             $parentNodeId->addMultiOption($node->nodeId, $node->nodeName);
         }
 
-        $nodeName = $this->createElement('text', '_nodeName');
+        $nodeName = $this->createElement('text', 'nodeName');
         $nodeValidator = new Zend_Validate_Callback(
                         array('callback' => function($user) {
                                 $objectManager = new Application_Model_ObjectsManager(-1);
@@ -42,7 +42,7 @@ class Application_Form_NewNode extends Zend_Form {
         $this->parentNodeId->setLabel('parent node')
                 ->setAttrib('class', 'form-control')
                 ->setValue(-1);
-        $this->_nodeName->setLabel('node name')
+        $this->nodeName->setLabel('node name')
                 ->setAttrib('class', 'form-control')
                 ->setAttrib('placeholder', $translate->_('node name'));
 

@@ -25,7 +25,7 @@ class Application_Form_NewScenario extends Zend_Form {
             }));
         $scenarioValidator->setMessage("Element '%value%' is already registered");
 
-        $scenarioName->addValidator('alnum')
+        $scenarioName->addValidator('alnum', true, array('allowWhiteSpace'=>true))
                 ->addValidator($scenarioValidator)
                 ->setRequired(true);
 

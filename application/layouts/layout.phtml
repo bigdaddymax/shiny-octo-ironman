@@ -21,31 +21,12 @@
         ga('create', 'UA-42773043-1', 'capexopex.net');
         ga('send', 'pageview');
 
+
     </script>
     <link type="text/css" rel="stylesheet" href="<?php echo $this->baseUrl('css/style.css'); ?>" /> 
     <?php
     $session = new Zend_Session_Namespace('Auth');
     ?>
-    <script>
-        window.onload = function() {
-            var a1 = document.getElementById('signin-link');
-            var a2 = document.getElementById('signoff-link');
-            if (a1) {
-                a1.onclick = function() {
-                    $("#signin").dialog("open");
-                    return false;
-                }
-            }
-            if (a2) {
-                a2.onclick = function() {
-                    $.post('<?php echo $this->url(array('controller' => 'auth', 'action' => 'logoff'), null, true); ?>')
-                    .done(function(data) {
-                        window.location.assign("<?php echo $this->url(array('controller' => 'index', 'action' => 'index'), null, true) ?>");
-                    });
-                }
-            }
-        }
-    </script> 
 </head>
 <body>
     <div class="container">
@@ -85,7 +66,7 @@
                                 $this->navigation()->menu()->setPartial('partials/navigation/adminmenu.phtml');
                                 echo $this->navigation()->menu()->render();
                             }
-                            echo '<li><a href="#" id="signoff-link">' . $this->translate('logout') . '</a></li>';
+                            echo '<li><a href="' . $this->url(array('controller'=>'auth', 'action' =>'logoff')) . '#" id="signoff-link">' . $this->translate('logout') . '</a></li>';
                         } else {
                             echo '';
                         }

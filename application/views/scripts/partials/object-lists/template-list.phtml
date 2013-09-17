@@ -5,7 +5,7 @@
             foreach ($this->templates as $template) {
                 echo '<tr>' . PHP_EOL;
                 echo '<td><a href="#" onClick="deleteObject(\'template\', ' . $template->templateId . ')">&times</a></td>' . PHP_EOL;
-                echo '<td>' . $template->templateName . '</td>' . PHP_EOL;
+                echo '<td><a href="'.$this->url(array('controller'=>'objects', 'action'=>'open-object', 'objectType'=>'template', 'templateId'=>$template->templateId)).'">' . $template->templateName . '</a></td>' . PHP_EOL;
                 echo '<td>' . $this->translate($template->type) . '</td>' . PHP_EOL;
                 echo '<td>' . $this->translate($template->language) . '</td>' . PHP_EOL;
                 echo '<td>' . $template->body . '</td>' . PHP_EOL;
