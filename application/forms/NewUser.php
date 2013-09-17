@@ -26,7 +26,7 @@ class Application_Form_NewUser extends Zend_Form {
                             }));
         $usernameValidator->setMessage("User '%value%' is already registered");
 
-        $userName->addValidator('alnum')
+        $userName->addValidator('alnum', true, array('allowWhiteSpace'=>true))
                 ->addValidator($usernameValidator)
                 ->setRequired(true);
 

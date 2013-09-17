@@ -26,7 +26,7 @@ class Application_Form_NewElement extends Zend_Form {
                             }));
         $elementValidator->setMessage("Element '%value%' is already registered");
 
-        $elementName->addValidator('alnum')
+        $elementName->addValidator('alnum', true, array('allowWhiteSpace'=>true))
                 ->addValidator($elementValidator)
                 ->setRequired(true);
         

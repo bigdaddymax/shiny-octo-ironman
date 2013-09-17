@@ -11,7 +11,7 @@ class Application_Model_ApprovalEntry {
     private $_valid;
     private $_date;
 
-    public function __construct($entry) {
+    public function __construct(array $entry = null) {
         if (is_array($entry)) {
             foreach ($entry as $key => $item) {
                 $this->{$key} = (strpos($key, 'Id') || 'active' == $key) ? (int) $item : $item;

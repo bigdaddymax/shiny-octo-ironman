@@ -80,8 +80,8 @@ class ObjectsController extends Zend_Controller_Action {
                 break;
             case 'template':
                 $this->form = new Application_Form_NewTemplate(array('templates' => $this->objectManager->getAllObjects('template'),
-                            'types' => $this->config->template->types,
-                            'locales' => $this->config->app->locales));
+                    'types' => $this->config->template->types,
+                    'locales' => $this->config->app->locales));
                 break;
         }
         $this->objectName = strtolower($this->_request->getParam('objectType'));
@@ -149,8 +149,8 @@ class ObjectsController extends Zend_Controller_Action {
                     'scenarios' => $scenarios,
                     'assignment' => ($assignment) ? $assignment[0] : NULL);
                 $this->form->setDefaults(array(
-                    'nodeName'=>$node->nodeName,
-                    'parentNodeId'=>$node->parentNodeId
+                    '_nodeName' => $node->nodeName,
+                    'parentNodeId' => $node->parentNodeId
                 ));
                 $nodeId = $this->form->createElement('hidden', 'nodeId');
                 $nodeId->setValue($node->nodeId);
@@ -161,7 +161,7 @@ class ObjectsController extends Zend_Controller_Action {
             case 'element':
                 $element = $this->objectManager->getObject($this->_request->getParam('objectType'), $objectId);
                 $this->form->setDefaults(array('elementName' => $element->elementName,
-                    'expgroup' => $element->expgroup
+                    'expgroup' => $element->expgroup, 'elementCode' => $element->elementCode
                 ));
                 $this->view->form = $this->form;
                 $this->view->partialFile = 'open-element.phtml';
@@ -186,46 +186,58 @@ class ObjectsController extends Zend_Controller_Action {
                     'positionId' => $user->positionId
                 ));
                 $userId = $this->form->createElement('hidden', 'userId');
+                $userId->setValue($user->userId);
                 $this->form->addElement($userId);
                 $this->view->form = $this->form;
                 $this->view->partialFile = 'open-user.phtml';
+                break;
+            case 'template' :
+                $template = $this->objectManager->getObject('template', $this->_request->getParam('templateId'));
+                $templateId = $this->form->createElement('hidden', 'templateId');
+                $this->form->addElement($templateId);
+                $this->form->setDefaults(array(
+                    'templateName' => $template->templateName,
+                    'language' => $template->language,
+                    'type' => $template->type,
+                    'body' => $template->body,
+                    'templateId' => $template->templateId));
+                $this->view->form = $this->form;
                 break;
         }
     }
 
     /*
-    public function editObjectAction() {
-        $this->objectManager->saveObject($this->params);
-        $objectId = (int) $this->params[$this->objectIdName];
-        $result = array();
-        switch ($this->objectName) {
-            case 'node':
-                $scenarioAssignment = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
-                try {
-                    if ($scenarioAssignment[0] instanceof Application_Model_ScenarioAssignment) {
-                        $this->objectManager->deleteObject('scenarioAssignment', $scenarioAssignment[0]->scenarioAssignmentId);
-                    }
-                    if (1 < $this->params['scenarioId']) {
-                        $scenarioAssignment = new Application_Model_ScenarioAssignment($this->params);
-                        $scenarioAssignmentId = $this->objectManager->saveObject($scenarioAssignment);
-                    }
-                } catch (Exception $e) {
-                    $result = array('error' => 1, 'code' => 500, 'message' => $e->getMessage());
-                }
-                $node = $this->objectManager->getObject($this->objectName, $objectId);
-                $scenarios = $this->objectManager->getAllObjects('scenario');
-                $assignment = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
-                $nodes = $this->objectManager->getAllObjects('Node');
-                $this->view->objects = array('node' => $node,
-                    'scenarios' => $scenarios,
-                    'nodes' => $nodes, 'assignment' => ($assignment) ? $assignment[0] : NULL);
-                break;
-        }
-        $this->_helper->json($result);
-    }
+      public function editObjectAction() {
+      $this->objectManager->saveObject($this->params);
+      $objectId = (int) $this->params[$this->objectIdName];
+      $result = array();
+      switch ($this->objectName) {
+      case 'node':
+      $scenarioAssignment = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
+      try {
+      if ($scenarioAssignment[0] instanceof Application_Model_ScenarioAssignment) {
+      $this->objectManager->deleteObject('scenarioAssignment', $scenarioAssignment[0]->scenarioAssignmentId);
+      }
+      if (1 < $this->params['scenarioId']) {
+      $scenarioAssignment = new Application_Model_ScenarioAssignment($this->params);
+      $scenarioAssignmentId = $this->objectManager->saveObject($scenarioAssignment);
+      }
+      } catch (Exception $e) {
+      $result = array('error' => 1, 'code' => 500, 'message' => $e->getMessage());
+      }
+      $node = $this->objectManager->getObject($this->objectName, $objectId);
+      $scenarios = $this->objectManager->getAllObjects('scenario');
+      $assignment = $this->objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $objectId)));
+      $nodes = $this->objectManager->getAllObjects('Node');
+      $this->view->objects = array('node' => $node,
+      'scenarios' => $scenarios,
+      'nodes' => $nodes, 'assignment' => ($assignment) ? $assignment[0] : NULL);
+      break;
+      }
+      $this->_helper->json($result);
+      }
      * 
      */
-
 }
 
 ?>

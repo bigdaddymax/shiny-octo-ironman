@@ -26,7 +26,7 @@ class Application_Form_NewPosition extends Zend_Form {
                             }));
         $positionValidator->setMessage("Position '%value%' is already registered");
 
-        $positionName->addValidator('alnum')
+        $positionName->addValidator('alnum', true, array('allowWhiteSpace'=>true))
                 ->addValidator($positionValidator)
                 ->setRequired(true);
 

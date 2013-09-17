@@ -32,7 +32,7 @@ class Application_Form_NewTemplate extends Zend_Form {
                             }));
         $templateValidator->setMessage("Element '%value%' is already registered");
 
-        $templateName->addValidator('alnum')
+        $templateName->addValidator('alnum', true, array('allowWhiteSpace'=>true))
                 ->addValidator($templateValidator)
                 ->setRequired(true);
         
@@ -59,8 +59,6 @@ class Application_Form_NewTemplate extends Zend_Form {
                 ->setOptions(array('disable' => array(-1)));
         $this->templateName->setLabel('name')
                 ->setAttrib('class', 'form-control')
-                ->setAttrib('id', 'userName')
-                ->setAttrib('name', 'userName')
                 ->setAttrib('placeholder', $translate->_('template'));
         $this->body->setLabel('template body')
                 ->setAttrib('class', 'form-control');
