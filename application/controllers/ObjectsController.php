@@ -193,6 +193,7 @@ class ObjectsController extends Zend_Controller_Action {
         }
     }
 
+    /*
     public function editObjectAction() {
         $this->objectManager->saveObject($this->params);
         $objectId = (int) $this->params[$this->objectIdName];
@@ -222,6 +223,8 @@ class ObjectsController extends Zend_Controller_Action {
         }
         $this->_helper->json($result);
     }
+     * 
+     */
 
 }
 

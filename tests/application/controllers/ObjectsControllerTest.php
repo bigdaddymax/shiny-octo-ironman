@@ -427,14 +427,14 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
 
         $formArray = array('_nodeName' => 'Modified node name', '_parentNodeId' => $nodeId1, '_scenarioId' => $scenarioId, '_nodeId' => $nodeId, 'objectType' => 'node');
-        $params = array('controller' => 'objects', 'action' => 'edit-object');
+        $params = array('controller' => 'objects', 'action' => 'add-object');
         $this->request->setMethod('post');
         $this->request->setPost($formArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $response = $this->getResponse();
         echo $response->outputBody();
         $this->assertController('objects');
-        $this->assertAction('edit-object');
+//        $this->assertAction('add-object');
         $nodeEdited = $objectManager->getObject('node', $nodeId);
         $this->assertEquals($nodeEdited->nodeName, 'Modified node name');
         $assignment = $objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $nodeId)));
@@ -446,12 +446,12 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->resetResponse();
 
         $formArray1 = array('_nodeName' => 'Modified node name', '_parentNodeId' => $nodeId1, '_scenarioId' => $scenarioId, '_nodeId' => $nodeId, 'objectType' => 'node');
-        $params1 = array('controller' => 'objects', 'action' => 'edit-object');
+        $params1 = array('controller' => 'objects', 'action' => 'add-object');
         $this->request->setMethod('post');
         $this->request->setPost($formArray1);
         $this->dispatch($this->url($this->urlizeOptions($params1)));
         $this->assertController('objects');
-        $this->assertAction('edit-object');
+//        $this->assertAction('add-object');
         $assignment = $objectManager->getAllObjects('ScenarioAssignment', array(0 => array('column' => 'nodeId', 'operand' => $nodeId)));
         $this->assertTrue($assignment[0] instanceof Application_Model_ScenarioAssignment);
         $editedNode = $objectManager->getObject('node', $nodeId);
