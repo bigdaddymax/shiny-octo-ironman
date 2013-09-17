@@ -1,40 +1,8 @@
 <!DOCTYPE html>
 <script>
-    $(function() {
-        var addUrl;
-        addUrl = "<?php echo $this->url(array('controller' => 'objects', 'action' => 'add-object'), null, true); ?>";
-        $('#add-object_form').dialog({
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                'Save': function() {
-                    $.post(addUrl, $("#object-form").serialize())
-                    .done(function(data) {
-                        $("#add-object-form").dialog("close");
-                        location.reload();
-                    });
-                },
-                'Cancel': function() {
-                    $(this).dialog("close");
-                }
-            }
-        });
-
-        $("#add-object-btn").button()
-        .click(function() {
-            $("#add-object_form").dialog("open");
-        });
-    });
-    
-    function addObject() {
-        addUrl = "<?php echo $this->url(array('controller' => 'objects', 'action' => 'add-object'), null, true); ?>";
-        $.post(addUrl, $("#object-form").serialize());
-        $("add-object-form").modal("hide");
-    }
-    
     function deleteObject(objType, objId) {
         $.post("<?php echo $this->url(array('controller' => 'objects', 'action' => 'delete'), null, true); ?>",
-        {'objectType': objType, 'id': objId},
+                {'objectType': objType, 'id': objId},
         function(data) {
             // Our controller returns JSON
             if (1 == data.error) {
@@ -44,7 +12,7 @@
                 location.reload();
             }
         }
-    );
+        );
 
     }
 </script>

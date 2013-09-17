@@ -115,8 +115,10 @@ class Application_Model_ObjectsManager {
      * @param array() $filter
      * @return array of objects
      */
-    public function getAllObjects($objectName = null, $filter = null) {
+    public function getAllObjects($objectName = null, $filter = array()) {
         $this->setClassAndTableName($objectName);
+        $domainFilter = array(0=>array('column'=>'domainId', 'operand'=>$this->domainId));
+        $filter = array_merge($domainFilter, $filter);
         $objectArrays = $this->dataMapper->getData($this->tableName, $filter);
         $objects = array();
         if (!empty($objectArrays)) {

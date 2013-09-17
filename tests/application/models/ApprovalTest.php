@@ -276,8 +276,7 @@ class ApprovalTest extends TestCase {
         $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId3));
         $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId4));
         $res = $this->objectManager->approveForm($this->formId, $this->userId3, 'decline');
-          $app = $this->objectManager->getObject('approvalEntry', $res);
-         Zend_Debug::dump($app);   
+          $app = $this->objectManager->getObject('approvalEntry', $res);   
          $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId1));
         $this->assertTrue($this->objectManager->isApprovalAllowed($this->formId, $this->userId3));
         $this->assertFalse($this->objectManager->isApprovalAllowed($this->formId, $this->userId4));
