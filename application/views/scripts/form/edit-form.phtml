@@ -10,26 +10,7 @@
         element = '#elementId_' + itemId;
         $(element).remove();
     }
-    $(function() {
-        $("#add-item-btn").button().click(
-        function() {
-            $("#add-item").dialog("open");
-        });
-
-        $("#add-form-btn").button().click(
-        function() {
-            $.post("<?php echo $this->url(array('controller' => 'form', 'action' => 'add-form'), null, true); ?>",
-            $("#app-form").serialize() + '&' + $("#items-form").serialize(),
-            function(data) {
-                if (1 == data.error) {
-                    alert(data.message);
-                } else {
-                    window.location = "<?php echo $this->url(array('controller' => 'form', 'action' => 'preview-form'), null, true); ?>/formId/" + data.formId;
-                }
-            })
-        });
-    });
-    
+     
     function AddItem(){
         var counter = $("#counter").val();
         counter++;
@@ -44,6 +25,12 @@
     function setExpTypes() {
         $("#expType").load("<?php echo $this->url(array('controller'=>'form', 'action'=>'set-exp-types')); ?>", {expGroup: $("#expgroup").val()});
     }
+    
+    $(function(){
+        if ( -1 !== $("#expgroup").val()) {
+            setExpTypes();
+        }
+    });
         
 </script>
 

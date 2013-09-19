@@ -115,12 +115,12 @@
                 <?php if ($this->pages > 1) {
                     ?>
                     <ul class="pagination">
-                        <li class="arrow <?php echo ($this->currentPage == 1) ? 'unavailable' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'form', 'action' => 'index', 'page' => 1), null, true); ?>">&laquo;</a></li>
+                        <li class="arrow <?php echo ($this->currentPage == 1) ? 'disabled' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'form', 'action' => 'index', 'page' => 1), null, true); ?>">&laquo;</a></li>
                         <?php
                         if ($this->pages > 1) {
                             for ($i = 1; $i <= $this->pages; $i++) {
                                 if ($i == $this->currentPage) {
-                                    $class = 'class="current"';
+                                    $class = 'class="active"';
                                 } else {
                                     $class = '';
                                 }
@@ -128,7 +128,7 @@
                             }
                         }
                         ?>
-                        <li class="arrow <?php echo ($this->currentPage == $this->pages) ? 'unavailable' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'form', 'action' => 'index', 'page' => $this->pages), null, true); ?>">&raquo;</a></li>
+                        <li class="arrow <?php echo ($this->currentPage == $this->pages) ? 'disabled' : ''; ?>"><a href="<?php echo $this->url(array('controller' => 'form', 'action' => 'index', 'page' => $this->pages), null, true); ?>">&raquo;</a></li>
                     </ul>
                     <?php
                 }
