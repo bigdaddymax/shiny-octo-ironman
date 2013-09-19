@@ -12,11 +12,13 @@ class ScenarioController extends Zend_Controller_Action {
     private $session;
     private $redirector;
     private $objectsManager;
+    private $form;
 
     public function init() {
         $this->session = new Zend_Session_Namespace('Auth');
         $this->redirector = $this->_helper->getHelper('Redirector');
         $this->objectsManager = new Application_Model_ObjectsManager($this->session->domainId);
+
     }
 
     /**
@@ -62,8 +64,14 @@ class ScenarioController extends Zend_Controller_Action {
             $this->view->entries = $entries;
         }
         $this->view->users = $this->objectsManager->getAllObjects('user');
+        $this->form = new Application_Form_NewScenario(array('users'=>$this->view->users));
+        $this->view->form = $this->form;
     }
 
+    public function addScenarioAction() {
+        $this->_forward('edit-scenario');
+    }
+    
     public function openScenarioAction() {
         if ($this->_request->isGet()) {
             $scenarioId = $this->getRequest()->getParam('scenarioId');

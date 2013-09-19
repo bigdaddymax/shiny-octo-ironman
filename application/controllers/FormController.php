@@ -16,17 +16,7 @@ class FormController extends Zend_Controller_Action {
         $this->session = new Zend_Session_Namespace('Auth');
         $this->redirector = $this->_helper->getHelper('Redirector');
         $this->config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', APPLICATION_ENV);
-
         $formsManager = new Application_Model_FormsManager($this->session->domainId);
-
-        $this->form = new Zend_Form();
-        $this->form->addElementPrefixPath('Capex_Decorator', 'Capex/decorator', 'decorator');
-
-        $registry = Zend_Registry::getInstance();
-        $translator = $registry->get('Zend_Translate');
-        $this->form->setTranslator($translator);
-        $this->form->setAttrib('role', 'form')
-                ->setAttrib('class', 'col-lg-7');
 
         // Prepare expences group array for Select element creation
         $expgroupArray = $this->config->expences->group->toArray();
@@ -49,125 +39,7 @@ class FormController extends Zend_Controller_Action {
                 $nodes[$node->nodeId] = $node->nodeName;
             }
         }
-
-        // Creating and setting main form elements
-        $formName = $this->form->createElement('text', 'formName');
-        $formName->addValidator('alnum')
-                ->addValidator('StringLength', 4)
-                ->setRequired(true)
-                ->setAttrib('class', 'form-control')
-                ->setAttrib('id', 'formName')
-                ->setAttrib('name', 'formName')
-                ->setAttrib('placeholder', $translator->translate('form name'))
-                ->setLabel('form name');
-
-        $contragentName = $this->form->createElement('text', 'contragentName');
-        $contragentName->addValidator('alnum')
-                ->addValidator('StringLength', 4)
-                ->setRequired(true)
-                ->setAttrib('class', 'form-control')
-                ->setAttrib('id', 'contragentName')
-                ->setAttrib('name', 'contragentName')
-                ->setAttrib('placeholder', $translator->translate('contragent'))
-                ->setLabel('contragent');
-
-        $expgroup = $this->form->createElement('select', 'expgroup', array('multiOptions' => $groups, 'disable' => array(-1)));
-        $expgroup->setAttrib('class', 'form-control')
-                ->setAttrib('id', 'expgroup')
-                ->setAttrib('name', 'expgroup')
-                ->setValue(-1)
-                ->setLabel('expgroup')
-                ->setRequired(true)
-                ->setAttrib('onChange', 'setExpTypes()');
-
-        $nodeId = $this->form->createElement('select', 'nodeId', array('multiOptions' => $nodes, 'disable' => array(-1)));
-        $nodeId->setAttrib('class', 'form-control')
-                ->setAttrib('id', 'nodeId')
-                ->setAttrib('name', 'nodeId')
-                ->setValue(-1)
-                ->setLabel('deptmnt')
-                ->setRequired(true);
-
-        $addForm = $this->form->createElement('submit', 'addForm');
-        $addForm->setIgnore(true)
-                ->setLabel('add form');
-
-        $this->form->addElement($formName)
-                ->addElement($contragentName)
-                ->addElement($expgroup)
-                ->addElement($nodeId)
-                ->setAttrib('role', 'form');
-
-        $this->form->setElementDecorators(array('viewHelper',
-            array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
-            array('label', array('class' => 'control-label')),
-            array('MyElement', array('tag' => 'div', 'class' => 'form-group'))));
-
-        // Creating and adding fieldset for Items
-        // Prepare header for Items table 
-        $itemsHeader = $this->form->createElement('text', 'itemsHeader', array('decorators' => array(
-                array('Callback',
-                    array('callback' => function() {
-                            return '<tr><th class="col-lg-2">item name</th><th class="col-lg-2">expence type</th><th class="col-lg-2">value</th><th class="col-lg-1"></th></tr>';
-                        }
-                    )
-                )
-            )
-                )
-        );
-
-        // Create input elements and wrap them with <td></td>
-        $itemName = $this->form->createElement('text', 'itemName', array('Decorators' => array('viewHelper',
-                array('label', array('class' => 'control-label')),
-                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-2')))));
-        $itemName->setAttrib('class', 'form-control')
-                ->setAttrib('id', 'itemName')
-                ->setAttrib('name', 'itemName')
-                ->setAttrib('placeholder', 'item');
-
-        $expType = $this->form->createElement('select', 'expType', array('Decorators' => array('viewHelper',
-                array('label', array('class' => 'control-label')),
-                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-2')))));
-        $expType->setOptions(array('multiOptions' => array('-1' => $translator->translate('element')), 'disable' => array(-1)))
-                ->setAttrib('class', 'form-control')
-                ->setRequired(FALSE);
-
-        $value = $this->form->createElement('text', 'value', array('Decorators' => array('viewHelper',
-                array('label', array('class' => 'control-label')),
-                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-2')))));
-        $value->setAttrib('class', 'form-control')
-                ->setAttrib('id', 'value')
-                ->setAttrib('name', 'value')
-                ->setAttrib('placeholder', 'value');
-
-        // Create Add Item button
-        $addItemBtn = $this->form->createElement('button', 'addItemBtn', array('decorators' => array('viewHelper', array('HtmlTag', array('tag' => 'td')))));
-        $addItemBtn->setAttrib('class', 'btn btn-primary');
-        $addItemBtn->setAttrib('onClick', 'AddItem()');
-
-        // Create openning tag <tr id="itemsLoc"> and closing tag </tr>
-        // This is table row where all inputs and AddItem button will go
-        $openTr = $this->form->createElement('text', 'trId', array('decorators' => array(array('callback', array('callback' => function() {
-                            return '<tr id="itemsLoc">';
-                        })))));
-        $closeTr = $this->form->createElement('text', 'trEnd', array('decorators' => array(array('callback', array('callback' => function() {
-                            return '</tr>';
-                        })))));
-
-        // Create DisplayGroup for Items edition
-        $this->form->addDisplayGroup(array($itemsHeader, $openTr, $itemName, $expType, $value, $addItemBtn, $closeTr), 'items', array('decorators' => array('formElements', array('htmlTag', array('tag' => '<table>', 'class' => 'table table-hover'))),
-            'legend' => 'items'));
-
-        // Create hidden counter of Items for Javascript
-        $counter = $this->form->createElement('hidden', 'counter', array('decorators' => array('viewHelper')));
-        $this->form->addElement($counter);
-
-        // Creating and adding submit button
-        $this->form->addElement($addForm);
-        $this->form->addForm->setDecorators(array('viewHelper'))
-                ->setAttrib('class', 'btn btn-primary');
-
-        $this->form->setMethod('post');
+        $this->form = new Application_Form_NewForm(array('nodes' => $nodes, 'groups' => $groups));
         $this->form->setAction($this->view->url(array('controller' => 'form', 'action' => 'edit-form'), null, true));
     }
 
@@ -221,12 +93,21 @@ class FormController extends Zend_Controller_Action {
         if ($this->_request->isPost()) {
             $formValid = TRUE;
             foreach ($this->form->getElements() as $element) {
-                if ($element instanceof Zend_Form_Element) {
-                    if (!$element->isValid($this->_request->getParam($element->getName()))) {
+                if (
+                        $element instanceof Zend_Form_Element &&
+                        // Workaround for built-in Zend_Validator_inArray that we don't need for some elements to run
+                        (
+                        ($element->getName() != 'expType') &&
+                        ($element->getName() != 'itemName') &&
+                        ($element->getName() != 'value')
+                        )
+                ) {
+                    if (!$element->isValid($this->_request->getParam($element->getName()))
+                    ) {
                         if ($element instanceof Zend_Form_Element_Select) {
                             $element->setValue(-1);
-                            $formValid = FALSE;
                         }
+                        $formValid = FALSE;
                     }
                 }
             }
@@ -236,7 +117,7 @@ class FormController extends Zend_Controller_Action {
                 $params['contragentId'] = $formManager->saveObject($contragent);
                 $form = new Application_Model_Form($params);
                 $formId = $formManager->saveObject($form);
-                $this->_helper->json(array('error' => 0, 'message' => 'Good!', 'formId' => $formId));
+                // $this->_helper->json(array('error' => 0, 'message' => 'Good!', 'formId' => $formId));
                 //               } catch (Exception $e) {
                 //                   $this->_helper->json(array('error' => 1, 'message' => $e->getMessage()), TRUE);
                 //               }
