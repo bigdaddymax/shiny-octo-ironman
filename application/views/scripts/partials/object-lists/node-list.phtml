@@ -3,6 +3,10 @@
         <?php
         if (is_array($this->nodes)) {
             foreach ($this->nodes as $node) {
+                $parentNodes[$node->nodeId] = $node->nodeName;
+            }
+            $parentNodes[-1] = $this->translate('no parent');
+            foreach ($this->nodes as $node) {
                 echo '<tr>' . PHP_EOL .
                             '<td><a href="#" onclick="deleteObject(\'node\', '. $node->nodeId .')">&times</a>' . PHP_EOL .
                             '</td>' . PHP_EOL .
@@ -12,7 +16,7 @@
                                         'nodeId' => $node->nodeId)) .
                                     '">' . $node->nodeName . '</a>' . PHP_EOL .
                                     '</td>' . PHP_EOL .
-                            '<td>' . $node->parentNodeId .
+                            '<td>' . $parentNodes[$node->parentNodeId] .
                             '</td>'. PHP_EOL .
                     '</tr>';
             }
