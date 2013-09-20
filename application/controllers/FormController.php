@@ -61,6 +61,7 @@ class FormController extends Zend_Controller_Action {
             if (!$this->view->currentPage) {
                 $this->view->currentPage = 1;
             }
+            $forms = false;
             $res = $formManager->getAllObjects('form', $accessFilter);
             if (is_array($res)) {
                 foreach ($res as $form) {
