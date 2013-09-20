@@ -10,28 +10,78 @@
         element = '#elementId_' + itemId;
         $(element).remove();
     }
-     
-    function AddItem(){
-        var counter = $("#counter").val();
-        counter++;
-        $("#counter").val(counter);
-        $("#itemsLoc").before('<tr id="item_' + counter + '"><td id="item-name">' + $("#itemName").val() + '</td><td>'+$('#expType option:selected').text()+'</td><td id="item-value">' + Number($("#value").val()).toFixed(2) + '</td><td id="item-delete-icon"><a href="#" onClick=deleteItem(' + counter + ')>&times</a></td></tr>');
-        $("#counter").after('<input type="hidden" id="itemName_' + counter + '" name="itemName_' + counter + '" value="' + $("#itemName").val() + '">');
-        $("#counter").after('<input type="hidden" id="value_' + counter + '" name="value_' + counter + '" value="' + $("#value").val() + '">');
-        $("#counter").after('<input type="hidden" id="elementId_' + counter + '" name="elementId_' + counter + '" value="' + $("#expType").val() + '">');
-    
+
+    function AddItem() {
+        var validItem = true;
+
+        if ($("#itemName").val() === '') {
+            validItem = false;
+            $("#itemName").parent('td').removeClass("has-success")
+                    .addClass("has-error");
+            $("#itemName").tooltip({title: 'Required field', placement: 'left'});
+            $("#itemName").tooltip('show');
+        } else {
+            $("#itemName").parent('td').removeClass('has-error')
+                    .addClass("has-success");
+            $("#itemName").tooltip('destroy');
+        }
+
+        if (!$("#expType").val()) {
+            validItem = false;
+            $("#expType").parent('td').removeClass("has-success")
+                    .addClass("has-error");
+            $("#expType").tooltip({title: 'Required field', placement: 'top'});
+            $("#expType").tooltip('show');
+        } else {
+            $("#expType").parent('td').removeClass('has-error')
+                    .addClass("has-success");
+            $("#expType").tooltip('destroy');
+
+        }
+
+        if (!$("#value").val()) {
+            validItem = false;
+            $("#value").parent('td').removeClass("has-success")
+                    .addClass("has-error");
+            $("#value").tooltip({title: 'Required field', placement: 'top'});
+            $("#value").tooltip('show');
+        } else {
+            $("#value").parent('td').removeClass('has-error')
+                    .addClass("has-success");
+            $("#value").tooltip('destroy');
+
+        }
+
+        if (validItem) {
+            var counter = $("#counter").val();
+            counter++;
+            $("#counter").val(counter);
+            $("#itemsLoc").before('<tr id="item_' + counter + '"><td id="item-name">' + $("#itemName").val() + '</td><td>' + $('#expType option:selected').text() + '</td><td id="item-value">' + Number($("#value").val()).toFixed(2) + '</td><td id="item-delete-icon"><a href="#" onClick=deleteItem(' + counter + ')>&times</a></td></tr>');
+            $("#counter").after('<input type="hidden" id="itemName_' + counter + '" name="itemName_' + counter + '" value="' + $("#itemName").val() + '">');
+            $("#counter").after('<input type="hidden" id="value_' + counter + '" name="value_' + counter + '" value="' + $("#value").val() + '">');
+            $("#counter").after('<input type="hidden" id="elementId_' + counter + '" name="elementId_' + counter + '" value="' + $("#expType").val() + '">');
+        }
     }
-    
+
     function setExpTypes() {
-        $("#expType").load("<?php echo $this->url(array('controller'=>'form', 'action'=>'set-exp-types')); ?>", {expGroup: $("#expgroup").val()});
+        $("#expType").load("<?php echo $this->url(array('controller' => 'form', 'action' => 'set-exp-types')); ?>", {expGroup: $("#expgroup").val()});
     }
-    
-    $(function(){
-        if ( -1 !== $("#expgroup").val()) {
+
+    $(function() {
+        if (-1 !== $("#expgroup").val()) {
             setExpTypes();
         }
     });
-        
+    
+    function addInvoice(){
+        if (!$("#counter").val()){
+            $("#addItemBtn").tooltip({title: 'You should add at least one item to your invoice', placement: 'top'});
+            $("#addItemBtn").tooltip('show');
+        } else {
+            $("#new-form").submit();
+        }
+    }
+
 </script>
 
 <?php

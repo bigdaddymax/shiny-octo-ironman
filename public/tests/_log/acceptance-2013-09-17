@@ -1,0 +1,48 @@
+[2013-09-17 12:17:08] WelcomeCept.php.INFO: am on page "/" [] []
+[2013-09-17 12:17:08] WelcomeCept.php.INFO: see "capexopex" [] []
+[2013-09-17 12:17:08] WelcomeCept.php.ALERT: Failed asserting that 
+--> 404 Not Found Not Found The requested URL /supercapex.localhost/ was not found on this server.
+--> contains "capexopex". [] []
+[2013-09-17 12:17:08] WelcomeCept.php.INFO: # FAILED # [] []
+[2013-09-17 12:17:08] WelcomeCept.php.INFO: PASSED [] []
+[2013-09-17 12:17:37] WelcomeCept.php.INFO: am on page "/" [] []
+[2013-09-17 12:17:37] WelcomeCept.php.INFO: see "capexopex" [] []
+[2013-09-17 12:17:37] WelcomeCept.php.INFO: PASSED [] []
+[2013-09-17 12:19:22] WelcomeCept.php.INFO: am on page "/" [] []
+[2013-09-17 12:19:22] WelcomeCept.php.INFO: see "capexopex" [] []
+[2013-09-17 12:19:22] WelcomeCept.php.INFO: see "bla bla" [] []
+[2013-09-17 12:19:22] WelcomeCept.php.ALERT: Failed asserting that 
+--> (function(i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function() { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, docu
+[Content too long to display. See complete response in (('_log')) directory]
+--> contains "bla bla". [] []
+[2013-09-17 12:19:22] WelcomeCept.php.INFO: # FAILED # [] []
+[2013-09-17 12:19:22] WelcomeCept.php.INFO: PASSED [] []
+[2013-09-17 18:20:54] FormCreationCept.php.INFO: am on page "/" [] []
+[2013-09-17 18:20:54] FormCreationCept.php.INFO: click "login" [] []
+[2013-09-17 18:20:54] FormCreationCept.php.ALERT: CSS or XPath (('login')) was not found on page. [] []
+[2013-09-17 18:20:54] FormCreationCept.php.INFO: # FAILED # [] []
+[2013-09-17 18:20:54] FormCreationCept.php.INFO: PASSED [] []
+[2013-09-17 18:20:54] WelcomeCept.php.INFO: am on page "/" [] []
+[2013-09-17 18:20:54] WelcomeCept.php.INFO: see "capexopex" [] []
+[2013-09-17 18:20:54] WelcomeCept.php.INFO: see "bla bla" [] []
+[2013-09-17 18:20:54] WelcomeCept.php.ALERT: Failed asserting that 
+--> (function(i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function() { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, docu
+[Content too long to display. See complete response in (('_log')) directory]
+--> contains "bla bla". [] []
+[2013-09-17 18:20:54] WelcomeCept.php.INFO: # FAILED # [] []
+[2013-09-17 18:20:54] WelcomeCept.php.INFO: PASSED [] []
+[2013-09-17 21:49:37] FormCreationCept.php.INFO: am on page "/" [] []
+[2013-09-17 21:49:38] FormCreationCept.php.INFO: click "#login" [] []
+[2013-09-17 21:49:38] FormCreationCept.php.ALERT: Exception thrown by (//html/descendant-or-self::*[@id = 'login'])[1]
+Unable to submit on a "input" tag. [] []
+[2013-09-17 21:49:38] FormCreationCept.php.INFO: # ERROR # [] []
+[2013-09-17 21:49:38] FormCreationCept.php.INFO: PASSED [] []
+[2013-09-17 21:49:38] WelcomeCept.php.INFO: am on page "/" [] []
+[2013-09-17 21:49:38] WelcomeCept.php.INFO: see "capexopex" [] []
+[2013-09-17 21:49:38] WelcomeCept.php.INFO: see "bla bla" [] []
+[2013-09-17 21:49:38] WelcomeCept.php.ALERT: Failed asserting that 
+--> (function(i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function() { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, docu
+[Content too long to display. See complete response in (('_log')) directory]
+--> contains "bla bla". [] []
+[2013-09-17 21:49:38] WelcomeCept.php.INFO: # FAILED # [] []
+[2013-09-17 21:49:38] WelcomeCept.php.INFO: PASSED [] []
