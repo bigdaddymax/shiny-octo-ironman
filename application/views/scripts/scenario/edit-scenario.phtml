@@ -1,110 +1,41 @@
 <script>
     function deleteEntry(item){
         $(item).remove();
-        $("#orderPos").val(Number($("#orderPos").val())-1);
+        $("#counter").val(Number($("#counter").val())-1);
         
     }
-    $(function(){
-        $("#new-entry-").dialog({
-            autoOpen: false,
-            title: "<?php echo $this->translate('add user to scenario'); ?>",
-            buttons: {
-                "<?php echo $this->translate("save"); ?>": function(){
-                    var pos = Number($('#orderPos').val()) + 1;
-                    $("#entries tr:last").after('<tr id="entry_'+$("#userId").val()+pos+
-                        '">'+
-                        '<td id="href"><a href="#" onClick="deleteEntry(entry_'+
-                        $("#userId").val()+pos+
-                        ')">&times</a></td><td id="user">'+
-                        $("#userId :selected").html()+
-                        '<input type="hidden" id="orderPos_' + $("#userId").val() +
-                        '" name="orderPos_' + $("#userId").val() +
-                        '" value="'+ pos + '">' +
-                        '</td>'+
-                        '</tr>');
-                    $("#orderPos").val(pos);
-                    $(this).dialog('close');
-                },
-                "<?php echo $this->translate('cancel'); ?>": function(){$(this).dialog('close');}
-            }
-        });
     
-        $("#add-entry-btn").button().click(function(){
-            $("#new-entry-form").modal("show");
-        });
-        $("#add-scenario-btn").button().click(function(){
-            $.post("<?php echo $this->url(array('controller' => 'scenario', 'action' => 'save-scenario')); ?>", $("#scenario-data").serialize());
-        });
-    });
-</script>
-
-<div class="object-list" >
-    <form id="scenario-data">
-        <div>
-            <label for="scenarioName"><?php echo $this->translate('scenario name'); ?></label>
-        </div>
-        <input type="text" id="scenarioName" name="scenarioName" 
-               placeholder="<?php echo $this->translate('scenario name'); ?>" 
-               <?php if (!empty($this->scenario)) echo 'value="' . $this->scenario->scenarioName . '"'; ?>
-               />
-               <?php
-               if (!empty($this->scenario)) {
-                   echo '<input type="hidden" id="scenarioId" name="scenarioId" value="' . $this->scenario->scenarioId . '">' . PHP_EOL;
-               }
-               ?>
-        <table id="entries" width="100%">
-            <?php
-            if (!empty($this->entries)) {
-                foreach ($this->entries as $key => $entry) {
-                    echo '<tr id="entry_' . $entry->userId . $key .
-                    '"><td id="href"><a href="#" onclick="deleteEntry(entry_' . $entry->userId . $key .
-                    ')">&times</a></td><td id="user">' . $entry->userName . '</td>' . PHP_EOL;
-                    echo '<input type="hidden" id="orderPos_' . $entry->userId . '" name="orderPos_' . $entry->userId . '" value="' . $key . '"></td></tr>' . PHP_EOL;
-                }
-            }
-            ?>
-        </table>
-    </form>
-    <input type="hidden" id="orderPos" 
-           value="<?php
-            if (!empty($this->entries)) {
-                $entries = array_keys($this->entries);
-                echo end($entries);
-            }
-            ?>">
-    <button id="add-entry-btn"><?php echo $this->translate('add user'); ?></button>
-    <button id="add-scenario-btn"><?php echo $this->translate('save changes'); ?></button>
-</div>
-
-<div class="object-help">
-
-</div>
-<div id="new-entry-form" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4><?php echo $this->translate('add user'); ?> </h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            </div>
-            <div class="modal-body">
-            <?php
-            if ($this->users) {
-                echo '<div class="form-group">' . PHP_EOL;
-                echo '<label for="userId">' . $this->translate('select user') . '</label>' . PHP_EOL;
-                echo "<select id='userId' name='userId' class='form-control'>";
-                foreach ($this->users as $user) {
-                    echo "<option value='$user->userId'>$user->userName</option>";
-                }
-                echo "</select>";
-                echo '</div>';
-                echo '<button class="btn">'. $this->translate('add user'). '</button>' . PHP_EOL;
-            } else {
-                echo 'No users';
-            }
-            ?>
-            </div>
-        </div>
-    </div>
-</div>
+    function addUser(){
+        var counter = $("#counter").val();
+        $("#counter").val(Number(counter)+1);
+        $("#usersLoc").before('<tr id='+
+                $("#counter").val()+
+                '><td><a href="#" onClick="deleteEntry(\'#'+
+                $("#counter").val()+
+                '\')">&times</a></td><td>'+
+                $("#userId option:selected").text()+
+                '<input type="hidden" id="orderPos_'+
+                $("#userId").val()+
+                '" name="orderPos_'+
+                $("#userId").val()+
+                '" value="'+
+                $("#counter").val()+
+                '"></td></tr>');
+    }
+    
+    function addScenario() {
+        if (Number($("#counter").val()) == 0) {
+            $("#addUserButton").tooltip({title: 'You should add users to scenario.', placement: 'right'});
+            $("#addUserButton").tooltip('show');
+        } else {
+            $("#new-scenario").submit();
+        }
+    }
+    
+ </script>
+<div class='col-lg-6'>
 <?php
 echo $this->form;
+
+?>
+</div>
