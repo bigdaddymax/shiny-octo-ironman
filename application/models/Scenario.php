@@ -34,6 +34,16 @@ class Application_Model_Scenario {
                     }
                 }
             }
+            
+            // Fix possible non-continiouse ordering (if user add/delete users on the web page we might have orderPos numbered like 1,2,4,6 etc)
+            if (isset($entries)) {
+                $i = 1;
+                foreach ($entries as &$entry) {
+                    $entry['orderPos'] = $i;
+                    $i++;
+                }
+            }
+
             if (isset($entries)) {
                 $this->setEntries($entries);
             }
@@ -76,15 +86,15 @@ class Application_Model_Scenario {
 
     // Method returns order in which $userId can do approval according to this scenario
     public function getUserOrder($userId) {
-        if ($this->_entries){
-            foreach ($this->_entries as $entry){
-                if ($userId == $entry->userId){
+        if ($this->_entries) {
+            foreach ($this->_entries as $entry) {
+                if ($userId == $entry->userId) {
                     return $entry->orderPos;
                 }
             }
             return false;
         } else {
-            throw new InvalidArgumentException('This scenario doesnt have entry with userId = '.$userId);
+            throw new InvalidArgumentException('This scenario doesnt have entry with userId = ' . $userId);
         }
     }
 
@@ -131,7 +141,7 @@ class Application_Model_Scenario {
         foreach ($this as $key => $value) {
             if ('_valid' != $key) {
                 if (isset($value)) {
-                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id')  || 'active' == $key) ? (int) $value : $value;
+                    $output[str_replace('_', '', $key)] = (strpos($key, 'Id') || 'active' == $key) ? (int) $value : $value;
                 }
             }
         }

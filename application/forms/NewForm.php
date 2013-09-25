@@ -16,7 +16,7 @@ class Application_Form_NewForm extends Zend_Form {
 
 // Creating and setting main form elements
         $formName = $this->createElement('text', 'formName');
-        $formName->addValidator('alnum')
+        $formName->addValidator('alnum', true, array('allowWhiteSpace'=>true))
                 ->addValidator('StringLength', 4)
                 ->setRequired(true)
                 ->setAttrib('class', 'form-control')
@@ -26,7 +26,7 @@ class Application_Form_NewForm extends Zend_Form {
                 ->setLabel('form name');
 
         $contragentName = $this->createElement('text', 'contragentName');
-        $contragentName->addValidator('alnum')
+        $contragentName->addValidator('alnum', true, array('allowWhiteSpace'=>true))
                 ->addValidator('StringLength', 4)
                 ->setRequired(true)
                 ->setAttrib('class', 'form-control')
@@ -68,23 +68,10 @@ class Application_Form_NewForm extends Zend_Form {
             array('label', array('class' => 'control-label')),
             array('MyElement', array('tag' => 'div', 'class' => 'form-group'))));
 
-        // Creating and adding fieldset for Items
-        // Prepare header for Items table 
-        $itemsHeader = $this->createElement('text', 'itemsHeader', array('decorators' => array(
-                array('Callback',
-                    array('callback' => function() {
-                            return '<tr><th class="col-lg-2">item name</th><th class="col-lg-2">expense type</th><th class="col-lg-2">value</th><th class="col-lg-1"></th></tr>';
-                        }
-                    )
-                )
-            )
-                )
-        );
-
         // Create input elements and wrap them with <td></td>
         $itemName = $this->createElement('text', 'itemName', array('Decorators' => array('viewHelper',
                 array('label', array('class' => 'control-label')),
-                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-2')))));
+                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-3')))));
         $itemName->setAttrib('class', 'form-control')
                 ->setAttrib('id', 'itemName')
                 ->setAttrib('name', 'itemName')
@@ -92,7 +79,7 @@ class Application_Form_NewForm extends Zend_Form {
 
         $expType = $this->createElement('select', 'expType', array('Decorators' => array('viewHelper',
                 array('label', array('class' => 'control-label')),
-                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-2')))));
+                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-3')))));
         $expType->setOptions(array('multiOptions' => array('-1' => $translator->translate('element')), 'disable' => array(-1)))
                 ->setAttrib('class', 'form-control')
                 ->setRequired(FALSE)
@@ -100,7 +87,7 @@ class Application_Form_NewForm extends Zend_Form {
 
         $value = $this->createElement('text', 'value', array('Decorators' => array('viewHelper',
                 array('label', array('class' => 'control-label')),
-                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-2')))));
+                array('MyElement', array('tag' => 'td', 'class' => 'form-group col-lg-3')))));
         $value->setAttrib('class', 'form-control')
                 ->setAttrib('id', 'value')
                 ->setAttrib('name', 'value')
@@ -111,18 +98,34 @@ class Application_Form_NewForm extends Zend_Form {
         $addItemBtn->setAttrib('class', 'btn btn-primary');
         $addItemBtn->setAttrib('onClick', 'AddItem()');
 
-        // Create openning tag <tr id="itemsLoc"> and closing tag </tr>
-        // This is table row where all inputs and AddItem button will go
-        $openTr = $this->createElement('text', 'trId', array('decorators' => array(array('callback', array('callback' => function() {
-                            return '<tr id="itemsLoc">';
-                        })))));
-        $closeTr = $this->createElement('text', 'trEnd', array('decorators' => array(array('callback', array('callback' => function() {
-                            return '</tr>';
-                        })))));
-
         // Create DisplayGroup for Items edition
-        $this->addDisplayGroup(array($itemsHeader, $openTr, $itemName, $expType, $value, $addItemBtn, $closeTr), 'items', array('decorators' => array('formElements', array('htmlTag', array('tag' => '<table>', 'class' => 'table table-hover'))),
-            'legend' => 'items'));
+        $this->addDisplayGroup(
+                array(
+                        $itemName,
+                        $expType,
+                        $value,
+                        $addItemBtn,
+                ),
+                'items',
+                array(
+                        'decorators' => array(
+                                                'formElements',
+                                                array(array('rows' => 'htmlTag'),
+                                                    array(
+                                                        'tag' => 'tr',
+                                                        'id' => 'itemsLoc')
+                                                ),
+                                                array(
+                                                    'htmlTag',
+                                                    array(
+                                                        'tag' => 'table',
+                                                        'class' => 'table table-hover'
+                                                    )
+                                                ),
+                                            ),
+                        'legend' => 'items'
+                )
+        );
 
         // Create hidden counter of Items for Javascript
         $counter = $this->createElement('hidden', 'counter', array('decorators' => array('viewHelper')));
