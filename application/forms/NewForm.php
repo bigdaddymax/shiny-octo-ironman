@@ -95,8 +95,9 @@ class Application_Form_NewForm extends Zend_Form {
 
         // Create Add Item button
         $addItemBtn = $this->createElement('button', 'addItemBtn', array('decorators' => array('viewHelper', array('HtmlTag', array('tag' => 'td')))));
-        $addItemBtn->setAttrib('class', 'btn btn-primary');
-        $addItemBtn->setAttrib('onClick', 'AddItem()');
+        $addItemBtn->setAttrib('class', 'btn btn-primary')
+                ->setAttrib('onClick', 'AddItem()')
+                ->setLabel('add item');
 
         // Create DisplayGroup for Items edition
         $this->addDisplayGroup(
@@ -134,7 +135,7 @@ class Application_Form_NewForm extends Zend_Form {
         // Creating and adding submit button
         $this->addElement($addForm);
         $this->addForm->setDecorators(array('viewHelper'))
-                ->setAttrib('class', 'btn btn-primary')
+                ->setAttrib('class', 'btn btn-danger')
                 ->setAttrib('onClick', 'addInvoice()');
     }
 

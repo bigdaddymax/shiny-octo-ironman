@@ -53,7 +53,8 @@ class Application_Form_NewScenario extends Zend_Form {
         $addUserButton = $this->createElement('button', 'addUserButton')
                 ->setAttrib('class', 'btn btn-info')
                 ->setAttrib('onClick', 'addUser()')
-                ->setDecorators(array('ViewHelper', array('htmlTag', array('tag' => 'td'))));
+                ->setDecorators(array('ViewHelper', array('htmlTag', array('tag' => 'td'))))
+                ->setLabel('add user');
 
         // If we deal with existing scenario open table and add users before <select>
         $closeOnly = false;
@@ -122,7 +123,7 @@ class Application_Form_NewScenario extends Zend_Form {
         $this->save->setDecorators(array('viewHelper'))
                 ->setAttrib('class', 'btn btn-danger');
         $this->setAttrib('role', 'form')
-                ->setAttrib('class', 'form-horisontal')
+                ->setAttrib('class', 'form-horisontal col-lg-7')
                 ->setDecorators(array('FormElements', 'Form'))
                 ->setAttrib('id', 'new-scenario');
 

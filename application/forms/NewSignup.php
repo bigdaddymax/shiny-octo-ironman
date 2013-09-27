@@ -1,19 +1,20 @@
 <?php
 
-class Application_Form_NewUser extends Zend_Form {
+class Application_Form_NewSignup extends Zend_Form {
 
-    public function __construct($positions) {
+    public function __construct($options = null) {
+        parent::__construct($options);
+
         $registry = Zend_Registry::getInstance();
-        $translate = $registry->get('Zend_Translate');
-        $this->setTranslator($translate);
+        $translator = $registry->get('Zend_Translate');
+        $this->setTranslator($translator);
 
-        $position = $this->createElement('select', 'positionId');
-        $position->addMultiOption('-1', $translate->_('position'));
-        foreach ($positions['position'] as $item) {
-            $position->addMultiOption($item->positionId, $item->positionName);
-        }
+        $this->setAction('/index/new-domain')
+                ->setAttrib('role', 'form')
+                ->setAttrib('class', 'form-horisontal');
+        
+        $username = $this->createElement('text', 'userName');
 
-        $userName = $this->createElement('text', 'userName');
         $usernameValidator = new Zend_Validate_Callback(
                 array('callback' => function($user) {
                 $objectManager = new Application_Model_ObjectsManager(-1);
@@ -26,13 +27,13 @@ class Application_Form_NewUser extends Zend_Form {
             }));
         $usernameValidator->setMessage("User '%value%' is already registered");
 
-        $userName->addValidator('alnum', true, array('allowWhiteSpace' => true))
+        $username->addValidator('alnum')
                 ->addValidator($usernameValidator)
                 ->setRequired(true);
 
-        $password = $this->createElement('password', 'password');
-        $password->addValidator('StringLength', false, array(4))
-                ->setRequired(true);
+        $company = $this->createElement('text', 'companyName');
+        $company->addValidator('StringLength', 4)
+                ->setRequired('true');
 
         $emailValidator = new Zend_Validate_Callback(
                 array('callback' => function($email) {
@@ -45,56 +46,52 @@ class Application_Form_NewUser extends Zend_Form {
                 }
             }));
         $emailValidator->setMessage("Email '%value%' is already registered");
-        $email = $this->createElement('text', 'login');
+        $email = $this->createElement('text', 'email');
         $email->addValidator('StringLength', false, array(6))
                 ->addValidator($emailValidator)
                 ->setRequired();
 
-        $objectType = $this->createElement('hidden', 'objectType');
-        $objectType->setValue('user');
+        $password = $this->createElement('password', 'password');
+        $password->addValidator('StringLength', false, array(4))
+                ->setRequired(true);
 
-        $submit = $this->createElement('submit', 'save');
+        $submit = $this->createElement('submit', 'signup');
         $submit->setIgnore(true);
-        $this->addElement($position)
-                ->addElement($userName)
+
+        $this->addElement($username)
+                ->addElement($company)
                 ->addElement($email)
                 ->addElement($password)
-                ->addElement($objectType)
                 ->addElement($submit);
-
-        $this->positionId->setLabel('position')
-                ->setAttrib('class', 'form-control')
-                ->setValue(-1)
-                ->setOptions(array('disable' => array(-1)));
         $this->userName->setLabel('name')
                 ->setAttrib('class', 'form-control')
                 ->setAttrib('id', 'userName')
                 ->setAttrib('name', 'userName')
-                ->setAttrib('placeholder', $translate->_('name'));
+                ->setAttrib('placeholder', $translator->_('name'));
         $this->password->setLabel('password')
                 ->setAttrib('class', 'form-control')
                 ->setAttrib('id', 'password')
                 ->setAttrib('name', 'password')
-                ->setAttrib('placeholder', $translate->_('password'));
-        $this->login->setLabel('email')
+                ->setAttrib('placeholder', $translator->_('password'));
+        $this->email->setLabel('email')
                 ->setAttrib('class', 'form-control')
-                ->setAttrib('id', 'login')
-                ->setAttrib('name', 'login')
-                ->setAttrib('placeholder', $translate->_('email'));
-        $this->save->setAttrib('class', 'btn btn-danger');
+                ->setAttrib('id', 'email')
+                ->setAttrib('name', 'email')
+                ->setAttrib('placeholder', $translator->_('email'));
+        $this->companyName->setLabel('company')
+                ->setAttrib('class', 'form-control')
+                ->setAttrib('id', 'companyName')
+                ->setAttrib('name', 'companyName')
+                ->setAttrib('placeholder', $translator->_('company'));
+        $this->signup->setAttrib('class', 'btn btn-danger');
 
         $this->addElementPrefixPath('Capex_Decorator', 'Capex/decorator', 'decorator');
         $this->setElementDecorators(array('viewHelper',
             array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
             array('label', array('class' => 'control-label')),
             array('MyElement', array('tag' => 'div', 'class' => 'form-group'))));
-        $this->save->setDecorators(array('viewHelper'))
+        $this->signup->setDecorators(array('viewHelper'))
                 ->setAttrib('class', 'btn btn-danger');
-        $this->setAttrib('role', 'form')
-                ->setAttrib('class', 'form-horisontal col-lg-7');
-        $this->setDecorators(array('FormElements', 'Form'));
     }
 
 }
-
-?>

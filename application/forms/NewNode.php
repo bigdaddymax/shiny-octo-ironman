@@ -32,7 +32,7 @@ class Application_Form_NewNode extends Zend_Form {
 
         $objectType = $this->createElement('hidden', 'objectType');
         $objectType->setValue('node');
-        $submit = $this->createElement('submit', 'signup');
+        $submit = $this->createElement('submit', 'save');
         $submit->setIgnore(true);
         $this->addElement($parentNodeId)
                 ->addElement($nodeName)
@@ -46,17 +46,17 @@ class Application_Form_NewNode extends Zend_Form {
                 ->setAttrib('class', 'form-control')
                 ->setAttrib('placeholder', $translate->_('node name'));
 
-        $this->signup->setAttrib('class', 'btn btn-danger');
+        $this->save->setAttrib('class', 'btn btn-danger');
 
         $this->addElementPrefixPath('Capex_Decorator', 'Capex/decorator', 'decorator');
         $this->setElementDecorators(array('viewHelper',
             array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
             array('label', array('class' => 'control-label')),
             array('MyElement', array('tag' => 'div', 'class' => 'form-group'))));
-        $this->signup->setDecorators(array('viewHelper'))
+        $this->save->setDecorators(array('viewHelper'))
                 ->setAttrib('class', 'btn btn-danger');
         $this->setAttrib('role', 'form')
-                ->setAttrib('class', 'form-horisontal');
+                ->setAttrib('class', 'form-horisontal col-lg-7');
         $this->setDecorators(array('FormElements', 'Form'));
     }
 
