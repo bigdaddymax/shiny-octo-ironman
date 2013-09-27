@@ -32,7 +32,7 @@ class Application_Form_NewPosition extends Zend_Form {
 
         $objectType = $this->createElement('hidden', 'objectType');
         $objectType->setValue('position');
-        $submit = $this->createElement('submit', 'signup');
+        $submit = $this->createElement('submit', 'save');
         $submit->setIgnore(true);
         $this->addElement($nodeId)
                 ->addElement($positionName)
@@ -48,14 +48,14 @@ class Application_Form_NewPosition extends Zend_Form {
                 ->setAttrib('class', 'form-control')
                 ->setAttrib('placeholder', $translate->_('position'));
 
-        $this->signup->setAttrib('class', 'btn btn-danger');
+        $this->save->setAttrib('class', 'btn btn-danger');
 
         $this->addElementPrefixPath('Capex_Decorator', 'Capex/decorator', 'decorator');
         $this->setElementDecorators(array('viewHelper',
             array('CapexFormErrors', array('placement' => 'prepend', 'class' => 'error')),
             array('label', array('class' => 'control-label')),
             array('MyElement', array('tag' => 'div', 'class' => 'form-group'))));
-        $this->signup->setDecorators(array('viewHelper'))
+        $this->save->setDecorators(array('viewHelper'))
                 ->setAttrib('class', 'btn btn-danger');
         $this->setAttrib('role', 'form')
                 ->setAttrib('class', 'form-horisontal');

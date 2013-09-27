@@ -47,7 +47,12 @@ if (isset($links)) {
         unset($links['user']);
     }
 
+    echo '<li class="dropdown">' . PHP_EOL;
+    echo '<a data-toggle="dropdown" href="#">' . $this->translate('admin'). '<b class="caret"></b></a>' .PHP_EOL;
+    echo '<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">' . PHP_EOL;
     foreach ($links as $link) {
         echo ' <li> ' . $link . '</li>' . PHP_EOL;
     }
+    echo '</ul>' . PHP_EOL;
+    echo '</li>' . PHP_EOL;
 }

@@ -73,7 +73,7 @@ class Application_Form_NewTemplate extends Zend_Form {
         $this->save->setDecorators(array('viewHelper'))
                 ->setAttrib('class', 'btn btn-danger');
         $this->setAttrib('role', 'form')
-                ->setAttrib('class', 'form-horisontal');
+                ->setAttrib('class', 'form-horisontal col-lg-7');
         $this->setDecorators(array('FormElements', 'Form'));
     }
 
