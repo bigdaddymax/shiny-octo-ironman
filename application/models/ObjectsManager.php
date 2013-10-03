@@ -24,7 +24,8 @@ class Application_Model_ObjectsManager {
     protected $objectIdName;
     protected $objectParentIdName;
 
-    public function __construct($domainId, $objectType = null) {
+    public function __construct($domainId, $objectType = null)
+    {
         $this->dataMapper = new Application_Model_DataMapper();
         $this->domainId = $domainId;
         $this->setClassAndTableName($objectType);
@@ -36,7 +37,8 @@ class Application_Model_ObjectsManager {
      * @param class $object
      * @param string $object
      */
-    protected function setClassAndTableName($object) {
+    protected function setClassAndTableName($object)
+    {
         if (is_object($object))
             $this->className = get_class($object);
         elseif (is_string($object))
@@ -65,7 +67,8 @@ class Application_Model_ObjectsManager {
      * @param object $objectId
      * @return object Particular initialized object
      */
-    public function getObject($objectName, $objectId, $userId = null) {
+    public function getObject($objectName, $objectId, $userId = null)
+    {
         if (!$objectName) {
             throw new InvalidArgumentException('Object name is not set.', 417);
         }
@@ -75,7 +78,13 @@ class Application_Model_ObjectsManager {
         $this->setClassAndTableName($objectName);
 
         // Add domainId to filter just in case...
-        $filterArray = array(0 => array('column' => $this->objectIdName, 'operand' => $objectId), 1 => array('column' => 'domainId', 'operand' => $this->domainId));
+        $filterArray = array(
+            0 => array(
+                'column'  => $this->objectIdName,
+                'operand' => $objectId),
+            1 => array(
+                'column'  => 'domainId',
+                'operand' => $this->domainId));
 
         $objectArray = $this->dataMapper->getData($this->tableName, $filterArray);
         if (empty($objectArray)) {
@@ -83,7 +92,9 @@ class Application_Model_ObjectsManager {
         }
         $object = new $this->className($objectArray[0]);
         switch ($this->objectName) {
-            case 'Scenario': $entries = $this->getAllObjects('scenarioEntry', array(0 => array('column' => 'scenarioId',
+            case 'Scenario': $entries = $this->getAllObjects('scenarioEntry', array(
+                    0 => array(
+                        'column'  => 'scenarioId',
                         'operand' => $object->scenarioId)));
                 $object->entries = $entries;
                 if (!$object->isValid()) {
@@ -102,7 +113,9 @@ class Application_Model_ObjectsManager {
                     // No read rights, throw exception
                     throw new Exception('User has no read access to forms wiht nodeId=' . $object->nodeId, 403);
                 }
-                $entries = $this->getAllObjects('item', array(0 => array('column' => 'formId',
+                $entries = $this->getAllObjects('item', array(
+                    0 => array(
+                        'column'  => 'formId',
                         'operand' => $object->formId)));
                 $object->items = $entries;
         }
@@ -115,12 +128,18 @@ class Application_Model_ObjectsManager {
      * @param array() $filter
      * @return array of objects
      */
-    public function getAllObjects($objectName = null, $filter = array()) {
+    public function getAllObjects($objectName = null, $filter = array(
+))
+    {
         $this->setClassAndTableName($objectName);
-        $domainFilter = array(0=>array('column'=>'domainId', 'operand'=>$this->domainId));
+        $domainFilter = array(
+            0 => array(
+                'column'  => 'domainId',
+                'operand' => $this->domainId));
         $filter = array_merge($domainFilter, $filter);
         $objectArrays = $this->dataMapper->getData($this->tableName, $filter);
-        $objects = array();
+        $objects = array(
+);
         if (!empty($objectArrays)) {
             foreach ($objectArrays as $objectArray) {
                 $objects[] = new $this->className($objectArray);
@@ -130,9 +149,12 @@ class Application_Model_ObjectsManager {
             case 'scenario':
                 if (!empty($objects)) {
                     for ($i = 0; $i < count($objects); $i++) {
-                        $objects[$i]->entries = $this->getAllObjects('scenarioEntry', array(0 => array('column' => 'domainId',
+                        $objects[$i]->entries = $this->getAllObjects('scenarioEntry', array(
+                            0 => array(
+                                'column'  => 'domainId',
                                 'operand' => $objects[$i]->domainId),
-                            1 => array('column' => 'scenarioId',
+                            1 => array(
+                                'column'  => 'scenarioId',
                                 'operand' => $objects[$i]->scenarioId)
                                 )
                         );
@@ -141,9 +163,12 @@ class Application_Model_ObjectsManager {
                 break;
             case 'form': if (!empty($objects)) {
                     for ($i = 0; $i < count($objects); $i++) {
-                        $objects[$i]->items = $this->getAllObjects('item', array(0 => array('column' => 'domainId',
+                        $objects[$i]->items = $this->getAllObjects('item', array(
+                            0 => array(
+                                'column'  => 'domainId',
                                 'operand' => $objects[$i]->domainId),
-                            1 => array('column' => 'formId',
+                            1 => array(
+                                'column'  => 'formId',
                                 'operand' => $objects[$i]->formId)
                                 )
                         );
@@ -163,7 +188,8 @@ class Application_Model_ObjectsManager {
      * $inputData - array() or JSON string or Object  of parameters passed from the web. Every array should contain 
      *              objectType item that actualy describes what kind of object we are dealing with.
      */
-    public function saveObject($inputData) {
+    public function saveObject($inputData)
+    {
         if (!is_array($inputData) && !is_object($inputData) && !is_object(json_decode($inputData))) {
             throw new InvalidArgumentException('Input data should be array or JSON or Object for saveObject method');
         }
@@ -215,7 +241,9 @@ class Application_Model_ObjectsManager {
         if (isset($entries)) {
             $this->setClassAndTableName($entries[0]);
             // Delete old included objects first
-            $old = $this->getAllObjects($this->objectName, array(0 => array('column' => $mainObjectIdName,
+            $old = $this->getAllObjects($this->objectName, array(
+                0 => array(
+                    'column'  => $mainObjectIdName,
                     'operand' => $mainObjectId)));
             if (!empty($old)) {
                 foreach ($old as $item) {
@@ -231,7 +259,8 @@ class Application_Model_ObjectsManager {
         return $mainObjectId;
     }
 
-    public function ChangeUserPassword($user) {
+    public function ChangeUserPassword($user)
+    {
         
     }
 
@@ -242,35 +271,54 @@ class Application_Model_ObjectsManager {
      * @param Application_Model_User $user
      * @return string
      */
-    public function getUserGroupRole(Application_Model_User $user) {
-        $userGroups = $this->getAllObjects('UserGroup', array(0 => array('column' => 'userId', 'operand' => $user->userId)));
+    public function getUserGroupRole(Application_Model_User $user)
+    {
+        $userGroups = $this->getAllObjects('UserGroup', array(
+            0 => array(
+                'column'  => 'userId',
+                'operand' => $user->userId)));
         if (!empty($userGroups[0])) {
             return $userGroups[0]->role;
         }
         return '';
     }
 
-    public function grantPrivilege($privilege) {
+    public function grantPrivilege($privilege)
+    {
         $this->setClassAndTableName($privilege);
         $id = $this->dataMapper->checkObjectExistance($this->tableName, $privilege->toArray());
         if ($id) {
             // This privilege is already granted
-            return array('error' => 0, 'message' => 'This privilege is already granted', 'code' => 200);
+            return array(
+                'error'   => 0,
+                'message' => 'This privilege is already granted',
+                'code'    => 200);
         }
         // Save new privilege
         $id = $this->saveObject($privilege);
-        return array('error' => 0, 'message' => 'Privilege granted', 'recordId' => $id, 'code' => 200);
+        return array(
+            'error'    => 0,
+            'message'  => 'Privilege granted',
+            'recordId' => $id,
+            'code'     => 200);
     }
 
-    public function revokePrivilege($privilege) {
+    public function revokePrivilege($privilege)
+    {
         $id = $this->dataMapper->checkObjectExistance('privilege', $privilege->toArray());
         if ($id) {
             // This privilege is already granted
             $this->deleteObject('Privilege', $id);
-            return array('error' => 0, 'message' => 'Privilege revoked', 'code' => 200);
+            return array(
+                'error'   => 0,
+                'message' => 'Privilege revoked',
+                'code'    => 200);
         }
         // This privilege doesnt exist already
-        return array('error' => 0, 'mesage' => 'Was already deleted', 'code' => 200);
+        return array(
+            'error'  => 0,
+            'mesage' => 'Was already deleted',
+            'code'   => 200);
     }
 
     /**
@@ -280,9 +328,13 @@ class Application_Model_ObjectsManager {
      * @return type
      * 
      */
-    public function getPrivilegesTable($userId) {
+    public function getPrivilegesTable($userId)
+    {
         // Start with selecting topmost nodes (that are not dependent)
-        $nodes = $this->getAllObjects('Node', array(0 => array('column' => 'parentNodeId', 'operand' => -1)));
+        $nodes = $this->getAllObjects('Node', array(
+            0 => array(
+                'column'  => 'parentNodeId',
+                'operand' => -1)));
         $output = '<div id="listContainer">' . PHP_EOL;
         foreach ($nodes as $node) {
             $output .= '<ul id="expList_' . $node->nodeId . '">' . $this->recursiveHTMLFormer($node, $userId) . '</ul>' . PHP_EOL;
@@ -296,19 +348,29 @@ class Application_Model_ObjectsManager {
      * @param type $userId
      * @return string
      */
-    public function recursiveHTMLFormer($node, $userId) {
+    public function recursiveHTMLFormer($node, $userId)
+    {
         $result = '';
         // Trying to get nodes that are dependent on $node
-        $nodes = $this->getAllObjects('Node', array(0 => array('column' => 'parentNodeId',
+        $nodes = $this->getAllObjects('Node', array(
+            0 => array(
+                'column'  => 'parentNodeId',
                 'operand' => $node->nodeId)));
         // Trying to get user's privileges for this $node
-        $privileges = $this->getAllObjects('Privilege', array(0 => array('column' => 'userId',
+        $privileges = $this->getAllObjects('Privilege', array(
+            0 => array(
+                'column'  => 'userId',
                 'operand' => $userId),
-            1 => array('column' => 'objectType',
+            1 => array(
+                'column'  => 'objectType',
                 'operand' => 'node'),
-            2 => array('column' => 'objectId',
+            2 => array(
+                'column'  => 'objectId',
                 'operand' => $node->nodeId)));
-        $check = array('read' => null, 'write' => null, 'approve' => null);
+        $check = array(
+            'read'    => null,
+            'write'   => null,
+            'approve' => null);
         if ($privileges) {
             foreach ($privileges as $privilege) {
                 $check[$privilege->privilege] = 'checked';
@@ -333,7 +395,8 @@ class Application_Model_ObjectsManager {
         return $result;
     }
 
-    public function deleteScenario($scenarioId) {
+    public function deleteScenario($scenarioId)
+    {
         
     }
 
@@ -342,10 +405,12 @@ class Application_Model_ObjectsManager {
      *                    to which these scenarios are assigned (if any).
      * @return type
      */
-    public function getNodesAssigned() {
+    public function getNodesAssigned()
+    {
         $scenarios = $this->dataMapper->getNodesAssigned($this->domainId);
 
-        $assignedNodes = array();
+        $assignedNodes = array(
+);
         foreach ($scenarios as $key => $scenario) {
             $assignedNodes[$scenario['scenarioId']][$key]['nodeId'] = $scenario['nodeId'];
             $assignedNodes[$scenario['scenarioId']][$key]['scenarioName'] = $scenario['scenarioName'];
@@ -354,32 +419,45 @@ class Application_Model_ObjectsManager {
         return $assignedNodes;
     }
 
-    public function setDomainId($domainId) {
+    public function setDomainId($domainId)
+    {
         $this->domainId = $domainId;
     }
 
-    public function getDomainId() {
+    public function getDomainId()
+    {
         return $this->domainId;
     }
 
-    public function checkObjectDependencies($class, $id) {
+    public function checkObjectDependencies($class, $id)
+    {
         return parent::checkParentObjects($class, $id);
     }
 
-    public function getObjectsCount($class, $filter = null) {
+    public function getObjectsCount($class, $filter = null)
+    {
         $this->setClassAndTableName($class);
-        $filter[] = array('column' => 'domainId', 'operand' => $this->domainId);
+        $filter[] = array(
+            'column'  => 'domainId',
+            'operand' => $this->domainId);
         return $this->dataMapper->getObjectsCount($this->tableName, $filter);
     }
 
-    public function deleteObject($class, $id) {
+    public function deleteObject($class, $id)
+    {
         $this->setClassAndTableName($class);
         switch ($this->tableName) {
             case 'form':
-                $entries = $this->getAllObjects('item', array(0 => array('column' => 'formId', 'operand' => $id)));
+                $entries = $this->getAllObjects('item', array(
+                    0 => array(
+                        'column'  => 'formId',
+                        'operand' => $id)));
                 break;
             case 'scenario':
-                $entries = $this->getAllObjects('ScenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $id)));
+                $entries = $this->getAllObjects('ScenarioEntry', array(
+                    0 => array(
+                        'column'  => 'scenarioId',
+                        'operand' => $id)));
                 break;
             default: $entries = null;
         }
@@ -389,18 +467,22 @@ class Application_Model_ObjectsManager {
                 $this->deleteObject($this->className, $entry->{$this->objectIdName});
             }
         }
+        $this->setClassAndTableName($class);
         return $this->dataMapper->deleteData($this->tableName, $id);
     }
 
-    public function createAccessFilterArray($userId) {
+    public function createAccessFilterArray($userId)
+    {
         return parent::createAccessFilterArray($userId);
     }
 
-    public function checkLoginExistance($login) {
+    public function checkLoginExistance($login)
+    {
         return $this->dataMapper->checkEmailExistance($login);
     }
 
-    public function checkUserExistance($userName) {
+    public function checkUserExistance($userName)
+    {
         return $this->dataMapper->checkUserExistance($userName);
     }
 

@@ -303,7 +303,7 @@ class ScenarioControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $this->assertController('scenario');
         $this->assertAction('edit-scenario');
-        $this->assertQuery('#entries');
+        $this->assertQuery('#counter');
         
         // We are on the edit scenario page
         // Lets edit this scenario

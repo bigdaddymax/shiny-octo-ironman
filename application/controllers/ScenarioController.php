@@ -82,7 +82,7 @@ class ScenarioController extends Zend_Controller_Action {
 
     public function deleteScenarioAction() {
         $scenarioId = $this->_request->getParam('scenarioId');
-        $this->objectsManager->deleteScenario($scenarioId);
+        $this->objectsManager->deleteObject('scenario',$scenarioId);
     }
 
     public function saveScenarioAction() {
