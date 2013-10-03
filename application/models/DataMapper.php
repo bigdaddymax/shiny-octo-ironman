@@ -22,7 +22,8 @@ require_once APPLICATION_PATH . '/models/ExceptionsMapper.php';
 
 class Application_Model_DataMapper extends BaseDBAbstract {
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -31,7 +32,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param type $tableName table | table_name
      * @return string $objectIdName tableId | tableNameId
      */
-    private function createObjectIdName($tableName) {
+    private function createObjectIdName($tableName)
+    {
         if (strpos($tableName, '_')) {
             return substr($tableName, 0, strpos($tableName, '_')) . ucfirst(substr($tableName, strpos($tableName, '_') + 1)) . 'Id';
         } else {
@@ -46,10 +48,12 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param array $data Data to be saved
      * @return int ID of saved object
      */
-    public function saveData($tableName, $data) {
+    public function saveData($tableName, $data)
+    {
         $objectIdName = $this->createObjectIdName($tableName);
         if (array_key_exists($objectIdName, $data) && !empty($data[$objectIdName])) {
-            $this->dbLink->update($tableName, $data, array($objectIdName . ' = ?' => $data[$objectIdName]));
+            $this->dbLink->update($tableName, $data, array(
+                $objectIdName . ' = ?' => $data[$objectIdName]));
             return $data[$objectIdName];
         }
         $this->dbLink->insert($tableName, $data);
@@ -63,7 +67,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @return array
      * @throws InvalidArgumentException
      */
-    public function getData($tableName, $filter) {
+    public function getData($tableName, $filter)
+    {
         $filterString = $this->prepareFilter($filter);
         $objectArray = $this->dbLink->fetchAll('SELECT * FROM ' .
                 $tableName . $filterString);
@@ -76,7 +81,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @data array | int Either array of values that we will look for in table or particular ID
      * @return true if record exists, false otherwise. If ID is not supplied we will look for 100% equivalent of $data and row data.
      */
-    public function checkObjectExistance($tableName, $data) {
+    public function checkObjectExistance($tableName, $data)
+    {
         $objectIdName = $this->createObjectIdName($tableName);
         if (is_array($data)) {
             $id = (!empty($data[$objectIdName])) ? $data[$objectIdName] : NULL;
@@ -119,7 +125,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @return string
      * @throws InvalidArgumentException
      */
-    protected function prepareFilter($filterArray) {
+    protected function prepareFilter($filterArray)
+    {
 //        $result = $this->dbLink->quoteinto(' WHERE domainId = ? ', $this->domainId);
         $result = ' WHERE 1=1 ';
         $limit = '';
@@ -149,10 +156,17 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                         } else {
                             $condition = $filterElement['condition'];
                         }
+
+                        if ($filterElement['operand'] instanceof Zend_Db_Expr) {
+                            $operand = $filterElement['operand'];
+                        } else {
+                            $operand = $this->dbLink->quoteinto('?', $filterElement['operand']);
+                        }
+
                         $result .= $condition .
                                 ' ' . $filterElement['column'] . ' ' .
                                 $comp . ' ' .
-                                $this->dbLink->quoteinto('?', $filterElement['operand']) .
+                                $operand .
                                 ' ';
                     }
                 } else {
@@ -164,17 +178,18 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                 }
             }
         }
-
         return $result . $limit . $order;
     }
 
-    public function deleteData($tableName, $id) {
+    public function deleteData($tableName, $id)
+    {
         $objecIdName = $this->createObjectIdName($tableName);
         if ($this->checkParentObjects($tableName, $id)) {
             throw new DependantObjectDeletionAttempt();
         }
         try {
-            $this->dbLink->delete($tableName, array($objecIdName . '=?' => $id));
+            return $this->dbLink->delete($tableName, array(
+                $objecIdName . '=?' => $id));
         } catch (Zend_Db_Exception $e) {
             throw new DependantObjectDeletionAttempt($e->getMessage(), $e->getCode(), $e);
         }
@@ -186,7 +201,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param type $filter
      * @return integer
      */
-    public function getObjectsCount($tableName, $filterArray = null) {
+    public function getObjectsCount($tableName, $filterArray = null)
+    {
         $objectId = $this->createObjectIdName($tableName);
         $filter = $this->prepareFilter($filterArray);
         return $this->dbLink->fetchOne('SELECT count(' . $objectId . ') FROM ' . $tableName . $filter);
@@ -197,7 +213,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      *                    to which these scenarios are assigned (if any).
      * @return type
      */
-    public function getNodesAssigned($domainId) {
+    public function getNodesAssigned($domainId)
+    {
 
         return $this->dbLink->fetchAll($this->dbLink->quoteinto('SELECT s.scenarioId, s.scenarioName, n.nodeId, n.nodeName
                                         FROM scenario s 
@@ -205,7 +222,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                                         LEFT JOIN node n ON n.nodeId = a.nodeId WHERE n.domainId = ?', $domainId));
     }
 
-    protected function checkLoginExistance($login) {
+    protected function checkLoginExistance($login)
+    {
         $user = $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT * FROM user WHERE login = ?', $login));
         return (!empty($user));
     }
@@ -215,7 +233,8 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param type $formId
      * @return array 
      */
-    public function getApprovalStatus($formId) {
+    public function getApprovalStatus($formId)
+    {
         return $this->dbLink->fetchAll($this->dbLink->quoteinto('select 
                                                 ss.userId, ae.decision, ss.formId, ss.userName, ss.login, ss.orderPos,ae.date
                                             from
@@ -231,14 +250,18 @@ class Application_Model_DataMapper extends BaseDBAbstract {
                                                 approval_entry ae ON ss.userId = ae.userId and ss.formId=ae.formId where ss.formId=? AND ss.privilege="approve" ORDER BY ss.orderPos DESC', $formId));
     }
 
-    protected function getScenario($scenarioId) {
+    protected function getScenario($scenarioId)
+    {
         $scenarioId = (int) $scenarioId;
         if (empty($scenarioId)) {
             throw new InvalidArgumentException('Invalid argumment. $scenarioId should be integer');
         }
         $this->setClassAndTableName('scenario');
         $scenario = $this->_getObject($scenarioId);
-        $entries = $this->getAllObjects('scenarioEntry', array(0 => array('column' => 'scenarioId', 'operand' => $scenarioId)));
+        $entries = $this->getAllObjects('scenarioEntry', array(
+            0 => array(
+                'column'  => 'scenarioId',
+                'operand' => $scenarioId)));
         $scenario->entries = $entries;
         if ($scenario->isValid()) {
             return $scenario;
@@ -247,11 +270,15 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         }
     }
 
-    protected function getAllScenarios($filter = null) {
-        $result = array();
+    protected function getAllScenarios($filter = null)
+    {
+        $result = array(
+);
         $scenarios = $this->dbLink->fetchAll('SELECT * FROM scenario ' . $this->prepareFilter($filter));
         foreach ($scenarios as $scenario) {
-            $entries = $this->getAllObjects('ScenarioEntry', array(0 => array('column' => 'scenarioId',
+            $entries = $this->getAllObjects('ScenarioEntry', array(
+                0 => array(
+                    'column'  => 'scenarioId',
                     'operand' => $scenario['scenarioId'])));
             $scenario['entries'] = $entries;
             $scenario = new Application_Model_Scenario($scenario);
@@ -260,11 +287,13 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         return $result;
     }
 
-    public function getFormOwner($formId) {
+    public function getFormOwner($formId)
+    {
         return $this->dbLink->fetchRow($this->dbLink->quoteinto('SELECT userId FROM form WHERE formId = ?', $formId));
     }
 
-    public function getNumberOfPages($tableName, $filterArray, $recordsPerPage) {
+    public function getNumberOfPages($tableName, $filterArray, $recordsPerPage)
+    {
         $filter = $this->prepareFilter($filterArray);
         $objectIdName = $this->createObjectIdName($tableName);
         $count = $this->dbLink->fetchOne('SELECT count(' . $objectIdName . ') FROM ' . $tableName . ' ' . $filter);
@@ -283,11 +312,15 @@ class Application_Model_DataMapper extends BaseDBAbstract {
      * @param integer $id
      * @return true | false Result of check
      */
-    protected function checkParentObjects($tableName, $id) {
+    protected function checkParentObjects($tableName, $id)
+    {
         $objectIdName = $this->createObjectIdName($tableName);
         $columns = $this->dbLink->fetchOne($this->dbLink->quoteinto('SHOW COLUMNS FROM ' . $tableName . ' WHERE field LIKE ?', 'parent' . $objectIdName));
         if ($columns) {
-            $objects = $this->getData($tableName, array(0 => array('column' => 'parent' . $objectIdName, 'operand' => $id)));
+            $objects = $this->getData($tableName, array(
+                0 => array(
+                    'column'  => 'parent' . $objectIdName,
+                    'operand' => $id)));
             if (!empty($objects)) {
                 return true;
             }
@@ -295,11 +328,13 @@ class Application_Model_DataMapper extends BaseDBAbstract {
         return false;
     }
 
-    public function checkUserExistance($userName) {
+    public function checkUserExistance($userName)
+    {
         return (int) $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT userId FROM user WHERE username=?', $userName));
     }
 
-    public function checkEmailExistance($email) {
+    public function checkEmailExistance($email)
+    {
         return (int) $this->dbLink->fetchOne($this->dbLink->quoteinto('SELECT userId FROM user WHERE login=?', $email));
     }
 

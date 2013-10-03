@@ -79,7 +79,7 @@ class AuthControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setPost($user);
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $response = $this->getResponse();
-        echo $response->outputBody();
+//        echo $response->outputBody();
         $session = new Zend_Session_Namespace('Auth');
         $this->assertTrue((bool)$session->auth);
     }

@@ -341,8 +341,9 @@ class FormControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         
         // Check JSON response
         $response = $this->getResponse();
- //       echo ($response->outputBody());
+//        echo ($response->outputBody());
         $response = json_decode($response->outputBody());
+//        Zend_Debug::dump($response);
         $this->assertEquals($response->error, 0);
         
         // Get form from DB manually

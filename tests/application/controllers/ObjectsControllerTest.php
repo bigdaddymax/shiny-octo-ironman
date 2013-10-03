@@ -144,7 +144,6 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $params1 = array('controller' => 'objects', 'action' => 'open-object',
             'objectType' => 'element', 'elementId' => $elements[0]->elementId, 'expgroup' => 'OPEX');
         $this->dispatch($this->url($this->urlizeOptions($params1)));
-        $response = $this->getResponse();
         $this->assertController($params1['controller']);
         $this->assertAction($params1['action']);
     }
@@ -250,8 +249,8 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setMethod('post');
         $this->request->setPost($objectArray2);
         $this->dispatch($this->url($this->urlizeOptions($params2)));
-        $response = $this->getResponse();
-        echo $response->outputBody();
+ //       $response = $this->getResponse();
+//        echo $response->outputBody();
 
         $nodes2 = $objectManager->getAllObjects('Node');
         $this->assertEquals($countNodes + 2, count($nodes2));
@@ -432,7 +431,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setPost($formArray);
         $this->dispatch($this->url($this->urlizeOptions($params)));
         $response = $this->getResponse();
-        echo $response->outputBody();
+ //       echo $response->outputBody();
         $this->assertController('objects');
 //        $this->assertAction('add-object');
         $nodeEdited = $objectManager->getObject('node', $nodeId);
@@ -544,7 +543,7 @@ class ObjectsControllerTest extends Zend_Test_PHPUnit_ControllerTestCase {
         $this->request->setPost($privArray);
         $this->dispatch($this->url(array('controller' => 'privilege', 'action' => 'edit-privileges')));
         $response = $this->getResponse();
-        echo $response->outputBody();
+//        echo $response->outputBody();
         $response = json_decode($response->outputBody());
 
         $this->assertEquals($response->error, 0);
