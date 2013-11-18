@@ -69,8 +69,8 @@ foreach ($this->users as $user) {
                         }
 </script>
 <div id="main"></div>
-   <button class="btn btn-primary" onClick="javascript:window.location.replace('<?php echo $this->url(array('controller' => 'scenario', 'action' => 'add-scenario')); ?>')"><?php echo $this->translate('add new scenario'); ?></button>
 <div class="object-list">
+   <button class="btn btn-primary" onClick="javascript:window.location.replace('<?php echo $this->url(array('controller' => 'scenario', 'action' => 'add-scenario')); ?>')"><?php echo $this->translate('add new scenario'); ?></button>
     <?php
     echo $this->partial('partials/scenario/list.phtml', array('scenarios' => $this->scenarios, 'assignments' => $this->assignments));
     ?>
